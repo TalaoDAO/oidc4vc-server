@@ -199,8 +199,10 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
                     "op_verifier_qrcode_2.html" : "Style 2",
                     "op_verifier_qrcode_3.html" : "Style 3",
-                    "op_verifier_qrcode_4.html" : "Altme",
+                    "op_verifier_qrcode_4.html" : "Altme style",
                     "op_verifier_qrcode_5.html" : "Style 2 with counter",
+                    "op_verifier_qrcode_6.html" : "Style 2 with html",
+                    "op_verifier_qrcode_7.html" : "Altme style with html",
                      "arago_verifier_qrcode.html" : "Arago Style"
                 }
 
