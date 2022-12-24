@@ -1,8 +1,8 @@
 {
 	"@context": [ "https://www.w3.org/2018/credentials/v1", 
 		{
-			"TezosAssociatedAddress" : {
-				"@id" : "https://github.com/TalaoDAO/context#tezosassociatedaddress",
+			"BinanceAssociatedAddress" : {
+				"@id" : "https://github.com/TalaoDAO/context#binanceassociatedaddress",
 				"@context" : {
 					"@version": 1.1,
 					"@protected": true,
@@ -29,14 +29,14 @@
 	"id" : "urn:uuid:xxxxxxxx",
 	"type": [
         		"VerifiableCredential",
-           		"TezosAssociatedAddress"
+           		"BinanceAssociatedAddress"
 	],
-	"issuer" : "did:key:xxxxxxxxxxxxxxxxxx",
+	"issuer" : "did:key:crypto_wallet",
 	"credentialSubject" : {
-       		"id" : "did:key:xxxxxxxxxxxxxxxx",
-       		"type" : "TezosAssociatedAddress",
+       		"id" : "did:key:wallet AltMe",
+       		"type" : "BinanceAssociatedAddress",
           	"associatedAddress" : "",
 		    "accountName" : "",
-			"issuedBy" : {"name" : "My wallet"}
+			"issuedBy" : {"name" : ""}
 	}
 }

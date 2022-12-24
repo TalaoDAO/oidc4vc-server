@@ -367,7 +367,7 @@ client_data_pattern = {
                 "contact_name" : "",
                 "secret" : "", # static or OTP
                 "landing_page_url" : "https://talao.io",
-                "privacy_url" : "https://talao.co/md_file?file=privacy",
-                "terms_url" : "https://talao.co/md_file?file=terms_and_conditions", 
+                "privacy_url" : "https://altme.io/privacy",
+                "terms_url" : "https://altme.io/cgu", 
                 "title" : "Get it !" # QR code title
                 }

@@ -70,9 +70,7 @@ def default_webhook() :
      return jsonify ('ok')
 
 def saas_home():
-    if request.args.get('pricing') == 'on' :
-        session['pricing'] = True
-    return render_template("home.html")
+    return render_template("verifier.html")
 
 
 def credentials():

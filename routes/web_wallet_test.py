@@ -139,7 +139,7 @@ def test_direct_offer(red, mode) :
         cm = request.args.get("cm", "1")
     except :
         return jsonify("Request malformed"), 400
-    print(VC_filename)
+    logging.info("filename = %s",VC_filename)
     try :
         credential = credential_from_filename("test/CredentialOffer2", VC_filename)
     except :
@@ -204,7 +204,6 @@ def test_direct_offer(red, mode) :
         credentialOffer['credential_manifest'] = json.loads(credential_manifest)
         del credentialOffer['shareLink']
         del credentialOffer['display']    
-        print(credential_manifest)
     
     elif VC_filename == "AragoPass.jsonld" :
         filename = "./credential_manifest/AragoPass_credential_manifest.json"
