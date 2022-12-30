@@ -21,6 +21,7 @@ def init_app(app,red, mode) :
     
     app.add_url_rule('/sandbox/saas4ssi/beacon',  view_func=saas_beacon, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/beacon/verifier',  view_func=saas_beacon_verifier, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/ebsi/verifier',  view_func=saas_ebsi_verifier, methods = ['GET', 'POST'])
 
 
     app.add_url_rule('/sandbox/saas4ssi/tezid/verifier',  view_func=saas_tezid_verifier, methods = ['GET', 'POST'])
@@ -226,6 +227,10 @@ def saas_beacon_verifier() :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/beacon/verifier/console/select')
 
+def saas_ebsi_verifier() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    return redirect ('/sandbox/ebsi/verifier/console/select')
 
 def saas_tezid_verifier() :
     if not session.get('is_connected') or not session.get('login_name') :

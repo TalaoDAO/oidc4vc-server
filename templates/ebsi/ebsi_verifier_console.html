@@ -4,12 +4,12 @@
 <head>
   {% include 'head.html' %}
 </head>
-
+<!-- ebsi_verifier_console.html-->
 <body id="page-top">
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper">
       <div id="content">
-        {% include "verifier_nav_bar.html" %}
+        {% include "ebsi/ebsi_verifier_nav_bar.html" %}
 
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
@@ -19,12 +19,12 @@
             <div class="col-lg-10 offset-lg-1 ">
 
           
-                  <form action="/sandbox/op/console" method="POST">
+                  <form action="/sandbox/ebsi/verifier/console" method="POST">
 
                   <div class="card shadow my-5">
                     <div class="card-header py-3">
                       <div class="d-flex justify-content-between">
-                        <p style="color:#09060f;" class=" m-0 font-weight-bold">Generate a verifier for application</p>
+                        <p style="color:#09060f;" class=" m-0 font-weight-bold">Generate a verifier for an EBSI application</p>
                       
                       </div>
                     </div>
@@ -369,6 +369,8 @@
 
           </div>
 
+
+
           </div>
           </div>
            </div>
@@ -382,36 +384,19 @@
                             </div>
                             <div class="card-body">
 
-                              <div class="form-row mb-3">
-                              <div class="col">
-                                <div class="form-check">
-                                  <input class="form-check-input" type="checkbox" {{standalone}} name="standalone" id="flexCheckDefault">
-                                  <label class="form-check-label" for="flexCheckDefault">Data transfered to application.
-                                     <br>If <strong>checked</strong> application receives the main verifiable credential data as an attribute in the id token and the full verifiable presentation on the user_info endpoint.
-                                     <br>If <strong>unchecked</strong>, application receives an id token with DID as proof of a successful verification of the verifiable presentation.</label>
-                                </div>
-                              </div> 
-                              </div>
-
                               
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 1 type</strong></label><select name="vc_1" class="form-control">
+                                <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc_1" class="form-control">
                                   {{vc_select_1|safe}}  
                                   </select></div>
 
                           </div>  
-                          <div class="col">
-                            <div class="form-group"><label><strong>If credential 1 is a Pass : Issuer Id</strong><br></label><input class="form-control" type="text" name="vc_issuer_id" value="{{vc_issuer_id}}"></div>
-                          </div>
-                         
-
-                          </div>
-                          <div class="form-row">
+                        
 
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 2 type</strong></label><select name="vc_2" class="form-control">
+                                <div class="form-group"><label><strong>Credential 2</strong></label><select name="vc_2" class="form-control">
                                   {{vc_select_2|safe}}  
                                   </select></div>
                             </div>      

@@ -33,25 +33,28 @@ method_list = {
 # for verifier admin
 credential_list = {
                     'Pass' : 'Pass',
-                    'GamerPass' : 'Gamer Pass',
                     'EmailPass' : 'Proof of email',
                     'PhoneProof' : 'Proof of phone',
                     'AgeRange' : 'Age range',
                     'Nationality' : 'Nationality',
                     'Gender' : 'Gender',
                     'IdCard' : 'Identity card',
+                    'VerifiableId' : 'EBSI Verifiable ID',
                     'Over18' : 'Over 18',
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',
-                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
+                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
+                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
+                    'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
+                    "BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
+                    "FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
+                    "DeviceInfo" : "Device info",
                     'Tez_Voucher_1' : "Voucher Tezotopia",
-                    'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
+                    'VerifiableDiploma' : 'EBSI Verifiable Diploma',
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'Student card',
                     'AragoPass' : 'Arago Pass',
                     'InfrachainPass' : 'Infrachain Pass',
-                    'CertificateOfEmployment' : 'Certificate of employment',
-                    'VotersCard' : 'Voter card',
                     'TalaoCommunity' : 'Talao Community card',
                     'DID' : "None",
                     'ANY' : 'Any'
@@ -60,9 +63,12 @@ credential_list = {
 # for verifier  guest
 credential_list_for_guest = {
                     'Pass' : 'Pass',
-                    'GamerPass' : 'Gamer Pass',
-                    "TezosAssociatedAddress" : "Proof of Tezos blockchain account",
-                    "EthereumAssociatedAddress" : "Proof of Ethereum blockchain account",
+                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
+                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
+                    'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
+                    #"BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
+                    #"FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
+                    'DeviceInfo' : 'Device info',
                     'EmailPass' : 'Proof of email',
                     'PassportNumber' : 'Passport footprint',
                     'PhoneProof' : 'Proof of phone',
@@ -70,13 +76,21 @@ credential_list_for_guest = {
                     'Nationality' : 'Nationality',
                     'Gender' : 'Gender',
                     'IdCard' : 'Identity card',
-                    'Over18' : 'Over 18',
-                    'Over13' : 'Over 13',
+                    'VerifiableId' : 'EBSI Verifiable ID',
+                    'Over18' : 'Age Over 18',
+                    'Over13' : 'Age Over 13',
                     'AragoPass' : 'Arago Pass',
                     'InfrachainPass' : 'Infrachain Pass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
+
+
+ebsi_verifier_credential_list = {
+    "DID" : "None",
+    "https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv" : "EBSI Natural Person Verifiable ID"
+}
+
 
 # for beacon verifier for guest
 beacon_verifier_credential_list = {
@@ -100,7 +114,7 @@ beacon_verifier_credential_list = {
                     'DID' : 'None',
                     'ANY' : 'Any'
                 }
-
+"""
 # for tezid verifier for guest
 tezid_verifier_credential_list = {
                     'Pass' : 'Pass',
@@ -123,7 +137,7 @@ tezid_verifier_credential_list = {
                     'DID' : 'None'
                     #'ANY' : 'Any'
                 }
-
+"""
 
 # issuer
 credential_to_issue_list = {
@@ -198,12 +212,13 @@ landing_page_style_list = {
 verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
                     "op_verifier_qrcode_2.html" : "Style 2",
+                    "op_ebsi_verifier_qrcode_2.html" : "Large QRcode (EBSI)",
                     "op_verifier_qrcode_3.html" : "Style 3",
-                    "op_verifier_qrcode_4.html" : "Altme style",
+                    "op_verifier_qrcode_4.html" : "Altme landing page",
                     "op_verifier_qrcode_5.html" : "Style 2 with counter",
                     "op_verifier_qrcode_6.html" : "Style 2 with html",
                     "op_verifier_qrcode_7.html" : "Altme style with html",
-                     "arago_verifier_qrcode.html" : "Arago Style"
+                    "arago_verifier_qrcode.html" : "Arago landing page"
                 }
 
 
@@ -371,3 +386,48 @@ client_data_pattern = {
                 "terms_url" : "https://altme.io/cgu", 
                 "title" : "Get it !" # QR code title
                 }
+
+ebsi_verifier_claims = {
+    "id_token":{
+        "email": None
+    },
+    "vp_token":{
+        "presentation_definition": {
+            "id":"",
+            "input_descriptors":[
+                {
+                    "id":"",
+                    "name":"",
+                    "purpose":"",
+                    "constraints":{
+                        "fields":[
+                            {
+                                "path":["$.vc.credentialSchema"],
+                                "filter":{
+                                    "allOf":[
+                                        {
+                                            "type":"array",
+                                            "contains":{
+                                                "type":"object",
+                                                "properties":{
+                                                    "id":{
+                                                        "type":"string",
+                                                        "pattern":""
+                                                    }
+                                                },
+                                                "required":["id"]
+                                            }
+                                        }
+                                    ]
+                                }
+                            }
+                        ]
+                    }
+                }
+            ],
+            "format":{
+                "jwt_vp":{"alg":["ES256K"]}
+            }
+        }
+    }
+}

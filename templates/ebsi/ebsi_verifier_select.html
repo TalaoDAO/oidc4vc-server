@@ -10,7 +10,7 @@
     <div class="d-flex flex-column" id="content-wrapper">
      
       <div id="content">
-        {% include 'verifier_nav_bar.html' %}
+        {% include 'ebsi/ebsi_verifier_nav_bar.html' %}
 
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
@@ -28,7 +28,7 @@
                       </div>
                     </div>
                     <div class="card-body">
-                      <form action="/sandbox/op/console/select" method="POST">
+                      <form action="/sandbox/op/beacon/verifier/console/select" method="POST">
 
                        
                         <div class="form-row">
@@ -41,12 +41,11 @@
                                           <th style="width: 15%" >Application Name</th>
                                           <th style="width: 5%" >Act.</th>
                                           <th style="width: 10%" >User</th>
-                                          <th style="width: 10%">Credential 1</th>  
-                                          <th style="width: 10%">Credential 2</th>
-                                          <th style="width: 5%">Data transf.</th>
-                                          <th style="width: 15%" >Callback URL</th>
+                                          <th style="width: 15%">Credential 1</th>
+                                          <th style="width: 15%">Credential 2</th>
+                                          <th style="width: 10%" >Callback</th>
                                           <th style="width: 10%">Client Id</th>
-                                          <th style="width: 20%">Client Secret</th>
+                                          <th style="width: 15%">Client Secret</th>
                                          
                                          
                                       </tr>

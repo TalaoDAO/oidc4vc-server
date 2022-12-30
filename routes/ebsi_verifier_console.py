@@ -8,83 +8,84 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_list, credential_list_for_guest, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
+from op_constante import ebsi_verifier_credential_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
 
 did_selected = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/console/logout',  view_func=console_logout, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/op/console',  view_func=console, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/console/select',  view_func=select, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/console/preview',  view_func=preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
-    app.add_url_rule('/sandbox/op/console/activity',  view_func=activity, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/verifier/console/logout',  view_func=ebsi_verifier_console_logout, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/verifier/console',  view_func=ebsi_verifier_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/verifier/console/select',  view_func=ebsi_verifier_console_select, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/verifier/console/preview',  view_func=ebsi_verifier_console_preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
+    app.add_url_rule('/sandbox/ebsi/verifier/console/activity',  view_func=ebsi_verifier_console_activity, methods = ['GET', 'POST'])
 
-    app.add_url_rule('/sandbox/preview_presentation/<stream_id>',  view_func=preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/ebsi/verifier/preview_presentation/<stream_id>',  view_func=ebsi_verifier_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
 
       # nav bar option
-    app.add_url_rule('/sandbox/op/verifier/nav/logout',  view_func=verifier_nav_logout, methods = ['GET'])
-    app.add_url_rule('/sandbox/op/verifier/nav/create',  view_func=verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/verifier/nav/logout',  view_func=ebsi_verifier_nav_logout, methods = ['GET'])
+    app.add_url_rule('/sandbox/ebsi/verifier/nav/create',  view_func=ebsi_verifier_nav_create, methods = ['GET'], defaults= {'mode' : mode})
     return
 
       
-def verifier_nav_logout() :
+def ebsi_verifier_nav_logout() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     session.clear()
     return redirect ('/sandbox/saas4ssi')
-def verifier_nav_create(mode) :
+
+
+def ebsi_verifier_nav_create(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
+    return redirect('/sandbox/ebsi/verifier/console?client_id=' + db_api.create_ebsi_verifier(mode, user=session['login_name']))
 
  
-def console_logout():
+def ebsi_verifier_console_logout():
     if session.get('is_connected') :
         session.clear()
     return redirect('/sandbox/saas4ssi')
 
 
-def select(mode) :
+def ebsi_verifier_console_select(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-
     if request.method == 'GET' :  
-        my_list = db_api.list_verifier()
+        my_list = db_api.list_ebsi_verifier()
+        print("my list = ", my_list)
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)
             client_id = data_dict['client_id']
             act = len(activity_db_api.list(client_id))   
-            standalone = "off" if data_dict.get('standalone') in [None, False]  else "on" 
             try :
                 if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                     verifier = """<tr>
                         <td>""" + data_dict.get('application_name', "") + """</td>
                         <td>""" + str(act) + """</td>
                         <td>""" + data_dict['user'] + """</td>
-                        <td>""" + credential_list[data_dict['vc']] + """</td>
-                         <td>""" + credential_list[data_dict['vc_2']] + """</td>
-                         <td>""" + standalone + """</td>                       
+                        <td>""" + ebsi_verifier_credential_list.get(data_dict['vc'], "unknown") + """</td>
+                        <td>""" + ebsi_verifier_credential_list.get(data_dict['vc_2'], "unknown") + """</td>
                         <td>""" + data_dict['callback'] + """</td>
-                        <td><a href=/sandbox/op/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                        <td><a href=/sandbox/ebsi/verifier/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + data_dict['client_secret'] + """</td>
                     </tr>"""
                     verifier_list += verifier
             except :
                 pass
-        return render_template('verifier_select.html', verifier_list=verifier_list, login_name=session['login_name']) 
+        return render_template('ebsi/ebsi_verifier_select.html', verifier_list=verifier_list, login_name=session['login_name']) 
     else :
         if request.form['button'] == "new" :
-            return redirect('/sandbox/op/console?client_id=' + db_api.create_verifier(mode, user=session['login_name']))
+            return redirect('/sandbox/ebsi/verifier/console?client_id=' + db_api.create_ebsi_verifier(mode, user=session['login_name']))
         elif request.form['button'] == "logout" :
             session.clear()
             return redirect ('/sandbox/saas4ssi')
         elif request.form['button'] == "home" :
             return render_template("menu.html", login_name=session["login_name"])
 
-def activity() :
+
+def ebsi_verifier_console_activity() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
 
@@ -98,23 +99,23 @@ def activity() :
             activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
                      <td>""" + data_dict.get('user', "Unknown") + """</td>
-                    <td>""" + credential_list.get(data_dict['credential_1'], "None") + """</td>
-                    <td>""" + credential_list.get(data_dict['credential_2'], "None") + """</td>
+                    <td>""" + ebsi_verifier_credential_list.get(data_dict['credential_1'], "None") + """</td>
+                    <td>""" + ebsi_verifier_credential_list.get(data_dict['credential_2'], "None") + """</td>
                     <td>""" + status + """</td>
                     </tr>"""
             activity_list += activity
-        return render_template('verifier_activity.html', activity=activity_list) 
+        return render_template('ebsi/ebsi_verifier_activity.html', activity=activity_list) 
     else :
-        return redirect('/sandbox/op/console?client_id=' + session['client_data']['client_id'])
+        return redirect('/sandbox/ebsi/verifier/console?client_id=' + session['client_data']['client_id'])
      
 
-def preview (red, mode) :
+def ebsi_verifier_console_preview (red, mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
         
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
-    verifier_data = json.loads(db_api.read_verifier(client_id))
+    verifier_data = json.loads(db_api.read_ebsi_verifier(client_id))
     qrcode_message = verifier_data.get('qrcode_message', "No message")
     mobile_message = verifier_data.get('mobile_message', "No message")
     if verifier_data['vc'] == "ANY" :
@@ -156,7 +157,8 @@ def preview (red, mode) :
                             back_button = True
                             )
     
-def preview_presentation_endpoint(stream_id, red):
+
+def ebsi_verifier_preview_presentation_endpoint(stream_id, red):
     if request.method == 'GET':
         try :
             my_pattern = json.loads(red.get(stream_id).decode())['pattern']
@@ -168,17 +170,17 @@ def preview_presentation_endpoint(stream_id, red):
         return jsonify(my_pattern)
     
 
-def console(mode) :
+def ebsi_verifier_console(mode) :
     global vc, reason
   
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
-            return redirect('/sandbox/op/console/select?user='+ session.get('login_name'))
+            return redirect('/sandbox/ebsi/verifier/console/select?user='+ session.get('login_name'))
         else  :
             session['client_id'] = request.args.get('client_id')
-        session['client_data'] = json.loads(db_api.read_verifier(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_ebsi_verifier(session['client_id']))
         
         verifier_landing_page_style_select = str()
         for key, value in verifier_landing_page_style_list.items() :
@@ -187,27 +189,23 @@ def console(mode) :
                 else :
                     verifier_landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
 
-        if session['login_name'] == "admin" :
-            c_list = credential_list
-        else :
-            c_list = credential_list_for_guest
         vc_select_1 = str()
-        for key, value in c_list.items() :
+        for key, value in ebsi_verifier_credential_list.items() :
                 if key ==   session['client_data']['vc'] :
                     vc_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     vc_select_1 +=  "<option value=" + key + ">" + value + "</option>"
         
         vc_select_2 = str()
-        for key, value in c_list.items() :
+        for key, value in ebsi_verifier_credential_list.items() :
                 if key ==   session['client_data'].get('vc_2', "DID") :
                     vc_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
-        authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
-        implicit_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
-        return render_template('verifier_console.html',
+        authorization_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
+        implicit_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
+        return render_template('ebsi/ebsi_verifier_console.html',
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
                 title = session['client_data'].get('title'),
@@ -223,7 +221,7 @@ def console(mode) :
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
                 callback= session['client_data']['callback'],
-                token=mode.server + 'sandbox/op/token',
+                token=mode.server + 'sandbox/ebsi/token',
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
@@ -231,9 +229,9 @@ def console(mode) :
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
-                authorization=mode.server + 'sandbox/op/authorize',
-                logout=mode.server + 'sandbox/op/logout',
-                userinfo=mode.server + 'sandbox/op/userinfo',
+                authorization=mode.server + 'sandbox/ebsi/authorize',
+                logout=mode.server + 'sandbox/ebsi/logout',
+                userinfo=mode.server + 'sandbox/ebsi/userinfo',
                 company_name = session['client_data']['company_name'],
                 reason = session['client_data']['reason'],
                 reason_2 = session['client_data'].get('reason_2'),
@@ -249,11 +247,11 @@ def console(mode) :
     if request.method == 'POST' :
        
         if request.form['button'] == "delete" :
-            db_api.delete_verifier( request.form['client_id'])
-            return redirect ('/sandbox/op/console')
+            db_api.delete_ebsi_verifier( request.form['client_id'])
+            return redirect ('/sandbox/ebsi/verifier/console')
 
         elif request.form['button'] == "activity" :
-            return redirect ('/sandbox/op/console/activity')
+            return redirect ('/sandbox/ebsi/verifier/console/activity')
       
         elif request.form['button'] == "update" :
             session['client_data']['note'] = request.form['note']
@@ -280,24 +278,23 @@ def console(mode) :
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['vc'] = request.form['vc_1']
-            session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
+            #session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']
             session['client_data']['user'] = request.form['user_name']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
-            db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))
-            return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
+            db_api.update_ebsi_verifier(request.form['client_id'], json.dumps(session['client_data']))
+            return redirect('/sandbox/ebsi/verifier/console?client_id=' + request.form['client_id'])
 
         elif request.form['button'] == "copy" :
-            new_client_id=  db_api.create_verifier(mode,  user=session['login_name'])
+            new_client_id=  db_api.create_ebsi_verifier(mode,  user=session['login_name'])
             new_data = copy.deepcopy(session['client_data'])
             new_data['application_name'] = new_data['application_name'] + ' (copie)'
             new_data['client_id'] = new_client_id
             new_data['user'] = session['login_name']
-            db_api.update_verifier(new_client_id, json.dumps(new_data))
-            return redirect('/sandbox/op/console?client_id=' + new_client_id)
+            db_api.update_ebsi_verifier(new_client_id, json.dumps(new_data))
+            return redirect('/sandbox/ebsi/verifier/console?client_id=' + new_client_id)
 
         elif request.form['button'] == "preview" :
-            return redirect ('/sandbox/op/console/preview')
-        
-
+            return redirect ('/sandbox/ebsi/verifier/console/preview')
+ 

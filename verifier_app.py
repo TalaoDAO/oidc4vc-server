@@ -12,14 +12,14 @@ app.config.update(
 )
 
 """
-Init OpenID Connect client PYOIDC with teh 3 bridge parameters :  client_id, client_secret and issuer URL
+Init OpenID Connect client PYOIDC with the 3 bridge parameters :  client_id, client_secret and issuer URL
 """
 client_metadata = ClientMetadata(
-    client_id='evklqavrjl',
-    client_secret= "d484141c-6a59-11ed-b89e-6722395888a2",
+    client_id='wncdcumwqc',
+    client_secret= "15822f1a-8857-11ed-8d59-838cdcf07a4a",
     post_logout_redirect_uris=['http://127.0.0.1:4000/logout']) # your post logout uri (optional)
 
-provider_config = ProviderConfiguration(issuer='http://192.168.0.66:3000/sandbox/op',
+provider_config = ProviderConfiguration(issuer='http://192.168.0.65:3000/sandbox/op',
                                         client_metadata=client_metadata)
 
 auth = OIDCAuthentication({'default': provider_config}, app)

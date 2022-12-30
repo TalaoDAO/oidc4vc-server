@@ -8,36 +8,51 @@
 					"@protected": true,
 					"id": "@id",
                     "type": "@type",
-					"schema" : "https://schema.org/",
-					"accountName" :  "schema:identifier",
-      				"associatedAddress" : "https://github.com/TalaoDAO/context#associatedaddress",
-					"cryptoWalletSignature" : "schema:identifier",
-					"cryptoWalletPayload" : "schema:identifier",
+					"accountName" :  "https://github.com/TalaoDAO/context#accountname",
+      				"associatedAddress" : "https://w3id.org/security#blockchainAccountId",
 					"issuedBy": {
-						"@id": "schema:issuedBy",
+						"@id": "https://schema.org/issuedBy",
 						"@context": {
 							"@version": 1.1,
 							"@protected": true,
-							"schema" : "https://schema.org/",
-							"name" :  "schema:legalName",
-							"logo" : { "@id" : "schema:logo", "@type" : "@id"}
+							"name" :  "https://schema.org/legalName"
 						}
 					}
        			}
+			},
+			"WalletLink" : {
+				"@id" : "https://github.com/TalaoDAO/contex#walletlink",
+				"@context" : {
+					"@version": 1.1,
+					"@protected": true,
+					"id": "@id",
+                    "type": "@type",
+					"verifier" :  {"@id": "https://www.w3.org/2018/credentials#issuer", "@type": "@id"},
+					"cryptoWalletSignature" : "https://github.com/TalaoDAO/context#cryptowalletsignature",
+					"cryptoWalletPayload" : "https://github.com/TalaoDAO/context#cryptowalletpayload"
+				}
 			}
 		}
    	],
 	"id" : "urn:uuid:xxxxxxxx",
 	"type": [
         		"VerifiableCredential",
-           		"EthereumAssociatedAddress"
+           		"EthereumAssociatedAddress",
+				"WalletLink"
 	],
-	"issuer" : "did:key:crypto_wallet",
+	"issuer" : "did:example:xxxxxxx",
 	"credentialSubject" : {
-       		"id" : "did:key:wallet AltMe",
+       		"id" : "did:key:zzzzzzzzz",
        		"type" : "EthereumAssociatedAddress",
-          	"associatedAddress" : "0x9433fd38ea335c84d74fd60332dd2ede6df9ca4c",
+          	"associatedAddress" : "",
 		    "accountName" : "",
 			"issuedBy" : {"name" : "Altme"}
-	}
+	},
+	"evidence": [{
+		"id": "urn:uuid:yyyyyyyyy",
+		"type": ["WalletLink"],
+		"verifier" : "did:web:app.altme.io:issuer",
+		"cryptoWalletSignature" : "",
+		"cryptoWalletPayload" : ""
+	  }]
 }
