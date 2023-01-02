@@ -143,7 +143,7 @@ def openid_configuration(mode):
         "logout_endpoint": mode.server + 'sandbox/op/logout',
         "jwks_uri": mode.server + 'sandbox/op/jwks.json',
         "scopes_supported": ["openid"],
-        "response_types_supported": ["code", "id_token", "vp_token" ],
+        "response_types_supported": ["code", "id_token" ],
         "token_endpoint_auth_methods_supported": ["client_secret_basic"]
     }
     return jsonify(oidc)

@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<!-- op_verifier_qrcode_4-->
+<html  style="background-color: {{ page_background_color }} ">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1">
+    <link rel="shortcut icon" type="image/png" href="{{ url_for('static', filename='./img/3D.ico') }}"/>
+    <title>{{application_name}}</title>
+    <link rel = "stylesheet" type= "text/css" href= "{{ url_for('static', filename='bootstrap.min.css') }}">
+  </head>
+  <body>
+    <font color="{{page_text_color}}"> 
+      
+
+
+        <div id="content_desktop" class="d-none d-sm-block" style="height: 100vh; background-color: {{page_background_color}} ">
+            {% include 'saas_nav_bar.html' %}
+          
+          <div class="row mt-5">
+            <div class="col-sm-12 my-auto">
+            
+
+          <div class="text-center">
+            <br><br>
+            <h1>{{page_title}}</h1>
+            <h3>{{page_subtitle}}</h3>
+            
+            <div class="row">
+              <div class="col-6 offset-3">
+                <h5>{{page_description}}</h5>
+              </div>
+            </div>
+          </div>  
+            <div class="row d-flex justify-content-center">
+            <div class="col-2">
+              <div class="text-center">
+         <!--       <h3 class="mt-4">{{title}}</h3> -->
+            <div class="card shadow border-dark mt-2" style="border-radius: 4%; background-color: {{qrcode_background_color}} ">
+                <img class="card-img-top p-4" src="{{ qrcode(url) }}">
+            </div>
+            <div class="mt-1"><h6>{{qrcode_message}}</h6></div>
+            <div class="mt-3"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
+            
+            </div>
+                
+                <div class="row">
+                  <div class="col">
+                    <a class="text-secondary" href={{privacy_url}}><small>Privacy</small></a>
+                  </div>
+
+                  <div class="col">
+                    <a class="text-secondary" href={{terms_url}}><small>Terms & conditions</small></a>
+                  </div>
+                </div>
+                
+              </div>
+              </div>
+
+              {% if back_button  %}
+              <div class="text-center mt-5">
+                <button  onclick="goBack()" class="btn btn-outline-secondary mt-2">Back to configurator</button>
+              </div>  
+              {% endif %}
+           
+          </div>
+          </div>
+        </div>
+        
+        
+
+        <div id="content_smartphone" class="d-block d-sm-none" style="height: 100vh; background-color: {{page_background_color}} "> 
+          <div class="row h-100">
+            <div class="col-sm-12 my-auto">
+            
+                    <div class="text-center mt-5 ">
+                      <h2>{{page_title}}</h2>
+                      <h4 class="mt-4">{{title}}</h4>
+                        <div class ="mt-4">
+                        <a href="{{deeplink_altme}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/AltMe.png"  style="width: 75px;"></a>
+                        <h5 class="card-title mt-4">{{mobile_message}}</h5>
+
+                        {% if back_button  %}
+                        <button  onclick="goBack()" class="btn btn-outline-secondary mt-2">Back</button>
+                        {% endif %}
+                        <div class="mt-5"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
+                  </div>
+                  </div>
+                  </div>
+                  </div>
+           
+        </div>
+
+
+       
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+ 
+      <script>      
+                function goBack() {  window.history.back();}
+      </script>
+      <script>
+        var source = new EventSource('/sandbox/ebsi/login/stream');
+        source.onmessage = function (event) {
+        const result = JSON.parse(event.data)
+        if (result.stream_id == '{{stream_id}}' ){
+          window.location.href='/sandbox/ebsi/login/followup?stream_id=' + result.stream_id;
+          }
+        };
+      </script>
+      </font>
+  </body>
+</html>

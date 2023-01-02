@@ -15,11 +15,11 @@ app.config.update(
 Init OpenID Connect client PYOIDC with the 3 bridge parameters :  client_id, client_secret and issuer URL
 """
 client_metadata = ClientMetadata(
-    client_id='wncdcumwqc',
-    client_secret= "15822f1a-8857-11ed-8d59-838cdcf07a4a",
+    client_id='xjcqarovuv',
+    client_secret= "9130b204-89eb-11ed-8d59-838cdcf07a4a",
     post_logout_redirect_uris=['http://127.0.0.1:4000/logout']) # your post logout uri (optional)
 
-provider_config = ProviderConfiguration(issuer='http://192.168.0.65:3000/sandbox/op',
+provider_config = ProviderConfiguration(issuer='http://192.168.0.65:3000/sandbox/ebsi',
                                         client_metadata=client_metadata)
 
 auth = OIDCAuthentication({'default': provider_config}, app)
@@ -34,10 +34,12 @@ Verifiable Credential presented by user is transfered through vp_token in OAuth2
 @auth.oidc_auth('default')
 def index():
     user_session = UserSession(flask.session)
+    return jsonify(userinfo=user_session.userinfo) # this is the user credential
+    """
     return jsonify(access_token=user_session.access_token,
                    id_token=user_session.id_token,
                    userinfo=user_session.userinfo) # this is the user credential
-
+    """
 
 if __name__ == '__main__':
     IP = "127.0.0.1"

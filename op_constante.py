@@ -15,6 +15,14 @@ sbt_network_list = {
 }
 
 
+ebsi_vp_type_list = {
+    "jwt_vp" : "jwt_vp",
+    #"jwt_vc" : "jwt_vc",
+    #"ldp_vp" : "ldp_vp",
+    #"ldp_vc" : "ldp_vc"
+}
+
+
 tezid_network_list = {
     'none' : 'None',
     #'tezos' : 'Tezos Mainnet',
@@ -114,30 +122,7 @@ beacon_verifier_credential_list = {
                     'DID' : 'None',
                     'ANY' : 'Any'
                 }
-"""
-# for tezid verifier for guest
-tezid_verifier_credential_list = {
-                    'Pass' : 'Pass',
-                    'GamerPass' : 'Gamer Pass',
-                    #'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
-                    #'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
-                    #'EmailPass' : 'Proof of email',
-                    #'PassportNumber' : 'Passport footprint',
-                    #'PhoneProof' : 'Proof of phone',
-                    #'AgeRange' : 'Age range',
-                    #'Nationality' : 'Nationality',
-                    #'Gender' : 'Gender',
-                    #'TalaoCommunity' : 'Talao loyalty card',
-                    #'LearningAchievement' : 'Diploma',
-                    #'BloometaPass' : 'Bloometa gaming card',
-                    #'IdCard' : 'Identity card',
-                    'Over18' : 'Over 18',
-                    'Over13' : 'Over 13',
-                    #'AragoPass' : 'Arago Pass',
-                    'DID' : 'None'
-                    #'ANY' : 'Any'
-                }
-"""
+
 
 # issuer
 credential_to_issue_list = {
@@ -168,6 +153,7 @@ credential_requested_list = {
                     'Gender' : 'Gender card',
                     'PhoneProof' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
+                    'VerifiableId' : 'EBSI Verifiable ID',
                     'Over18' : 'Proof of majority (Over 18)',
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
@@ -218,8 +204,22 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode_5.html" : "Style 2 with counter",
                     "op_verifier_qrcode_6.html" : "Style 2 with html",
                     "op_verifier_qrcode_7.html" : "Altme style with html",
-                    "arago_verifier_qrcode.html" : "Arago landing page"
+                    "arago_verifier_qrcode.html" : "Arago landing page",
+                    "ebsi_test.html" : "EBSI test"
                 }
+
+# verifier
+ebsi_verifier_landing_page_style_list = {
+                    "ebsi/ebsi_verifier_qrcode_1.html" : "EBSI - Style 1 ",
+                    "ebsi/ebsi_verifier_qrcode_2.html" : "EBSI - Style 2",
+                    "ebsi/ebsi_verifier_qrcode_2.html" : "EBSI - Large QRcode",
+                    "ebsi/ebsi_verifier_qrcode_3.html" : "EBSI - Style 3",
+                    "ebsi/ebsi_verifier_qrcode_4.html" : "EBSI - Altme landing page",
+                    "ebsi/ebsi_verifier_qrcode_5.html" : "EBSI - Style 2 with counter",
+                    "ebsi/ebsi_verifier_qrcode_6.html" : "EBSI - Style 2 with html",
+                    "ebsi/ebsi_verifier_qrcode_7.html" : "EBSI - Altme style with html",
+                    "ebsi/ebsi_test.html" : "EBSI test"
+}
 
 
 protocol_list = {'w3cpr' : "W3C Presentation Request ",
@@ -329,6 +329,7 @@ client_data_pattern = {
                 "sbt_thumbnail_uri" : "",
                 "sbt_artifact_uri" : "",
                 "sbt_network" : "none",
+                "ebsi_vp_type" : "jwt_vp",
                 "beacon_mode" : "issuer",
                 "pre_authorized_code" : "no",
                 "beacon_payload_message" : "Any string for a message to display",
@@ -394,8 +395,13 @@ ebsi_verifier_claims = {
     "vp_token":{
         "presentation_definition": {
             "id":"",
-            "input_descriptors":[
-                {
+            "input_descriptors":[],
+            "format":""
+        }
+    }
+}
+
+input_descriptor = {
                     "id":"",
                     "name":"",
                     "purpose":"",
@@ -403,31 +409,28 @@ ebsi_verifier_claims = {
                         "fields":[
                             {
                                 "path":["$.vc.credentialSchema"],
-                                "filter":{
-                                    "allOf":[
-                                        {
-                                            "type":"array",
-                                            "contains":{
-                                                "type":"object",
-                                                "properties":{
-                                                    "id":{
-                                                        "type":"string",
-                                                        "pattern":""
-                                                    }
-                                                },
-                                                "required":["id"]
-                                            }
-                                        }
-                                    ]
-                                }
+                                "filter": ""
                             }
                         ]
                     }
                 }
-            ],
-            "format":{
-                "jwt_vp":{"alg":["ES256K"]}
-            }
+
+filter = {
+            "allOf":[
+                {
+                    "type":"array",
+                    "contains":{
+                        "type":"object",
+                        "properties":{
+                            "id":{
+                                "type":"string",
+                                "pattern":""
+                            }
+                        },
+                        "required":["id"]
+                    }
+                }
+            ]
         }
-    }
-}
+
+

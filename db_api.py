@@ -107,14 +107,16 @@ def create(db, user, mode, method) :
     data['client_secret'] = str(uuid.uuid1())
     if db == 'ebsi_verifier.db' :
         data['protocol'] = 'siopv2'
+        # TODO not sure !!!!
+        data['issuer_landing_page'] = mode.server + 'sandbox/ebsi/' + data['client_id']
     if db == 'issuer.db' :
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
         # init with did:ethr
-        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
-        data['jwk'] = key.export_private()
-        data['method'] = method
-        # init did:ebsi in case of use
-        data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
+    key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+    data['jwk'] = key.export_private()
+    data['method'] = method
+    # init did:ebsi in case of use
+    data["did_ebsi"] = 'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
     if user :
         data['user'] = user
     conn = sqlite3.connect(db)

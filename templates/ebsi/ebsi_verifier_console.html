@@ -163,7 +163,7 @@
                   <div class="form-row">
                     
                       <div class="col">
-                        <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
+                        <div class="form-group"><label><strong>OIDC issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                       </div>
                   </div>
 
@@ -384,7 +384,15 @@
                             </div>
                             <div class="card-body">
 
-                              
+                          
+                              <div class="form-row">
+                                <div class="col-3">
+                                    <div class="form-group"><label><strong>Credential type</strong></label><select name="ebsi_vp_type" class="form-control">
+                                      {{ebsi_vp_type_select|safe}}  
+                                      </select></div>
+    
+                              </div>  
+                            </div>
 
                           <div class="form-row">
                             <div class="col-6">

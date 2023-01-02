@@ -491,6 +491,8 @@ def issuer_siopv2_credential(issuer_id, red) :
     return Response(response=json.dumps(payload), headers=headers)
   
 
+############################################################################################""
+
 async def issuer_endpoint(issuer_id, stream_id, red):
     try : 
         credentialOffer = red.get(stream_id).decode()
@@ -583,7 +585,22 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         if issuer_data['credential_to_issue'] == 'Pass' :
             credential['credentialSubject']['issuedBy']['name'] = issuer_data.get('company_name', 'Not indicated')
             credential['credentialSubject']['issuedBy']['issuerId'] = issuer_id
-       
+        
+        #TODO
+        # for EBSI demo with VerifiableDiploma and VerifiableId type
+        try :
+            presentation_list = json.loads(request.form['presentation'])
+            if isinstance(presentation_list, dict) :
+                presentation_list = [presentation_list] 
+            for presentation in presentation_list :     
+                if issuer_data['credential_to_issue'] == "VerifiableDiploma" and presentation['verifiableCredential']['credentialSubject']['type'] == 'VerifiableId' :
+                    credential['credentialSubject']['firstName'] = presentation['verifiableCredential']['credentialSubject']['firstName']
+                    credential['credentialSubject']['familyName'] = presentation['verifiableCredential']['credentialSubject']['familyName']
+                    credential['credentialSubject']['dateOfBirth'] = presentation['verifiableCredential']['credentialSubject']['dateOfBirth']
+                    break
+        except :
+            logging.info("EBSI demo problem")
+
         # sign credential
         if issuer_data['method'] == "ebsi" :
             logging.warning("EBSI issuer")
@@ -606,7 +623,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
             except :
                 message = 'Signature failed'
                 logging.error(message)
-                logging.error("credential to sign = %s", credential)
                 data = json.dumps({'stream_id' : stream_id,
                             "result" : False,
                             "message" : message})

@@ -5,21 +5,19 @@ import uuid
 from urllib.parse import urlencode
 import logging
 import base64
-import time
 from datetime import datetime
 from jwcrypto import jwk, jwt
-import didkit
 from db_api import read_ebsi_verifier
 import op_constante
 import activity_db_api
 import pkce # https://github.com/xzava/pkce
+from copy import deepcopy
 
 logging.basicConfig(level=logging.INFO)
 
 ACCESS_TOKEN_LIFE = 1800
 QRCODE_LIFE = 180
 CODE_LIFE = 180
-DID_VERIFIER = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 
 try :
     RSA_KEY_DICT = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
@@ -42,7 +40,7 @@ def init_app(app,red, mode) :
     
     # SIOPv2 endpoint
     app.add_url_rule('/sandbox/ebsi/login',  view_func=ebsi_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/login/followup',  view_func=ebsi_login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/login/stream',  view_func=ebsi_login_stream, defaults={ 'red' : red})
     return
@@ -58,9 +56,12 @@ def ebsi_webflow() :
     return Response(response=payload, headers=headers)
     
 
-def ebsi_build_id_token(client_id, sub, nonce, vp, mode) :
+def ebsi_build_id_token(client_id, sub, nonce, mode) :
+    """
+    alg value : https://www.rfc-editor.org/rfc/rfc7518#section-3
+    https://jwcrypto.readthedocs.io/en/latest/jwk.html
+    """
     verifier_key = jwk.JWK(**RSA_KEY_DICT) 
-    # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
         "typ" :"JWT",
         "kid": RSA_KEY_DICT['kid'],
@@ -68,7 +69,7 @@ def ebsi_build_id_token(client_id, sub, nonce, vp, mode) :
     }
     # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     payload = {
-        "iss" : mode.server +'sandbox/op',
+        "iss" : mode.server +'sandbox/ebsi',
         "nonce" : nonce,
         "iat": datetime.timestamp(datetime.now()),
         "aud" : client_id,
@@ -87,6 +88,7 @@ def ebsi_jwks() :
 
 def ebsi_openid_configuration(mode):
     """
+    For the customer application of the saas platform  
     https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-dynamic-self-issued-openid-
     """
     oidc = {
@@ -115,61 +117,38 @@ id_token vp_token or vp_token -> oidc4vp
 """
 def ebsi_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
-    # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
-
+    """ https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
+     code_ebsi = {
+        "vp_token" + vp_token,
+        "wallet_DID" : id_token_payload['sub']
+    }
+    """
     # user is connected, successfull exit to client with code
     if session.get('verified') and request.args.get('code') :
 
         # authorization code flow -> redirect with code
-        if "code" in session.get('response_type', []).split() :
+        if session.get('response_type') == 'code' :
             logging.info("response_type = code : successfull redirect to client with code = %s", request.args.get('code'))
             code = request.args['code']  
-            if  session.get('state') :
-                resp = {'code' : code,  'state' : session['state']}
-            else :
-                resp = {'code' : code}
+            resp = {'code' : code,  'state' : session['state']}  if  session.get('state') else {'code' : code}
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
-        # implicit flow -> redirect with id_token in 
-        elif session.get('response_type') == "id_token" :
-            if session.get('response_mode') == "query" :
-                sep = "?"
-            else :
-                sep = "#"
+        # implicit flow -> redirect with id_token
+        elif session.get('response_type') == 'id_token' :
+            sep = "?" if session.get('response_mode') == 'query' else "#"
             code = request.args['code'] 
             try :
-                vp = red.get(code + "_vp").decode()
+                code_ebsi = json.loads(red.get(code + "_ebsi").decode())
             except :
                 logging.error("code expired")
                 resp = {'error' : "access_denied"}
                 redirect_uri = session['redirect_uri']
                 session.clear()
                 return redirect(redirect_uri + sep + urlencode(resp)) 
-
-            DID = json.loads(vp)['holder']
-            id_token = ebsi_build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
+            id_token = ebsi_build_id_token(session['client_id'], code_ebsi['wallet_DID'], session.get('nonce'), mode)
             resp = {"id_token" : id_token} 
             logging.info("redirect to client with id-token = %s", id_token)
             return redirect(session['redirect_uri'] + sep + urlencode(resp))
-        
-        # oidc4vp  -> redirect with vp_token and eventually id_token
-        elif "vp_token" in session.get('response_type').split() :
-            code = request.args['code'] 
-            try :
-                vp = red.get(code + "_vp").decode()
-            except :
-                logging.error("code expired")
-                resp = {'error' : "access_denied"}
-                redirect_uri = session['redirect_uri']
-                session.clear()
-                return redirect(redirect_uri + '?' + urlencode(resp)) 
-            DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-            resp = {"vp_token" : json.loads(vp)} 
-            if "id_token" in session.get('response_type').split() :
-                resp["id_token"] = ebsi_build_id_token(session['client_id'], DID, session.get('nonce'), vp, mode)
-                logging.info("redirect to client with id-token = %s",  resp["id_token"])
-            logging.info("redirect to client with vp-token = %s", vp)
-            return redirect(session['redirect_uri'] + '?' + urlencode(resp))
         
         else :
             logging.error("session expired")
@@ -180,8 +159,7 @@ def ebsi_authorize(red, mode) :
     
     # error in login, exit, clear session
     if 'error' in request.args :
-        logging.warning('there is an error in the login process, redirect to client with error code')
-        logging.warning('error code = %s', request.args['error'])
+        logging.warning('Error in the login process, redirect to client with error code = %s', request.args['error'])
         code = request.args['code']
         resp = {'error' : request.args['error']}
         if session.get('state') :
@@ -221,7 +199,7 @@ def ebsi_authorize(red, mode) :
             return jsonify('request malformed'), 400
 
     if not read_ebsi_verifier(request.args['client_id']) :
-        logging.warning('client_id not found id data base')
+        logging.warning('client_id not found ebsi client data base')
         return manage_error_request("unauthorized_client")
 
     session['client_id'] = request.args['client_id']
@@ -232,7 +210,7 @@ def ebsi_authorize(red, mode) :
         # TODO manage different redirect URL
         #return manage_error_request("invalid_request_object")
     session['redirect_uri'] = request.args['redirect_uri']
-    if request.args['response_type'] not in ["code", "code id_token", "id_token", "id_token code", "vp_token", "id_token vp_token"] :
+    if request.args['response_type'] not in ["code", "id_token"] :
         logging.warning('unsupported response type %s', request.args['response_type'])
         return manage_error_request("unsupported_response_type")
 
@@ -240,7 +218,7 @@ def ebsi_authorize(red, mode) :
     session['state'] = request.args.get('state')
     session['response_mode'] = request.args.get('response_mode')
 
-    # creation grant (code)
+    # creation grant = code
     code = str(uuid.uuid1())
     red.setex(code, CODE_LIFE, json.dumps(data))
     resp = {'code' : code}
@@ -248,7 +226,7 @@ def ebsi_authorize(red, mode) :
    
 
 # token endpoint
-async def ebsi_token(red, mode) :
+def ebsi_token(red, mode) :
     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
     logging.info("token endpoint request ")
 
@@ -295,13 +273,11 @@ async def ebsi_token(red, mode) :
     
     # token response
     try :
-        vp = red.get(code + "_vp").decode()
+        code_ebsi = json.loads(red.get(code + "_ebsi").decode())
     except :
-        logging.error("red get probleme sur _vp")
+        logging.error("redis get problem to get code_ebsi")
         return manage_error("invalid_grant")
-       
-    DID = json.loads(vp)['verifiableCredential']['credentialSubject']['id']
-    id_token = ebsi_build_id_token(client_id, DID, data['nonce'], vp, mode)
+    id_token = ebsi_build_id_token(client_id, code_ebsi['wallet_DID'], data['nonce'], mode)
     logging.info('id_token and access_token sent to client from token endpoint')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
@@ -309,17 +285,12 @@ async def ebsi_token(red, mode) :
                         "token_type" : "Bearer",
                         "expires_in": ACCESS_TOKEN_LIFE
                         }
-    try :
-        red.delete(code)
-        red.delete(code + '_vp')
-    except :
-        pass
     red.setex(access_token, 
             ACCESS_TOKEN_LIFE,
             json.dumps({
                 "client_id" : client_id,
-                "sub" : DID,
-                "vp_token" : json.loads(vp)}))
+                "sub" : code_ebsi['wallet_DID'],
+                "vp_token" : code_ebsi['vp_token']}))
     headers = {
         "Cache-Control" : "no-store",
         "Pragma" : "no-cache",
@@ -354,21 +325,22 @@ def ebsi_userinfo(red) :
     access_token = request.headers["Authorization"].split()[1]
     try :
         data = json.loads(red.get(access_token).decode())
-        verifier_data = json.loads(read_ebsi_verifier(data['client_id']))
-        payload = {"sub" : data['sub']}
-        if verifier_data.get('standalone') :
-            payload['vp'] = data["vp_token"]
+        payload = {
+            "sub" : data['sub'],
+            "vp_token" : data["vp_token"]
+        }
         headers = {
             "Cache-Control" : "no-store",
             "Pragma" : "no-cache",
             "Content-Type": "application/json"}
         return Response(response=json.dumps(payload), headers=headers)
+    
     except :
         logging.warning("access token expired")
         headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
         return Response(status=401,headers=headers)
-
-
+    
+############################################################################
 
 """
 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#section-10
@@ -392,44 +364,63 @@ def ebsi_login_qrcode(red, mode):
     except :
         logging.error("session expired in login_qrcode")
         return render_template("session_expired.html")
+    session['nonce'] =  nonce if nonce else str(uuid.uuid1())
     pattern = { 
         "scope" : "openid",
         "response_type" : "id_token",
         "client_id" : client_id,
-        "redirect" : mode.server + "/sandbox/ebsi/login/endpoint/" + stream_id,
+        "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
         "claims" : "",
-        #"nonce" : nonce
+        "nonce" : session['nonce']
     }
-    if nonce :
-        pattern['nonce'] = nonce
-
     verifier_data = json.loads(read_ebsi_verifier(client_id))
-    claims = op_constante.ebsi_verifier_claims
+    claims = deepcopy(op_constante.ebsi_verifier_claims)
+    claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
+    claims['vp_token']['presentation_definition']['format'] = {verifier_data.get('ebsi_vp_type', "jwt_vp") : {"alg": ["ES256K", "ES256", "PS256", "RS256"]}} #alg value = https://www.rfc-editor.org/rfc/rfc7518#section-3
     if verifier_data['vc'] == "DID" :
-        pass
-        print("credential not defined")
-    #elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
-    #    pass
+        logging.info("credential not defined")
+        claims['vp_token']['presentation_definition'] = {}
+    elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+        filter = op_constante.filter
+        input_descriptor = op_constante.input_descriptor
+        input_descriptor['id'] = str(uuid.uuid1())
+        input_descriptor['name'] = "Input descriptor 1"
+        input_descriptor['purpose'] = verifier_data['reason'] 
+        filter['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc'] 
+        input_descriptor['constraints']['fields'][0]['filter'] = filter
+        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor)
     else :
-        claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
-        claims['vp_token']['presentation_definition']['input_descriptors'][0]['id'] = str(uuid.uuid1())
-        claims['vp_token']['presentation_definition']['input_descriptors'][0]['name'] = ""
-        claims['vp_token']['presentation_definition']['input_descriptors'][0]['purpose'] = verifier_data['reason'] 
-        claims['vp_token']['presentation_definition']['input_descriptors'][0]['constraints']['fields'][0]['filter']['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc'] 
-        claims['vp_token']['presentation_definition']['format'] = {"jwt_vp":{"alg":["ES256K"]}}
+        filter_1 = deepcopy(op_constante.filter)
+        input_descriptor_1 = deepcopy(op_constante.input_descriptor)
+        input_descriptor_1['id'] = str(uuid.uuid1())
+        input_descriptor_1['name'] = "Input descriptor 1"
+        input_descriptor_1['purpose'] = verifier_data['reason'] 
+        filter_1['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc'] 
+        input_descriptor_1['constraints']['fields'][0]['filter'] = filter_1
+        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor_1)
+        
+        filter_2 = deepcopy(op_constante.filter)
+        input_descriptor_2 = deepcopy(op_constante.input_descriptor)
+        input_descriptor_2['id'] = str(uuid.uuid1())
+        input_descriptor_2['name'] = "input descriptor 2"
+        input_descriptor_2['purpose'] = verifier_data['reason_2'] 
+        filter_2['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc_2'] 
+        input_descriptor_2['constraints']['fields'][0]['filter'] = filter_2
+        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor_2)
+
     pattern['claims'] = claims
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
-    #url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_VERIFIER})
+    print('pattern = ', pattern)
     url = 'openid://' + '?' + urlencode(pattern)
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
+    print("qrcode size = ", len(url))
 
     if not verifier_data.get('verifier_landing_page_style') :
         qrcode_page = "op_verifier_qrcode_2.html"
     else : 
         qrcode_page = verifier_data.get('verifier_landing_page_style')
-    print("qrcode = ", url)
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
@@ -453,69 +444,77 @@ def ebsi_login_qrcode(red, mode):
                             )
     
 
-async def ebsi_login_endpoint(stream_id, red):
-    if request.method == 'POST' :
-        
-        def manage_error(msg) :
-            value = json.dumps({
-                    "access" : "access_denied",
-                    "user" : credential["credentialSubject"]["id"]
+def ebsi_login_endpoint(stream_id, red,mode):
+    def deserialize_token(token) :
+        from jwt import decode, get_unverified_header
+        # https://pyjwt.readthedocs.io/en/stable/usage.html#reading-the-claimset-without-validation
+        # needs PEM key for decode with PYjwt
+        payload = decode(token, options={"verify_signature": False})
+        pub_key = get_unverified_header(token)['jwk']
+        pem_key = jwk.JWK(**pub_key).export_to_pem(private_key=False)
+        try :
+            decode(token, key=pem_key, algorithms=['ES256', 'ES256K', 'RSA256'], audience=payload['aud'])
+        except :
+            return False
+        return payload
+
+    vp_token =request.form['vp_token'] # string
+    id_token = request.form['id_token'] # string
+    # https://rawgit-now.netlify.app/davedoesdev/python-jwt/master/docs/_build/html/index.html
+    body_result = vpFormat_status = presentation_status = credential_status = True
+    status_code = 200
+    access = "ok"
+    id_token_payload = deserialize_token(id_token)
+    vp_token_payload = deserialize_token(vp_token)
+    if not id_token_payload or not vp_token_payload:
+        logging.warning("id_token or vp_token signature failed")
+        body_result = False
+        status_code = 400
+        access == "access_denied"
+    # TODO provide explanations
+    logging.info('id_token = %s', id_token_payload)
+    logging.info('vp token = %s', vp_token_payload)
+    response = {
+      "created": datetime.timestamp(datetime.now()),
+      "data": {
+        "response": {
+          "statusCode": status_code,
+          "method": "POST",
+          "url":  mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
+          "body": {
+            "result": body_result,
+            "validations": {
+              "vpFormat": {
+                "status": vpFormat_status
+              },
+              "presentation": {
+                "status": presentation_status
+              },
+              "credential": {
+                "status": credential_status
+              }
+            }
+          },
+          "logLevel": "Info",
+          "apiName": "Altme Saas Verifier"
+        }
+      }
+    }
+    value = json.dumps({
+                    "access" : access,
+                    "vp_token" : vp_token,
+                    "wallet_DID" : id_token_payload['sub']
                     })
-            red.setex(stream_id + "_DIDAuth", 180, value)
-            event_data = json.dumps({"stream_id" : stream_id})           
-            red.publish('api_verifier', event_data)
-            logging.error(msg)
-            return jsonify(msg), 403
-        
-        async def check_credential(credential) :     
-            result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
-            if json.loads(result_credential)['errors']  :       
-                return manage_error("credential signature check failed")
-            if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :
-                if credential["credentialSubject"]['type'] == "AragoPass" :
-                    logging.error("DID does not match in Arago pass")
-                else :       
-                    return manage_error("holder does not match subject.id")
-            if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
-                return manage_error("credential expired")
-            
-            return
-
-        presentation = request.form['presentation'] # string
-        #result_presentation = await didkit.verify_presentation(presentation,  '{}')
-        #if json.loads(result_presentation)['errors'] :
-        #    return manage_error("presentation signature check failed")
-        logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
-
-        credential = json.loads(presentation).get('verifiableCredential')
-        if not credential :
-            pass
-        elif isinstance(credential, dict) :
-            if credential["credentialSubject"]['type'] == "Pass" :
-                code = json.loads(red.get(stream_id).decode())['code']
-                client_id = json.loads(red.get(code).decode())['client_id']
-                verifier_data = json.loads(read_ebsi_verifier(client_id))
-                if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                    return manage_error("Pass issuer id does not match")
-            await check_credential(credential)
-        else :
-            for vc in credential :
-                await check_credential(vc)
-
-        value = json.dumps({
-                    "access" : "ok",
-                    "vp" : json.loads(presentation),
-                    "user" : json.loads(presentation)['holder']
-                    })
-        red.setex(stream_id + "_DIDAuth", 180, value)
-        event_data = json.dumps({"stream_id" : stream_id})           
-        red.publish('api_verifier', event_data)
-        return jsonify("ok")
+    red.setex(stream_id + "_DIDAuth", 180, value)
+    event_data = json.dumps({"stream_id" : stream_id})           
+    red.publish('api_verifier', event_data)
+    return jsonify(response), status_code
 
 
 def ebsi_login_followup(red):  
     """
     check if user is connected or not and redirect data to authorization server
+    Prepare de data to transfer
     create activity record
     """
     try :
@@ -537,21 +536,19 @@ def ebsi_login_followup(red):
         session['verified'] = False
     else :
         session['verified'] = True
-        red.setex(code +"_vp", 180, json.dumps(stream_id_DIDAuth['vp']))
+        del stream_id_DIDAuth['access']
+        # this will be used in eth authorzation endpoint
+        red.setex(code +"_ebsi", 180, json.dumps(stream_id_DIDAuth))
         resp = {'code' : code}
     verifier_data = json.loads(read_ebsi_verifier(client_id))
+    # for activity tracking
     activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                "user" : stream_id_DIDAuth["user"],
+                "user" : stream_id_DIDAuth["wallet_DID"],
                 "credential_1" : verifier_data['vc'],
                 "credential_2" : verifier_data.get('vc_2', "None"),
                 "status" : session['verified']
     }
     activity_db_api.create(client_id, activity) 
-    try :
-        red.delete(stream_id + '_DIDAuth')
-        red.delete(stream_id)
-    except :
-        pass
     return redirect ('/sandbox/ebsi/authorize?' + urlencode(resp))
 
 

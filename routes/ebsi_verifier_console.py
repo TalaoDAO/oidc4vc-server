@@ -8,7 +8,8 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante import ebsi_verifier_credential_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
+from op_constante import ebsi_verifier_credential_list, model_one, model_any, model_DIDAuth
+from op_constante import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -183,11 +184,18 @@ def ebsi_verifier_console(mode) :
         session['client_data'] = json.loads(db_api.read_ebsi_verifier(session['client_id']))
         
         verifier_landing_page_style_select = str()
-        for key, value in verifier_landing_page_style_list.items() :
+        for key, value in ebsi_verifier_landing_page_style_list.items() :
                 if key == session['client_data'].get('verifier_landing_page_style') :
                     verifier_landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     verifier_landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
+
+        ebsi_vp_type_select = str()
+        for key, value in ebsi_vp_type_list.items() :
+                if key ==   session['client_data'].get('ebsi_vp_type', "jwt_vp") :
+                    ebsi_vp_type_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    ebsi_vp_type_select +=  "<option value=" + key + ">" + value + "</option>"
 
         vc_select_1 = str()
         for key, value in ebsi_verifier_credential_list.items() :
@@ -217,7 +225,7 @@ def ebsi_verifier_console(mode) :
                 privacy_url = session['client_data'].get('privacy_url'),
                 landing_page_url = session['client_data'].get('landing_page_url'),
                 terms_url = session['client_data'].get('terms_url'),
-                issuer = mode.server + "sandbox/op",
+                issuer = mode.server + "sandbox/ebsi",
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
                 callback= session['client_data']['callback'],
@@ -242,6 +250,7 @@ def ebsi_verifier_console(mode) :
                 vc_select_1=vc_select_1,
                 vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
+                ebsi_vp_type_select=ebsi_vp_type_select,
                 login_name=session['login_name']
                 )
     if request.method == 'POST' :
@@ -281,6 +290,7 @@ def ebsi_verifier_console(mode) :
             #session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']
             session['client_data']['user'] = request.form['user_name']
+            session['client_data']['ebsi_vp_type'] = request.form['ebsi_vp_type']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
             db_api.update_ebsi_verifier(request.form['client_id'], json.dumps(session['client_data']))
