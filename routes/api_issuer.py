@@ -261,7 +261,6 @@ def issuer_landing_page(issuer_id, red, mode) :
         elif issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
             credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
 
-    logging.info("credential manifest = %s", credential_manifest)
     if not request.args.get('id') :
         logging.warning("no id passed by application")
 
@@ -274,7 +273,6 @@ def issuer_landing_page(issuer_id, red, mode) :
         "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         "credential_manifest" : credential_manifest
     }   
-    #logging.info('credential offer = %s', credentialOffer)
     stream_id = str(uuid.uuid1())
     # TODO
     issuer_did = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
@@ -619,7 +617,6 @@ async def issuer_endpoint(issuer_id, stream_id, red):
                     didkit_options.__str__().replace("'", '"'),
                     issuer_data['jwk']
                 )
-                logging.info("credential signed by %s", credential["issuer"])
             except :
                 message = 'Signature failed'
                 logging.error(message)
