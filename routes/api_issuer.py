@@ -589,12 +589,12 @@ async def issuer_endpoint(issuer_id, stream_id, red):
         try :
             presentation_list = json.loads(request.form['presentation'])
             if isinstance(presentation_list, dict) :
-                presentation_list = [presentation_list] 
+                presentation_list = [json.dumps(presentation_list)] 
             for presentation in presentation_list :     
-                if issuer_data['credential_to_issue'] == "VerifiableDiploma" and presentation['verifiableCredential']['credentialSubject']['type'] == 'VerifiableId' :
-                    credential['credentialSubject']['firstName'] = presentation['verifiableCredential']['credentialSubject']['firstName']
-                    credential['credentialSubject']['familyName'] = presentation['verifiableCredential']['credentialSubject']['familyName']
-                    credential['credentialSubject']['dateOfBirth'] = presentation['verifiableCredential']['credentialSubject']['dateOfBirth']
+                if issuer_data['credential_to_issue'] == "VerifiableDiploma" and json.loads(presentation)['verifiableCredential']['credentialSubject']['type'] == 'VerifiableId' :
+                    credential['credentialSubject']['firstName'] = json.loads(presentation)['verifiableCredential']['credentialSubject']['firstName']
+                    credential['credentialSubject']['familyName'] = json.loads(presentation)['verifiableCredential']['credentialSubject']['familyName']
+                    credential['credentialSubject']['dateOfBirth'] = json.loads(presentation)['verifiableCredential']['credentialSubject']['dateOfBirth']
                     break
         except :
             logging.info("EBSI demo problem")
