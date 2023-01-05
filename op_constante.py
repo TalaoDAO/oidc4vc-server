@@ -15,11 +15,14 @@ sbt_network_list = {
 }
 
 
+ebsi_vc_type_list = {
+    "jwt_vc" : "JWT-JSON",
+    "ldp_vc" : "JSON-LD"
+}
+
 ebsi_vp_type_list = {
     "jwt_vp" : "jwt_vp",
-    #"jwt_vc" : "jwt_vc",
     #"ldp_vp" : "ldp_vp",
-    #"ldp_vc" : "ldp_vc"
 }
 
 
@@ -29,12 +32,12 @@ tezid_network_list = {
     'ghostnet' : 'Tezos Ghostnet',
 }
 
+# for issuer with webhook
 method_list = {
                     "relay" : "Relay (external issuer)",
                     "ethr" : "did:ethr",
                     "key" : "did:key",
                     "tz": "did:tz",
-                    "ebsi" : "did:ebsi",
                     "pkh:tz" : "did:pkh:tz",
                 }
 
@@ -124,7 +127,7 @@ beacon_verifier_credential_list = {
                 }
 
 
-# issuer
+# issuer webhook
 credential_to_issue_list = {
                     'Pass' : 'Pass',
                    'AragoPass' : 'Pass Arago',
@@ -133,6 +136,7 @@ credential_to_issue_list = {
                     'TezVoucher_1' : 'Tezotopia 10% voucher (fake)',
                     'LearningAchievement' : 'Diploma (Learning achievement)',
                     'VerifiableDiploma' : 'Diploma EBSI (Verifiable Diploma)',
+                    'PCDSAgentCertificate' : 'PCDS Auditor',
                     'StudentCard' : 'Student card',
                     'CertificateOfEmployment' : 'Certificate of employment',
                     'TalaoCommunity' : 'Talao Community card',
@@ -140,10 +144,12 @@ credential_to_issue_list = {
                     'PhoneProof' : 'PhoneProof',
                 }
 
-# issuer for guest
+
+# issuer webhook for guest
 credential_to_issue_list_for_guest = {
                     'Pass' : 'Pass',
                 }
+
 
 # for issuer
 credential_requested_list = {
@@ -154,6 +160,7 @@ credential_requested_list = {
                     'PhoneProof' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
                     'VerifiableId' : 'EBSI Verifiable ID',
+                    'VerifiableDiploma' : 'EBSI Verifiable Diploma',
                     'Over18' : 'Proof of majority (Over 18)',
                     'Over13' : 'Over 13',
                     'PassportNumber' : 'Passport footprint',                  
@@ -165,7 +172,7 @@ credential_requested_list = {
                     "login" : "Login and password",
                     "secret" : "Secret",
                     "totp" : "Time-based OTP",
-                    'DID' : "None",
+                    'DID' : "None"
                 }
 
 # for issuer for 2, 3 and 4th credential
@@ -177,6 +184,7 @@ credential_requested_list_2 = {
                     'PhoneProof' : 'Proof of phone number',
                     'IdCard' : 'Identity card',
                     'VerifiableId' : 'EBSI Verifiable ID',
+                    'VerifiableDiploma' : 'EBSI Verifiable Diploma',
                     'DeviceInfo' : 'Device Info',
                     'Over18' : 'Proof of majority (Over 18)',
                     'Over13' : 'Over 13',
@@ -187,6 +195,23 @@ credential_requested_list_2 = {
                     "AragoPass" : "Arago Pass",
                     'DID' : "None",
                 }
+
+
+# EBSI issuer
+ebsi_credential_to_issue_list = {
+                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'Verifiable ID',
+                    'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'Verifiable Diploma',
+                    'PCDSAgentCertificate' : 'PCDS Agent Certificate',
+                }
+
+# EBSI issuer
+ebsi_credential_requested_list = {
+                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'Verifiable ID',
+                    'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'Verifiable Diploma',
+                    'PCDSAgentCertificate' : 'PCDS Agent Certificate',
+                    'DID' : "None"
+                }
+
 
 # issuer
 landing_page_style_list = {
@@ -333,6 +358,7 @@ client_data_pattern = {
                 "sbt_artifact_uri" : "",
                 "sbt_network" : "none",
                 "ebsi_vp_type" : "jwt_vp",
+                "ebsi_issuer_vc_type" : "jwt_vc",
                 "beacon_mode" : "issuer",
                 "pre_authorized_code" : "no",
                 "beacon_payload_message" : "Any string for a message to display",

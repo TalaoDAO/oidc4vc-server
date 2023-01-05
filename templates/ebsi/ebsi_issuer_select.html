@@ -9,7 +9,7 @@
   <div id="wrapper">
     <div class="d-flex flex-column" id="content-wrapper" >     
       <div id="content">
-        {% include "beacon/beacon_issuer_nav_bar.html" %}
+        {% include "ebsi/ebsi_issuer_nav_bar.html" %}
 
         <div class="container-fluid mt-3">
           <div class="text-center mt-3">
@@ -45,7 +45,7 @@
                                       </tr>
                                   </thead>
                                   <tbody>
-                                      {{beacon_list|safe}}
+                                      {{issuer_list|safe}}
                                   </tbody>
                               </table>
                              </div> 

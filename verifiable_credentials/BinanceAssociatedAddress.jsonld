@@ -47,5 +47,12 @@
           	"associatedAddress" : "",
 		    "accountName" : "",
 			"issuedBy" : {"name" : ""}
-	}
+	},
+	"evidence": [{
+		"id": "urn:uuid:yyyyyyyyy",
+		"type": ["WalletLink"],
+		"verifier" : "did:web:app.altme.io:issuer",
+		"cryptoWalletSignature" : "",
+		"cryptoWalletPayload" : ""
+	  }]
 }

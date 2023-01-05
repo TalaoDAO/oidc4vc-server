@@ -6,8 +6,8 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, pre_authorized_code_list, credential_requested_list_2, credential_to_issue_list
-from op_constante import protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
+from op_constante import pre_authorized_code_list, ebsi_credential_requested_list
+from op_constante import ebsi_vc_type_list, method_list, landing_page_style_list, ebsi_credential_to_issue_list
 import ebsi
 import issuer_activity_db_api
 import pyotp
@@ -15,37 +15,28 @@ import datetime
 
 logging.basicConfig(level=logging.INFO)
 
-
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/op/issuer/console/logout',  view_func=nav_logout, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/op/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/op/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/op/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/op/issuer/console/preview',  view_func=issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/sandbox/op/issuer/console/activity',  view_func=issuer_activity, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/issuer/console/logout',  view_func=ebsi_nav_logout, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/issuer/console',  view_func=ebsi_issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/issuer/console/select',  view_func=ebsi_issuer_select, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/issuer/console/advanced',  view_func=ebsi_issuer_advanced, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/issuer/console/preview',  view_func=ebsi_issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=ebsi_issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/ebsi/issuer/console/activity',  view_func=ebsi_issuer_activity, methods = ['GET', 'POST'])
     # nav bar option
-    app.add_url_rule('/sandbox/op/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
-    app.add_url_rule('/sandbox/op/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/issuer/nav/logout',  view_func=ebsi_nav_logout, methods = ['GET'])
+    app.add_url_rule('/sandbox/ebsi/issuer/nav/create',  view_func=ebsi_nav_create, methods = ['GET'], defaults= {'mode' : mode})
     return
     
-# authentication
-"""
-def issuer_console_logout():
-    if session.get('is_connected') :
-        session.clear()
-    else :
-        return redirect('/sandbox/saas4ssi')
-    return redirect('/sandbox/op/issuer/console')
-"""
-def nav_logout() :
+
+def ebsi_nav_logout() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     session.clear()
     return redirect ('/sandbox/saas4ssi')
 
 # display activities of the issuer
-def issuer_activity() :
+def ebsi_issuer_activity() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
 
@@ -89,16 +80,17 @@ def issuer_activity() :
                     <td>""" + " & ".join(data_received) + """</td>
                     </tr>"""
             activity_list += activity
-        return render_template('issuer_activity.html', activity=activity_list) 
+        return render_template('ebsi/ebsi_issuer_activity.html', activity=activity_list) 
     else :
-        return redirect('/sandbox/op/issuer/console?client_id=' + session['client_data']['client_id'])
+        return redirect('/sandbox/ebsi/issuer/console?client_id=' + session['client_data']['client_id'])
 
-def issuer_select() :
+def ebsi_issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :  
-        my_list = db_api.list_issuer()
+        my_list = db_api.list_ebsi_issuer()
         issuer_list=str()
+        print(my_list)
         for data in my_list :
             data_dict = json.loads(data)         
             client_id = data_dict['client_id']
@@ -107,42 +99,35 @@ def issuer_select() :
                 DID = data_dict['did_ebsi']
             elif data_dict['method'] == "relay" :
                 DID = method_list['relay']
-            elif data_dict['method'] == False :
-                DID = "problem"
-            else : 
-                DID = didkit.key_to_did(data_dict['method'], data_dict['jwk'])
             if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
                 issuer = """<tr>
                         <td>""" + data_dict.get('application_name', "unknown") + """</td>
                          <td>""" + str(act) + """</td>
                         <td>""" + data_dict.get('user', "unknown") + """</td>
-                        <td><a href=/sandbox/op/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
+                        <td><a href=/sandbox/ebsi/issuer/console?client_id=""" + data_dict['client_id'] + """>""" + data_dict['client_id'] + """</a></td>
                         <td>""" + DID[:10] +'....' + DID[-10:] + """</td> 
-                        <td>""" + credential_to_issue_list.get(data_dict['credential_to_issue'], 'unknown') + """</td>
-                        <td>""" + credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
-                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
-                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_3'), "None") + """</td>
-                        <td>""" + credential_requested_list.get(data_dict.get('credential_requested_4'), "None") + """</td>
-
+                        <td>""" + ebsi_credential_to_issue_list.get(data_dict['credential_to_issue'], 'unknown') + """</td>
+                        <td>""" + ebsi_credential_requested_list.get(data_dict['credential_requested'], 'Unknown') + """</td>
+                        <td>""" + ebsi_credential_requested_list.get(data_dict.get('credential_requested_2'), "None") + """</td>
+                        <td>""" + ebsi_credential_requested_list.get(data_dict.get('credential_requested_3'), "None") + """</td>
+                        <td>""" + ebsi_credential_requested_list.get(data_dict.get('credential_requested_4'), "None") + """</td>
                         </tr>"""
                 issuer_list += issuer
-        return render_template('issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
+        return render_template('ebsi/ebsi_issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
    
        
-
-def nav_create(mode) :
+def ebsi_nav_create(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    return redirect('/sandbox/op/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
+    return redirect('/sandbox/ebsi/issuer/console?client_id=' + db_api.create_ebsi_issuer(mode,  user=session['login_name']))
 
 
-
-def issuer_preview (mode) :
+def ebsi_issuer_preview (mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
-    issuer_data = json.loads(db_api.read_issuer(client_id))
+    issuer_data = json.loads(db_api.read_ebsi_issuer(client_id))
     qrcode_message = issuer_data.get('qrcode_message', "No message")
     mobile_message = issuer_data.get('mobile_message', "No message")
     if not issuer_data.get('landing_page_style') :
@@ -178,7 +163,7 @@ def issuer_preview (mode) :
                             qrcode_background_color = issuer_data['qrcode_background_color'],
                             )
     
-def issuer_preview_presentation_endpoint(stream_id, red):
+def ebsi_issuer_preview_presentation_endpoint(stream_id, red):
     if request.method == 'GET':
         try :
             my_pattern = json.loads(red.get(stream_id).decode())['pattern']
@@ -190,25 +175,26 @@ def issuer_preview_presentation_endpoint(stream_id, red):
         return jsonify(my_pattern)
 
 
-def issuer_console(mode) :
+def ebsi_issuer_console(mode) :
     global  reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
-            return redirect('/sandbox/op/issuer/console/select')
+            return redirect('/sandbox/ebsi/issuer/console/select')
         else  :
             session['client_id'] = request.args.get('client_id')
-        session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
 
         # credential requested 1
         credential_requested_select = str()
-        for key, value in credential_requested_list.items() :
+        for key, value in ebsi_credential_requested_list.items() :
                 if key ==   session['client_data']['credential_requested'] :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
         
+
         landing_page_style_select = str()
         for key, value in landing_page_style_list.items() :
                 if key == session['client_data'].get('landing_page_style') :
@@ -218,7 +204,7 @@ def issuer_console(mode) :
         
         # credential requested 2
         credential_requested_2_select = str()
-        for key, value in credential_requested_list_2.items() :
+        for key, value in ebsi_credential_requested_list.items() :
                 if key ==   session['client_data'].get('credential_requested_2', "DID") :
                     credential_requested_2_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
@@ -226,7 +212,7 @@ def issuer_console(mode) :
         
         # credential requested 3
         credential_requested_3_select = str()
-        for key, value in credential_requested_list_2.items() :
+        for key, value in ebsi_credential_requested_list.items() :
                 if key ==   session['client_data'].get('credential_requested_3', "DID") :
                     credential_requested_3_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
@@ -234,19 +220,15 @@ def issuer_console(mode) :
         
         # credential requested 4
         credential_requested_4_select = str()
-        for key, value in credential_requested_list_2.items() :
+        for key, value in ebsi_credential_requested_list.items() :
                 if key ==   session['client_data'].get('credential_requested_4', "DID") :
                     credential_requested_4_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_4_select +=  "<option value=" + key + ">" + value + "</option>"
-
-
+        
+        # cedential to usse for EBSI issuer
+        credential_items = ebsi_credential_to_issue_list.items()
         credential_to_issue_select = str()
-
-        if session["login_name"] == 'admin' :
-            credential_items = credential_to_issue_list.items()
-        else :
-            credential_items = credential_to_issue_list_for_guest.items()
         for key, value in credential_items :
                 if key ==   session['client_data']['credential_to_issue'] :
                     credential_to_issue_select +=  "<option selected value=" + key + ">" + value + "</option>"
@@ -256,39 +238,7 @@ def issuer_console(mode) :
             secret = pyotp.random_base32()
         else :
             secret = session['client_data']["secret"] 
-        # external generator https://totp.danhersam.com/
-        period = ""
-        if session['client_data']['credential_requested'] == 'totp' :
-            period = session['client_data'].get('totp_interval', "30")
-            try :       
-                totp = pyotp.TOTP(secret, interval=int(period))
-                totp_now= totp.now()
-                time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
-            except :
-                secret = pyotp.random_base32()
-                totp = pyotp.TOTP(secret, interval=int(period))
-                totp_now= totp.now()
-                time_remaining = str(totp.interval - datetime.datetime.now().timestamp() % totp.interval)
-            totp_link =  session['client_data']['issuer_landing_page'] + "?totp=" + totp_now
-            totp_interval =  session['client_data'].get('totp_interval', "30")
-        elif session['client_data']['credential_requested'] == 'secret' :
-            totp_now = "N/A"
-            totp_link = ""
-            time_remaining = "N/A"
-            totp_interval = "30"
-        else :
-            secret = 'N/A'
-            totp_now = "N/A"
-            totp_link = ""
-            time_remaining = "N/A"
-            totp_interval = "30"
-        return render_template('issuer_console.html',
-                totp_now=totp_now,
-                period=period,
-                totp_link=totp_link,
-                totp_interval=totp_interval,
-                standalone = "" if session['client_data'].get('standalone') in [None, False]  else "checked" ,
-                time_remaining=time_remaining.split('.')[0],
+        return render_template('ebsi/ebsi_issuer_console.html',
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
                 secret=secret,
@@ -333,16 +283,14 @@ def issuer_console(mode) :
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
-            db_api.delete_issuer( request.form['client_id'])
-            return redirect ('/sandbox/op/issuer/console')
+            db_api.delete_ebsi_issuer( request.form['client_id'])
+            return redirect ('/sandbox/ebsi/issuer/console')
         
         else :
             session['client_data']['contact_name'] = request.form['contact_name']
-            session['client_data']['standalone'] = request.form.get('standalone') 
-            session['client_data']['totp_interval'] = request.form['totp_interval']
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
-            session['client_data']['secret'] = request.form['secret']
+            #session['client_data']['secret'] = request.form['secret']
             session['client_data']['webhook'] = request.form['webhook']
             session['client_data']['landing_page_style'] = request.form['landing_page_style']
             session['client_data']['page_title'] = request.form['page_title']
@@ -379,79 +327,73 @@ def issuer_console(mode) :
             session['client_data']['card_text_color'] = request.form['card_text_color']                
               
             if request.form['button'] == "preview" :
-                return redirect ('/sandbox/op/issuer/console/preview')
+                return redirect ('/sandbox/ebsi/issuer/console/preview')
 
             if request.form['button'] == "activity" :
-                return redirect ('/sandbox/op/issuer/console/activity')
+                return redirect ('/sandbox/ebsi/issuer/console/activity')
             
             if request.form['button'] == "advanced" :
-                return redirect ('/sandbox/op/issuer/console/advanced')
+                return redirect ('/sandbox/ebsi/issuer/console/advanced')
             
             if request.form['button'] == "update" :
-                db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
-                return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+                db_api.update_ebsi_issuer(request.form['client_id'], json.dumps(session['client_data']))
+                return redirect('/sandbox/ebsi/issuer/console?client_id=' + request.form['client_id'])
 
             if request.form['button'] == "copy" :
-                new_client_id=  db_api.create_issuer(mode,  user=session['login_name'])
+                new_client_id=  db_api.create_ebsi_issuer(mode,  user=session['login_name'])
                 new_data = copy.deepcopy(session['client_data'])
                 new_data['application_name'] = new_data['application_name'] + ' (copie)'
                 new_data['client_id'] = new_client_id
                 new_data['user'] = session['login_name']
-                db_api.update_issuer(new_client_id, json.dumps(new_data))
-                return redirect('/sandbox/op/issuer/console?client_id=' + new_client_id)
+                db_api.update_ebsi_issuer(new_client_id, json.dumps(new_data))
+                return redirect('/sandbox/ebsi/issuer/console?client_id=' + new_client_id)
 
 
-async def issuer_advanced() :
+async def ebsi_issuer_advanced() :
     global  reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
-        session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
-       
-        method_select = str()       
-        for key, value in method_list.items() :
-                if key ==   session['client_data'].get('method', "") :
-                    method_select +=  "<option selected value=" + key + ">" + value + "</option>"
+        session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
+        """
+        pre_authorized_code_select = str()       
+        for key, value in pre_authorized_code_list.items() :
+                if key ==  session['client_data'].get('pre_authorized_code', "") :
+                    pre_authorized_code_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
-                    method_select +=  "<option value=" + key + ">" + value + "</option>"
+                    pre_authorized_code_select +=  "<option value=" + key + ">" + value + "</option>"
+        """
+        ebsi_vc_type_select = str()       
+        for key, value in ebsi_vc_type_list.items() :
+                if key ==   session['client_data'].get('ebsi_issuer_vc_type', "jwt_vc") :
+                    ebsi_vc_type_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    ebsi_vc_type_select +=  "<option value=" + key + ">" + value + "</option>"
 
-        if session['client_data']['method'] == "relay" :
-            DID = "Unknown"
-            did_document = '{ "DID document" : "Unknown" }'
-            jwk = '{ "JWK" : "Unknown" }'
-        else : 
-            DID = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
-            did_document = await didkit.resolve_did(DID, '{}')
-            jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
-            did_ebsi = 'Not applicable'
-        return render_template('issuer_advanced.html',
+        did_ebsi = session['client_data']['did_ebsi']
+        did_document = ebsi.did_resolve(did_ebsi, session['client_data']['jwk'])
+        jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
+        did_ebsi = session['client_data']['did_ebsi']
+        return render_template('ebsi/ebsi_issuer_advanced.html',
                 client_id = session['client_data']['client_id'],
                 jwk = jwk,
-                method = session['client_data']['method'],
-                method_select=method_select,
-                DID = DID,
+                #pre_authorized_code_select=pre_authorized_code_select,
+                ebsi_vc_type_select=ebsi_vc_type_select,
+                did_ebsi = did_ebsi,
                 did_document=json.dumps(json.loads(did_document), indent=4)
                 )
-    if request.method == 'POST' :
-        
+    if request.method == 'POST' :        
         if request.form['button'] == "back" :
-            return redirect('/sandbox/op/issuer/console?client_id=' + request.form['client_id'])
+            return redirect('/sandbox/ebsi/issuer/console?client_id=' + request.form['client_id'])
 
         if request.form['button'] == "update" :
-            session['client_data']['method'] = request.form['method']
-
-            if  session['client_data']['method'] == "relay" :
-                db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
-                return redirect('/sandbox/op/issuer/console/advanced')
-
+            #session['client_data']['pre_authorized_code'] = request.form['pre_authorized_code']
+            session['client_data']['ebsi_issuer_vc_type'] = request.form['ebsi_issuer_vc_type']
             jwk_dict = json.loads(session['client_data']['jwk'])
-            if request.form['method'] in ['key', "ebsi"] :
-                jwk_dict['alg'] = "ES256K"
-            else : 
-                jwk_dict['alg'] = "ES256K-R"
+            jwk_dict['alg'] = "ES256K"
             session['client_data']['jwk'] = json.dumps(jwk_dict)
             if request.form['method'] == "ebsi" and  request.form['did_ebsi'] != "Not applicable" :
                 session['client_data']['did_ebsi'] = request.form['did_ebsi']
-            db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
-            return redirect('/sandbox/op/issuer/console/advanced')
+            db_api.update_ebsi_issuer( request.form['client_id'], json.dumps(session['client_data']))
+            return redirect('/sandbox/ebsi/issuer/console/advanced')
           

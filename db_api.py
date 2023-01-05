@@ -55,6 +55,16 @@ def delete_ebsi_verifier(client_id) :
 def create_ebsi_verifier(mode, user=None, method="ethr") :
     return create('ebsi_verifier.db', user, mode, method)
 
+def update_ebsi_issuer(client_id, data) :
+    return update(client_id, data, 'ebsi_issuer.db')
+def read_ebsi_issuer(client_id) :
+    return read(client_id, 'ebsi_issuer.db')
+def list_ebsi_issuer() :
+    return list('ebsi_issuer.db')
+def delete_ebsi_issuer(client_id) :
+    return delete(client_id, 'ebsi_issuer.db')
+def create_ebsi_issuer(mode, user=None, method="ethr") :
+    return create('ebsi_issuer.db', user, mode, method)
 
 def update_beacon(client_id, data) :
     return update(client_id, data, 'beacon.db')
@@ -105,14 +115,18 @@ def create(db, user, mode, method) :
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['tezid_proof_type'] = data['client_id']
     data['client_secret'] = str(uuid.uuid1())
+    if db == 'ebsi_issuer.db' :
+        data['issuer_landing_page'] = mode.server + 'sandbox/ebsi/issuer/' + data['client_id']
+        data['protocol'] = 'siopv2'
+        data['standalone'] = "on"
+        method = 'ebsi'
+        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K")
     if db == 'ebsi_verifier.db' :
         data['protocol'] = 'siopv2'
-        # TODO not sure !!!!
-        data['issuer_landing_page'] = mode.server + 'sandbox/ebsi/' + data['client_id']
     if db == 'issuer.db' :
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
         # init with did:ethr
-    key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
     data['jwk'] = key.export_private()
     data['method'] = method
     # init did:ebsi in case of use

@@ -12,6 +12,7 @@
                     "systemName" : "schema:productName",
                     "device" : "schema:productName",
                     "systemVersion" : "schema:productName",
+                    "walletBuild" : "schema:identifier",
                     "issuedBy": {
                         "@id": "schema:issuedBy",
                         "@context": {
@@ -32,6 +33,7 @@
         "type" : "DeviceInfo",
         "systemName" : "",
         "device" : "",
+        "walletBuild" : "",
         "systemVersion" : "",
         "id": "",
         "issuedBy" : {

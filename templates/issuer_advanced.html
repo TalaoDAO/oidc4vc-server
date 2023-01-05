@@ -29,33 +29,7 @@
                       <form action="/sandbox/op/issuer/console/advanced" method="POST">
                       <input value="{{client_id}}" hidden name="client_id">
 
-                      <div class="form-row">
-
-                          <div class="col-3">
-                            <div class="form-group"><label><strong>Wallet protocol</strong></label><select name="protocol" class="form-control">
-                              {{protocol_select|safe}}  
-                              </select></div>
-                          </div> 
-                                                    
-                            <div class="col-3">
-                              <div class="form-group"><label><strong>VC/VP format</strong></label>
-                                <select name="" class="form-control">
-                                <option selected value="JSON-LD">JSON-LD</option>
-                                </select>
-                              </div>
-                            </div>
-
-                            <div class="col-3">
-                              <div class="form-group"><label><strong>Pre authorized code mode</strong></label>
-                                <select name="pre_authorized_code" class="form-control">
-                                  {{pre_authorized_code_select|safe}}  
-                                </select>
-                              </div>
-                            </div>
-
-                          
-                      </div>
-
+    
                       <div class="form-row">
 
                               <div class="col-3">
@@ -64,14 +38,11 @@
                                   </select></div>
                               </div>
 
-                            <div class="col">
+                            <div class="col-6">
                               <div class="form-group"><label><strong>Issuer DID</strong><br></label><input readonly class="form-control" type="text"  value="{{DID}}"></div>
                             </div>
 
-                            <div class="col">
-                              <div class="form-group"><label><strong>Issuer DID for EBSI (input your DID if needed)</strong><br></label><input class="form-control" type="text"  name = "did_ebsi" value="{{did_ebsi}}"></div>
-                            </div>
-
+                          
                       </div>
 
                       <div class="form-row">

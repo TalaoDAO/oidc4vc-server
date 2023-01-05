@@ -21,10 +21,12 @@ def init_app(app,red, mode) :
     
     app.add_url_rule('/sandbox/saas4ssi/beacon',  view_func=saas_beacon, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/beacon/verifier',  view_func=saas_beacon_verifier, methods = ['GET', 'POST'])
+    
     app.add_url_rule('/sandbox/saas4ssi/ebsi/verifier',  view_func=saas_ebsi_verifier, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/saas4ssi/ebsi/issuer',  view_func=saas_ebsi_issuer, methods = ['GET', 'POST'])
 
 
-    app.add_url_rule('/sandbox/saas4ssi/tezid/verifier',  view_func=saas_tezid_verifier, methods = ['GET', 'POST'])
+    #app.add_url_rule('/sandbox/saas4ssi/tezid/verifier',  view_func=saas_tezid_verifier, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
@@ -198,29 +200,21 @@ def saas_callback_2():
         session.clear()
         return render_template ("access_denied.html")
 
-
 def saas_verifier():
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     else :
         return redirect ('/sandbox/op/console/select')
 
-
-
 def saas_issuer() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/issuer/console/select')
 
-
-
-
 def saas_beacon() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/beacon/console/select')
-
-
 
 def saas_beacon_verifier() :
     if not session.get('is_connected') or not session.get('login_name') :
@@ -232,7 +226,14 @@ def saas_ebsi_verifier() :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/ebsi/verifier/console/select')
 
+def saas_ebsi_issuer() :
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    return redirect ('/sandbox/ebsi/issuer/console/select')
+
+"""
 def saas_tezid_verifier() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/op/tezid/verifier/console/select')
+"""
