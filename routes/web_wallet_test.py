@@ -1,18 +1,3 @@
-"""
-def get_version() -> str: ...
-def generate_ed25519_key() -> str: ...
-def key_to_did(method_pattern: str, jwk: str) -> str: ...
-async def key_to_verification_method(method_pattern: str, jwk: str) -> str: ...
-async def issue_credential(credential: str, proof_options: str, key: str) -> str: ...
-async def verify_credential(credential: str, proof_options: str) -> str: ...
-async def issue_presentation(presentation: str, proof_options: str, key: str) -> str: ...
-async def verify_presentation(presentation: str, proof_options: str) -> str: ...
-async def resolve_did(did: str, input_metadata: str) -> str: ...
-async def dereference_did_url(did_url: str, input_metadata: str) -> str: ...
-async def did_auth(did: str, options: str, key: str) -> str: ...
-"""
-
-
 from flask import jsonify, request, render_template, Response, render_template_string, redirect, url_for
 import json
 from datetime import timedelta, datetime
@@ -25,10 +10,10 @@ import logging
 from urllib.parse import urlencode
 import ebsi
 
+
 logging.basicConfig(level=logging.INFO)
 
 OFFER_DELAY = timedelta(seconds= 10*60)
-TEST_REPO = "TalaoDAO/wallet-tools"
 REGISTRY_REPO = "TalaoDAO/context"
 DID_WEB = 'did:web:talao.co'
 DID_ETHR = 'did:ethr:0xee09654eedaa79429f8d216fa51a129db0f72250'
@@ -61,23 +46,11 @@ except :
     Secp256kr  = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_secp256kr'])
     P256 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_P256_private_key'])
     Ed25519 = json.dumps(json.load(open("/home/thierry/sandbox/keys.json", "r"))['talao_Ed25519_private_key'])
-
-
-def translate(credential) : 
-    credential_name = ""
-    try : 
-        for name in credential['name'] :
-            if name['@language'] == 'fr' :
-                credential_name = name['@value']
-                break
-    except :
-        pass
-    return credential_name
     
 
-def dir_list_calculate(path) :
+def dir_list_calculate() :
     dir_list=list()
-    contents = test_repo.get_contents(path)
+    contents = registry_repo.get_contents("context")
     for content_file in contents :
         if content_file.name.split('.')[1] =='jsonld' :
             dir_list.append(content_file.name)
@@ -85,7 +58,7 @@ def dir_list_calculate(path) :
 
 
 def credential_from_filename(path, filename) :
-    file = test_repo.get_contents(path + "/" + filename)
+    file = registry_repo.get_contents(path  + '/' + filename)
     encoded_content = file.__dict__['_rawData']['content']
     return json.loads(base64.b64decode(encoded_content).decode())
       
@@ -99,21 +72,20 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
 
+    # Test QueryByExample test
     app.add_url_rule('/sandbox/presentationRequest',  view_func=test_presentationRequest_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/wallet_presentation/<stream_id>',  view_func=test_presentationRequest_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/sandbox/presentation_display',  view_func=test_presentation_display, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/presentation_stream',  view_func=presentation_stream, defaults={ 'red' : red})
 
+    # Playground screen
     app.add_url_rule('/sandbox',  view_func=sandbox, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/playground',  view_func=playground, methods = ['GET', 'POST'])
 
-
-    global test_repo, registry_repo
+    global registry_repo
     g = Github(mode.github)
-    test_repo = g.get_repo(TEST_REPO)
     registry_repo = g.get_repo(REGISTRY_REPO)
     return
-
 
 
 
@@ -127,8 +99,10 @@ def playground() :
 
 
 ######################### Credential Offer ###########
+
 def test_credentialOffer2_qrcode() :
-    return redirect(url_for("test_credentialOffer_qrcode", path="test/CredentialOffer2"))
+    return redirect(url_for("test_credentialOffer_qrcode", path="context"))
+
 
 """
 Direct access to one VC with filename passed as an argument
@@ -136,12 +110,10 @@ Direct access to one VC with filename passed as an argument
 def test_direct_offer(red, mode) :
     try :
         VC_filename= request.args['VC']
-        cm = request.args.get("cm", "1")
     except :
         return jsonify("Request malformed"), 400
-    logging.info("filename = %s",VC_filename)
     try :
-        credential = credential_from_filename("test/CredentialOffer2", VC_filename)
+        credential = credential_from_filename("context", VC_filename)
     except :
         return jsonify("Verifiable Credential not found"), 500
     if request.args.get('method') == "ethr" :
@@ -150,102 +122,65 @@ def test_direct_offer(red, mode) :
         credential['issuer'] = DID_KEY
     else :
         credential['issuer'] = DID_TZ1
-    #credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     credential['issuanceDate'] = datetime.utcnow().isoformat() + "Z"
     credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
     credential['credentialSubject']['id'] = "did:..."
     credential['id'] = "urn:uuid:" + str(uuid.uuid1())
-    backgroundColor = "ffffff"
 
     if VC_filename == "VerifiableDiploma.jsonld" :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     
-       
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
-            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "shareLink" : str(),
-            "display" : { "backgroundColor" : backgroundColor},
+            "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z"
         }
-    credential_manifest = "{}" 
-        
+    
     if VC_filename == "TezLoyaltyCard_1.jsonld" :
         filename = "./credential_manifest/loyaltycard_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']
     
     # EBSI signer
     elif VC_filename == "VerifiableDiploma.jsonld" :
         filename = "./credential_manifest/VerifiableDiploma_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']     
+    
+    elif VC_filename == "VerifiableId.jsonld" :
+        filename = "./credential_manifest/verifiableid_credential_manifest.json"
 
     elif VC_filename == "TezVoucher_1.jsonld" :
         filename = "./credential_manifest/voucher_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']    
 
     elif VC_filename == "compellio_ticket.jsonld" :
         filename = "./credential_manifest/compellio_ticket_cm.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']    
     
     elif VC_filename == "AragoPass.jsonld" :
         filename = "./credential_manifest/AragoPass_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']    
     
     elif VC_filename == "CustomType.jsonld" :
         filename = "./credential_manifest/CustomType_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']  
 
     elif VC_filename == "GamerPass.jsonld" :
         filename = "./credential_manifest/GamerPass_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']   
 
     elif VC_filename == "LoyaltyCard.jsonld" :
         filename = "./credential_manifest/LoyaltyCard_credential_manifest.json"
-        with open(filename, "r") as f:
-            credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']    
+    
+    elif VC_filename == "PCDSAgentCertificate.jsonld" :
+        filename = "./credential_manifest/PCDSAgentCertificate_credential_manifest.json"
 
     elif VC_filename == "MembershipCard_1.jsonld" :
         filename = "./credential_manifest/MembershipCard_1_credential_manifest.json"
+    
+    else : 
+        filename = None
+        credential_manifest = "{}" 
+
+    if filename :
         with open(filename, "r") as f:
             credential_manifest = f.read()
-        credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-        del credentialOffer['shareLink']
-        del credentialOffer['display']       
-
-    cm = json.loads(credential_manifest)
+    
+    credentialOffer['credential_manifest'] = json.loads(credential_manifest)
 
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
@@ -258,31 +193,23 @@ def test_direct_offer(red, mode) :
                                 deeplink=deeplink,
                                 altme_deeplink=altme_deeplink,
                                 id=id,
-                                credential_manifest = json.dumps(cm,indent=4),
-                                type = mytype + " - " + translate(credential)
+                                credential_manifest = json.dumps(credentialOffer['credential_manifest'],indent=4),
                                 )
 
 
 def test_credentialOffer_qrcode(red, mode) :
     global did_selected 
     if request.method == 'GET' :   
-        try :
-            path = request.args['path']
-        except :
-            path = "test/CredentialOffer"
         # list all the files of github directory 
-        dir_list = dir_list_calculate(path)
+        dir_list = dir_list_calculate()
+        path = "context"
         html_string = str()
         for filename in dir_list :
             try :
-                credential = credential_from_filename(path, filename)
+                credential = credential_from_filename("context", filename)
                 credential['issuer'] = ""
-                credential_name = translate(credential)
                 html_string += """
-                    <p> Credential preview : <a href='/sandbox/display?path="""+ path + """&filename=""" + filename + """'>""" + filename + """</a></p>
-                    <p> id : """ + credential.get("id", "") + """</p> 
-                    <p> type : """ + ", ".join(credential.get("type", "")) + """</p>
-                    <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "") + """ / """ + credential_name + """</strong> </p>
+                    <p>credentialSubject.type : <strong>""" + credential['credentialSubject'].get('type', "Not indicated") +  """</strong> </p>
                     <form action="/sandbox/credentialOffer" method="POST" >
                     
                     Issuer : <select name="did_select">
@@ -293,10 +220,6 @@ def test_credentialOffer_qrcode(red, mode) :
                         </select><br><br>
                         <input hidden name="path" value=""" + path + """> 
                         <input hidden name="filename" value='""" + filename + """'> 
-                        <p>backgroundColor : <input value="#ffffff" type="color" name="backgroundColor" ></p>
-                        <p>shareLink : <input type="text" name="shareLink" ></p>
-                        <input hidden name="filename" value=""" + "talaophonepass" + """>
-                        <input hidden name="path" value=""" + path + """> 
                         <br><button  type"submit" > Generate QR code for a Credential Offer</button>
                     </form>
                     <hr>"""
@@ -330,19 +253,11 @@ def test_credentialOffer_qrcode(red, mode) :
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['issuer'] = did_issuer
-        scope = ["subject_id"]
-        display = dict()
-        if request.form.get('backgroundColor') :
-            display['backgroundColor'] = request.form['backgroundColor'][1:]
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
-            "scope" : scope,
-            "display" : display
         }
-        if request.form.get('shareLink') :
-            credentialOffer['shareLink'] = request.form['shareLink']
         url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
         altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
@@ -354,16 +269,14 @@ def test_credentialOffer_qrcode(red, mode) :
                                 altme_deeplink=altme_deeplink,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
-                                type = type + " - " + translate(credential),
                                 simulator='Verifier Simulator' 
                                 )
 
 
 def test_credential_display():  
-    path = request.args['path']
     filename = request.args['filename']
     try :
-        credential = credential_from_filename(path, filename)
+        credential = credential_from_filename("context", filename)
     except :
         logging.warning("credential mal formaté %s", filename)
         return jsonify('Credential not found'), 400
@@ -435,7 +348,7 @@ async def test_credentialOffer_endpoint(id, red):
                             'scope' : '',
                             'signed_credential' : signed_credential
                             })
-        red.publish('credible', data)
+        red.publish('wallet_test', data)
         return jsonify(signed_credential)
         
 
@@ -448,7 +361,7 @@ def test_credentialOffer_back():
 def offer_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('credible')
+        pubsub.subscribe('wallet_test')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()  
@@ -474,7 +387,6 @@ DIDAuth = {
            "domain" : ""
             }
  
-
 
 def test_presentationRequest_qrcode(red, mode):
     if request.method == 'GET' :
@@ -524,20 +436,18 @@ async def test_presentationRequest_endpoint(stream_id, red):
         red.delete(stream_id)
         red.set(stream_id,  request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
-			                        "message" : "ok"})           
-        red.publish('credible', event_data)
+			                    "message" : "ok"})           
+        red.publish('wallet_presentation', event_data)
         return jsonify("ok")
 
 
-def event_stream(red):
-    pubsub = red.pubsub()
-    pubsub.subscribe('credible')
-    for message in pubsub.listen():
-        if message['type']=='message':
-            yield 'data: %s\n\n' % message['data'].decode()
-
-
 def presentation_stream(red):
+    def event_stream(red):
+        pubsub = red.pubsub()
+        pubsub.subscribe('wallet_presentation')
+        for message in pubsub.listen():
+            if message['type']=='message':
+                yield 'data: %s\n\n' % message['data'].decode()
     headers = { "Content-Type" : "text/event-stream",
                 "Cache-Control" : "no-cache",
                 "X-Accel-Buffering" : "no"}

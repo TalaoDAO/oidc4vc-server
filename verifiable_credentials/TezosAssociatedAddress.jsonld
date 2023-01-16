@@ -49,7 +49,7 @@
 			"issuedBy" : {"name" : "My wallet"}
 	},
 	"evidence": [{
-		"id": "urn:uuid:yyyyyyyyy",
+		"id": "https://github.com/TalaoDAO/contex#evidence",
 		"type": ["WalletLink"],
 		"verifier" : "did:web:app.altme.io:issuer",
 		"cryptoWalletSignature" : "",

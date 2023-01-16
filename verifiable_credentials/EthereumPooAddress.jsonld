@@ -1,15 +1,15 @@
 {
 	"@context": [ "https://www.w3.org/2018/credentials/v1", 
 		{
-			"PolygonAssociatedAddress" : {
-				"@id" : "https://github.com/TalaoDAO/context#polygonassociatedaddress",
+			"EthereumPooAddress" : {
+				"@id" : "https://github.com/TalaoDAO/context#ethereumpooaddress",
 				"@context" : {
 					"@version": 1.1,
 					"@protected": true,
 					"id": "@id",
                     "type": "@type",
 					"accountName" :  "https://github.com/TalaoDAO/context#accountname",
-					"associatedAddress" : "https://w3id.org/security#blockchainAccountId",
+      				"associatedAddress" : "https://w3id.org/security#blockchainAccountId",
 					"issuedBy": {
 						"@id": "https://schema.org/issuedBy",
 						"@context": {
@@ -34,21 +34,20 @@
 			}
 		}
    	],
-	"id" : "urn:uuid:xxxxxxxx",
+	"id" : "",
 	"type": [
         		"VerifiableCredential",
-           		"PolygonAssociatedAddress",
+           		"EthereumPooAddress",
 				"WalletLink"
 	],
-	"issuer" : "did:key:crypto_wallet",
+	"issuer" : "",
 	"credentialSubject" : {
-       		"id" : "did:key:wallet AltMe",
-       		"type" : "PolygonAssociatedAddress",
+       		"id" : "",
+       		"type" : "EthereumPooAddress",
           	"associatedAddress" : "",
 		    "accountName" : "",
-			"issuedBy" : {"name" : ""}
+			"issuedBy" : {"name" : "Altme"}
 	},
-
 	"evidence": [{
 		"id": "https://github.com/TalaoDAO/contex#evidence",
 		"type": ["WalletLink"],

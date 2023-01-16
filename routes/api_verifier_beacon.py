@@ -28,6 +28,12 @@ TRUSTED_ISSUER = [
     "did:tz:tz2UFjbN9ZruP5pusKoAKiPD3ZLV49CBG9Ef"
 ]
 
+ASSOCIATED_ADDRESS_LIST = ['TezosAssociatedAddress',
+                     'EthereumAssociatedAddress',
+                     'PolygonAssoociatedAddress',
+                     'BinanceAssociatedAddress',
+                     'FantomAssociatedAddress',
+                     ]
 
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/beacon/verifier/<verifier_id>',  view_func=beacon_verifier, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
@@ -41,24 +47,43 @@ async def beacon_verifier(verifier_id, red, mode):
         logging.error('client id not found')
         return jsonify("verifier not found"), 404
     if request.method == 'GET':
+
+        if verifier_data['vc'] == "ANY" :
+            pattern = op_constante.model_any
+        elif verifier_data['vc'] == "DID" :
+            pattern = op_constante.model_DIDAuth
+        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+            pattern = op_constante.model_one
+            pattern["query"][0]["credentialQuery"][0]["reason"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
+        else :
+            pattern = op_constante.model_two
+            pattern["query"][0]["credentialQuery"][0]["reason"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
+            pattern["query"][0]["credentialQuery"][1]["reason"] = verifier_data['reason_2']
+            pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc_2']
+        
+        """
         if verifier_data.get('vc') == "DID" :
             pattern = op_constante.model_one
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["reason"] = 'Select your Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
         elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
             pattern = op_constante.model_two
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["reason"] = 'Select your Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
-            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][1]["reason"] = verifier_data['reason']
             pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
         else :
             pattern = op_constante.model_three
-            pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = 'Select your Tezos blockchain account'
+            pattern["query"][0]["credentialQuery"][0]["reason"] = 'Select your Tezos blockchain account'
             pattern["query"][0]["credentialQuery"][0]["example"]["type"] = 'TezosAssociatedAddress'
-            pattern["query"][0]["credentialQuery"][1]["reason"][0]["@value"] = verifier_data['reason']
+            pattern["query"][0]["credentialQuery"][1]["reason"] = verifier_data['reason']
             pattern["query"][0]["credentialQuery"][1]["example"]["type"] = verifier_data['vc']
-            pattern["query"][0]["credentialQuery"][2]["reason"][0]["@value"] = verifier_data['reason_2']
+            pattern["query"][0]["credentialQuery"][2]["reason"] = verifier_data['reason_2']
             pattern["query"][0]["credentialQuery"][2]["example"]["type"] = verifier_data['vc_2']    
+        """
+        
         pattern['domain'] = mode.server
        
         pattern['domain'] = mode.server
@@ -69,9 +94,11 @@ async def beacon_verifier(verifier_id, red, mode):
         pattern['domain'] = 'Altme.io'
         # TODO incorrect use of challenge to carry the redis data
         red.setex(pattern['challenge'], QRCODE_LIFE, json.dumps(pattern))
+        print("pattern = ", pattern)
         return jsonify(pattern)
 
-    if request.method == 'POST' :        
+    if request.method == 'POST' :   
+        print('enter')     
         async def check_credential(credential) :     
             result_credential = await didkit.verify_credential(json.dumps(credential), '{}')
             if json.loads(result_credential)['errors']  :       
@@ -79,7 +106,6 @@ async def beacon_verifier(verifier_id, red, mode):
                 return False
             if  credential["credentialSubject"]['id'] != json.loads(presentation)['holder'] :  
                 logging.warning("holder does not match subject.id")     
-                return False
             if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
                 logging.warning("Credential expired")     
                 return False
@@ -104,15 +130,17 @@ async def beacon_verifier(verifier_id, red, mode):
         credential_list = json.loads(presentation)['verifiableCredential']
         vc_type = list()
         if isinstance(credential_list, dict) :
-            credential_list = list(credential_list)
+            credential_list = [credential_list]
         for credential in credential_list :
             vc_type.append(credential['credentialSubject']['type'])
             if not await check_credential(credential) :
                 verification = False
-            if credential['credentialSubject']['type'] not in ['TezosAssociatedAddress', verifier_data.get('vc'), verifier_data.get('vc_2')] :
+            if credential['credentialSubject']['type'] not in [verifier_data.get('vc'), verifier_data.get('vc_2')] :
                 verification = False
-            if credential['credentialSubject']['type'] == 'TezosAssociatedAddress' :
-                associatedAddress = credential['credentialSubject']['associatedAddress']
+            if credential['credentialSubject']['type'] in  ASSOCIATED_ADDRESS_LIST :
+                associated_address = credential['credentialSubject']['associatedAddress']
+            else :
+                associated_address = "Unknown"
         if not verification :
             logging.warning('Access denied')
             return jsonify('Unhautorized'), 403
@@ -120,7 +148,7 @@ async def beacon_verifier(verifier_id, red, mode):
         # send digest data to webhook       
         payload = { 'event' : 'VERIFICATION',
                     'id' : id,  
-                    'address' : associatedAddress, 
+                    'address' : associated_address, 
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
                     "verification" : verification
@@ -137,7 +165,7 @@ async def beacon_verifier(verifier_id, red, mode):
         
         # send credentials to webhook
         payload = { 'event' : 'VERIFICATION_DATA',
-                    'address' : associatedAddress, 
+                    'address' : associated_address, 
                     'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
                     'vc_type' : vc_type,
                     'id' : id,
@@ -156,7 +184,7 @@ async def beacon_verifier(verifier_id, red, mode):
         
         # TezID whitelisting register in whitelist on ghostnet KT1K2i7gcbM9YY4ih8urHBDbmYHLUXTWvDYj
         if verifier_data.get("tezid_proof_type", None) and verifier_data.get('tezid_network') not in  ['none', None] :
-            register_tezid(associatedAddress, verifier_data["tezid_proof_type"], verifier_data['tezid_network'], mode) 
+            register_tezid(associated_address, verifier_data["tezid_proof_type"], verifier_data['tezid_network'], mode) 
             logging.info('Whitelisting done')
         
         # issue SBT
@@ -178,7 +206,7 @@ async def beacon_verifier(verifier_id, red, mode):
                 "is_transferable":False,
                 "shouldPreferSymbol":False
             }
-            if issue_sbt(associatedAddress, metadata, credential['id'], mode) :
+            if issue_sbt(associated_address, metadata, credential['id'], mode) :
                 logging.info("SBT sent")
 
         # record activity
@@ -186,7 +214,7 @@ async def beacon_verifier(verifier_id, red, mode):
             'presented' : datetime.now().replace(microsecond=0).isoformat() + "Z",
             'vc_type' : vc_type,
             'verification' : verification,
-            'blockchainAddress' : associatedAddress
+            'blockchainAddress' : associated_address
         }
         beacon_activity_db_api.create(verifier_id, activity) 
         return jsonify("ok")

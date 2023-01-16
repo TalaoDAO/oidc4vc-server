@@ -21,7 +21,6 @@ import logging
 from urllib.parse import urlencode
 import requests
 import db_api
-import ebsi
 import base64
 import issuer_activity_db_api
 import pyotp
