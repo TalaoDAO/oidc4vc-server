@@ -38,13 +38,12 @@ from routes import api_verifier_ebsi, ebsi_verifier_console
 from routes import api_issuer_ebsi, ebsi_issuer_console
 
 
-#from routes import tezid_verifier_console
-from routes import dapp_check_gamer_pass
+#from routes import dapp_check_gamer_pass
 
-from routes import dapp_over13, dapp_tezid_over13
+#from routes import dapp_over13, dapp_tezid_over13
 
 # Server Release
-VERSION = "0.8.1"
+VERSION = "0.8.2"
 logging.info('Altme Sandbox version : %s', VERSION)
 
 # Framework Flask and Session setup
@@ -95,10 +94,10 @@ siopv2.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
 
 # use cases
-dapp_over13.init_app(app, red, mode)
-dapp_tezid_over13.init_app(app, red, mode)
+#dapp_over13.init_app(app, red, mode)
+#dapp_tezid_over13.init_app(app, red, mode)
 dapp.init_app(app, red, mode)
-dapp_check_gamer_pass.init_app(app, red, mode)
+#dapp_check_gamer_pass.init_app(app, red, mode)
 
 
 

@@ -47,6 +47,9 @@ def ebsi_issuer_openid_configuration(issuer_id, mode):
         'credential_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/credential',
         # 'batch_credential_endpoint' :
         # 'display' : -> output descriptors ?????
+        "subject_syntax_types_supported": [
+                "did:ebsi"
+        ],
         'credential_supported' : [{
                         'format': 'jwt_vc',
                         'id': ebsi_credential_to_issue_list.get(issuer_data['credential_to_issue'], 'unknown id') ,

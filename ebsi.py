@@ -71,6 +71,8 @@ def did_resolve(did, key) :
   return json.dumps(did_doc)
 
 
+
+# JSON-LD sign
 def lp_sign(credential, key, did) :
   if isinstance(key, str) :
     key = json.loads(key)

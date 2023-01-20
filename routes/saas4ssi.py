@@ -73,6 +73,10 @@ def default_webhook() :
      return jsonify ('ok')
 
 def saas_home():
+    if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
+        print('remote IP = ', request.environ['REMOTE_ADDR'])
+    else:
+        print('remote IP = ', request.environ['HTTP_X_FORWARDED_FOR']) # if behind a proxy
     return render_template("verifier.html")
 
 
