@@ -39,18 +39,15 @@ def ebsi_issuer_openid_configuration(issuer_id, mode):
     Attention for EBSI "types" = id of data model
     https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#section-10.2.3
     """
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    oidc = {
-        'credential_issuer': mode.server + 'sandbox/ebsi/issuer/' + issuer_id,
-        'authorization_endpoint':  mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/authorize',
-        'token_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/token',
-        'credential_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/credential',
-        # 'batch_credential_endpoint' :
-        # 'display' : -> output descriptors ?????
-        "subject_syntax_types_supported": [
-                "did:ebsi"
-        ],
-        'credential_supported' : [{
+    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id)) 
+    
+    # credential manifest
+    #https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-server-metadata
+    file_path = './credential_manifest/' + ebsi_credential_to_issue_list.get(issuer_data['credential_to_issue']) + '_credential_manifest.json'
+    credential_manifest = [json.load(open(file_path))]
+    
+    #credential supported
+    credential_supported = [{
                         'format': 'jwt_vc',
                         'id': ebsi_credential_to_issue_list.get(issuer_data['credential_to_issue'], 'unknown id') ,
                         'types':  issuer_data['credential_to_issue'],
@@ -61,7 +58,20 @@ def ebsi_issuer_openid_configuration(issuer_id, mode):
                             'ES256K',
                             'ES256'
                         ]
-        }],
+        }]
+    
+    oidc = {
+        'credential_issuer': mode.server + 'sandbox/ebsi/issuer/' + issuer_id,
+        'authorization_endpoint':  mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/authorize',
+        'token_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/token',
+        'credential_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/credential',
+        # 'batch_credential_endpoint' :
+        # 'display' : -> output descriptors ?????
+        "subject_syntax_types_supported": [
+                "did:ebsi"
+        ],
+        'credential_supported' : credential_supported,
+        'credential_manifests' : credential_manifest
     }
     return jsonify(oidc)
 
@@ -73,7 +83,14 @@ def ebsi_issuer_landing_page(issuer_id, red, mode) :
 
     https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-issuance-initiation-request
 
+    openid://initiate_issuance
+    ?issuer=http%3A%2F%2F192.168.0.65%3A3000%2Fsandbox%2Febsi%2Fissuer%2Fhqplzbjrhg
+    &credential_type=Pass
+    &op_stat=40fd65cf-98ba-11ed-957d-512a313adf23
+
     """
+    logging.info('Issuer open id conf = %s', mode.server + '/sandbox/ebsi/issuer/' + issuer_id + '/.well-known/openid-configuration' )
+
     session['is_connected'] = True
     try :
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
