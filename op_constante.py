@@ -202,6 +202,7 @@ ebsi_credential_to_issue_list = {
                     'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
                     'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
                     'PCDSAgentCertificate' : 'PCDS Agent Certificate',
+                    'None' : 'None'
                 }
 
 # EBSI issuer
@@ -391,6 +392,7 @@ client_data_pattern = {
                 "credential_requested_3" : "DID",
                 "credential_requested_4" : "DID",
                 "credential_to_issue" : "Pass",
+                "credential_to_issue_2" : "None",
                 "protocol" : "w3cpr",
                 "landing_page_style" : "op_issuer_qrcode.html",
                 "verifier_landing_page_style" : "op_verifier_qrcode_2.html",

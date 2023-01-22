@@ -20,7 +20,7 @@
         }
     }
     ],
-    "id": "",
+    "id": "urn:ebsi:1dee355d-0432-4910-ac9c-70d89e8d674e",
     "type": [
       "VerifiableCredential",
       "VerifiableAttestation",

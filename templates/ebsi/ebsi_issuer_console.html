@@ -124,12 +124,20 @@
                                  {{credential_to_issue_select|safe}}
                                   </select></div>
                             </div>  
-
-                            <div class="col-3">
-                              <div class="form-group"><label><strong>Duration</strong><br></label><input  required class="form-control" step="10" type="number" value="{{credential_duration}}" name="credential_duration" ></div>
-                            </div> 
-
+                            
+                         
+                            <div class="col-6">
+                                <div class="form-group"><label><strong>Credential to issue 2</strong></label>
+                                  <select  onchange="getResponse();" id="selectCredential" name="credential_to_issue_2" class="form-control">
+                                  <option value="">--Please choose an option--</option>
+                                 {{credential_to_issue_select|safe}}
+                                  </select></div>
+                            </div>  
+                           
                           </div> 
+
+
+
                           </div>
                           </div>
                      
@@ -297,45 +305,6 @@
                         </div>
 
 
-
-                        <div class="card shadow my-3">
-                          <div class="card-header py-3">
-                            <div class="d-flex justify-content-between">
-                              <p style="color:#09060f;" class="m-0 font-weight-bold">Dynamic card customization. For testing purpose only</p>
-                            </div>
-                          </div>
-                          <div class="card-body">
-
-                            <div class="form-row">
-                              <div class="col">
-                                <div class="form-group"><label><strong>Card title</strong><br></label><input class="form-control" type="text" name="card_title" value="{{card_title}}"></div>
-                              </div>
-  
-                              <div class="col">
-                                <div class="form-group"><label><strong>Card subtitle</strong><br></label><input class="form-control" type="text" name="card_subtitle" value="{{card_subtitle}}"></div>
-                              </div>
-                            </div>
-
-                            <div class="form-row">
-                              <div class="col">
-                                <div class="form-group"><label><strong>Card description</strong><br></label><textarea class="form-control" rows="5" name="card_description" >{{card_description}}</textarea></div>
-                              </div>
-                            </div>
-
-                            <div class="form-row">
-
-                              <div class="col">
-                                <div class="form-group"><label><strong>Card background color</strong><br></label><input type="color" class="form-control" name="card_background_color" value="{{card_background_color}}"></div>
-                              </div>
-                         
-
-                            <div class="col">
-                              <div class="form-group"><label><strong>Card text color</strong><br></label><input type="color" class="form-control" name="card_text_color" value="{{card_text_color}}"></div>
-                            </div>
-                    
-                            </div>
-                      </div>
-                      </div>
 
                         <div class="form-group">
                           <div class="form-row">

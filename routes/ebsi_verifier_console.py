@@ -8,8 +8,9 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante import ebsi_verifier_credential_list, model_one, model_any, model_DIDAuth
-from op_constante import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
+from op_constante_ebsi import ebsi_verifier_credential_list
+from op_constante_ebsi import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
+from op_constante import model_one, model_any, model_DIDAuth
 
 logging.basicConfig(level=logging.INFO)
 

@@ -8,6 +8,8 @@ import base58
 import os
 from jwcrypto import jwk
 from op_constante import client_data_pattern
+from op_constante_ebsi import client_data_pattern_ebsi
+
 logging.basicConfig(level=logging.INFO)
 
 def create_verifier(mode, user=None, method="ethr") :
@@ -42,7 +44,6 @@ def delete_beacon_verifier(client_id) :
     return delete(client_id, 'beacon_verifier.db')
 def create_beacon_verifier(mode, user=None, method="ethr") :
     return create_b('beacon_verifier.db', user, mode, method)
-
 
 def update_ebsi_verifier(client_id, data) :
     return update(client_id, data, 'ebsi_verifier.db')
@@ -111,7 +112,10 @@ def create_b(db, user, mode, method) :
 
 def create(db, user, mode, method) :
     letters = string.ascii_lowercase
-    data = client_data_pattern
+    if db == 'ebsi_issuer.db' :
+        data = client_data_pattern_ebsi
+    else :
+        data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['tezid_proof_type'] = data['client_id']
     data['client_secret'] = str(uuid.uuid1())
@@ -120,7 +124,7 @@ def create(db, user, mode, method) :
         data['protocol'] = 'siopv2'
         data['standalone'] = "on"
         method = 'ebsi'
-        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K")
+        key = jwk.JWK.generate(kty="EC", crv="P-256", alg="ES256")
     if db == 'ebsi_verifier.db' :
         data['protocol'] = 'siopv2'
     if db == 'issuer.db' :

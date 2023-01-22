@@ -40,6 +40,7 @@
     "id": "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
     "type": "JsonSchemaValidator2018"
   },
+  "id": "urn:ebsi:1dee355d-0432-4910-ac9c-70d89e8d674e",
   "credentialSubject": {
     "type": "VerifiableDiploma",
     "awardingOpportunity": {

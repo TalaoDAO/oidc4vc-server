@@ -6,8 +6,8 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import pre_authorized_code_list, ebsi_credential_requested_list
-from op_constante import ebsi_vc_type_list, method_list, landing_page_style_list, ebsi_credential_to_issue_list
+from op_constante_ebsi import pre_authorized_code_list, ebsi_credential_requested_list
+from op_constante_ebsi import ebsi_vc_type_list, method_list, landing_page_style_list, ebsi_credential_to_issue_list
 import ebsi
 import issuer_activity_db_api
 import pyotp
@@ -90,7 +90,6 @@ def ebsi_issuer_select() :
     if request.method == 'GET' :  
         my_list = db_api.list_ebsi_issuer()
         issuer_list=str()
-        print(my_list)
         for data in my_list :
             data_dict = json.loads(data)         
             client_id = data_dict['client_id']
@@ -263,13 +262,9 @@ def ebsi_issuer_console(mode) :
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
                 page_description = session['client_data']['page_description'],
-                card_title = session['client_data']['card_title'],
-                card_subtitle = session['client_data']['card_subtitle'],
-                card_description = session['client_data']['card_description'],
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
-                credential_duration= session['client_data'].get('credential_duration', 365),
                 credential_requested_select =  credential_requested_select,
                 landing_page_style_select =  landing_page_style_select,
                 credential_requested_2_select =  credential_requested_2_select,
@@ -278,8 +273,6 @@ def ebsi_issuer_console(mode) :
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
-                card_background_color = session['client_data']['card_background_color'],
-                card_text_color = session['client_data']['card_text_color'],
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
@@ -296,9 +289,6 @@ def ebsi_issuer_console(mode) :
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
             session['client_data']['page_description'] = request.form['page_description']
-            session['client_data']['card_title'] = request.form['card_title']
-            session['client_data']['card_subtitle'] = request.form['card_subtitle']
-            session['client_data']['card_description'] = request.form['card_description']
             session['client_data']['note'] = request.form['note']          
             session['client_data']['title'] = request.form['title']
             session['client_data']['contact_email'] = request.form['contact_email']
@@ -317,14 +307,12 @@ def ebsi_issuer_console(mode) :
             session['client_data']['credential_requested_3'] = request.form['credential_requested_3']
             session['client_data']['credential_requested_4'] = request.form['credential_requested_4']
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
-            session['client_data']['credential_duration'] = request.form['credential_duration']
+            session['client_data']['credential_to_issue_2'] = request.form['credential_to_issue_2']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
             session['client_data']['page_background_color'] = request.form['page_background_color']      
             session['client_data']['page_text_color'] = request.form['page_text_color']  
             session['client_data']['qrcode_background_color'] = request.form['qrcode_background_color']    
-            session['client_data']['card_background_color'] = request.form['card_background_color']      
-            session['client_data']['card_text_color'] = request.form['card_text_color']                
               
             if request.form['button'] == "preview" :
                 return redirect ('/sandbox/ebsi/issuer/console/preview')
@@ -371,6 +359,9 @@ async def ebsi_issuer_advanced() :
                     ebsi_vc_type_select +=  "<option value=" + key + ">" + value + "</option>"
 
         did_ebsi = session['client_data']['did_ebsi']
+        print('did ebsi = ', did_ebsi)
+        print('jwk = ', session['client_data']['jwk'])
+
         did_document = ebsi.did_resolve(did_ebsi, session['client_data']['jwk'])
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
         did_ebsi = session['client_data']['did_ebsi']
