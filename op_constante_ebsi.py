@@ -102,9 +102,9 @@ ebsi_credential_requested_list = {
 
 # issuer
 landing_page_style_list = {
-                    "op_issuer_qrcode.html" : "Style 1",
-                    "op_issuer_qrcode_2.html" : "Style 2",
-                    "ebsi_issuer_qrcode.html" : "EBSI issuer test"
+                    "./ebsi/ebsi_issuer_qrcode_1.html" : "Style 1",
+                    "./ebsi/ebsi_issuer_qrcode_2.html" : "Style 2",
+                    "./ebsi/ebsi_issuer_qrcode_test.html" : "EBSI issuer test"
                 }
 
 

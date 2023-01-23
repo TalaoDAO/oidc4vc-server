@@ -20,6 +20,7 @@ import pyotp
 import base58
 import os
 import ebsi
+import copy
 
 from op_constante_ebsi import ebsi_credential_to_issue_list
 
@@ -125,15 +126,29 @@ def ebsi_issuer_landing_page(issuer_id, red, mode) :
         return render_template('op_issuer_removed.html')
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
 
-    stream_id = str(uuid.uuid1())
-    op_stat = str(uuid.uuid1())
+    issuer_state = stream_id = str(uuid.uuid1())
     qrcode_page = issuer_data.get('landing_page_style')
+    # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     url_data  = { 
-            'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credential_type'  : issuer_data['credential_to_issue'],
-            'op_stat' : op_stat
+        'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+        'credential_type'  : issuer_data['credential_to_issue'],
+        'issuer_state' : issuer_state
     }
     url = 'openid://initiate_issuance?' + urlencode(url_data)
+    """
+    # Option 2 OpenID
+    url_data = {
+        "credential_issuer": mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+        "credentials": [
+            {
+                "format": "jwt_vc_json",
+                "types": [issuer_data['credential_to_issue']
+                ]
+            }
+        ]
+    }
+    url = 'openid-credential-offer://credential_offer=' + urlencode(url_data)
+    """
     logging.info('qrcode = %s', url)
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
 
@@ -169,7 +184,8 @@ def ebsi_issuer_authorize(issuer_id, red) :
                         'credential_type': credential_type,
                         'format':'jwt_vc'}]),
         'redirect_uri' :  ngrok + '/callback',
-        'state' : '1234'
+        'state' : '1234',
+        'issuer_state' : 'mlkmlkhm'
         }
     """
     
@@ -197,18 +213,26 @@ def ebsi_issuer_authorize(issuer_id, red) :
         scope = request.args['scope']
     except :
         return manage_error("invalid_request", "scope is missing")
+    
+    issuer_state = request.args.get('issuer_state')
+    if not issuer_state :
+        logging.warning("invalid_request", "issuer state is missing")
+    
     try :
         response_type = request.args['response_type']
     except :
         return manage_error("invalid_request", "reponse_type is missing")
+    
     try :
         authorization_details = request.args['authorization_details']
     except :
         return manage_error("invalid_request", "authorization_detail is missing")
+    
     try :
         credential_type = json.loads(request.args['authorization_details'])[0]['credential_type']
     except :
         return manage_error("invalid_request", "credential_type is missing")
+    
     try :
         format = json.loads(request.args['authorization_details'])[0]['format']
     except :
@@ -258,7 +282,11 @@ def ebsi_issuer_authorize(issuer_id, red) :
         data['user_hint'] = str(uuid.uuid1())
     else :
         data['user_hint'] = request.args['user_hint']
-    red.setex(code, GRANT_LIFE, json.dumps(data))    
+    
+    code_data = copy.deepcopy(data)
+    code_data['issuer_state'] = issuer_state
+    red.setex(code, GRANT_LIFE, json.dumps(code_data))    
+    
     resp = {'code' : code}
     if request.args.get('state') :
         resp['state'] = request.args['state']
@@ -318,8 +346,10 @@ def ebsi_issuer_token(issuer_id, red) :
         'code' : code,
         "client_id" : data['client_id'],
         "issuer_id" : issuer_id,
-        "credential_type" : data['credential_type']
+        "credential_type" : data['credential_type'],
+        'issuer_state' : data['issuer_state']
     }
+    print('token endpoint data =', token_endpoint_data)
     red.setex(access_token, ACCESS_TOKEN_LIFE,json.dumps(token_endpoint_data))
 
     headers = {
@@ -355,38 +385,44 @@ def ebsi_issuer_credential(issuer_id, red) :
     if credential_type != access_token_data['credential_type'] :
         return Response(**manage_error('unsupported_credential_tyoe', 'The credential type is not supported')) 
     if proof_format != 'jwt_vc' :
-        return Response(**manage_error('unsupported_credential_format', 'The proof type is not supported')) 
+        return Response(**manage_error('unsupported_credential_format', 'The proof format is not supported')) 
     if proof_type != 'jwt' :
         return Response(**manage_error('invalid_or_missing_proof ', 'The proof type is not supported')) 
 
-    # Get holder pub key and verify proof
-    holder_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
-    holder_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
-    holder_pub_key = holder_header['jwk']
+    # Get holder pub key from holder wallet and verify proof
+    proof_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
+    proof_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
+    holder_did = proof_payload['iss']
+    holder_jwk = proof_header['jwk']
     try :
-        ebsi.verif_proof_of_key (holder_pub_key, proof)
+        ebsi.verif_proof_of_key (holder_jwk, proof)
     except :
         return Response(**manage_error('invalid_or_missing_proof ', 'The proof check failed')) 
 
-    # Build JWT VC and sign VC
+    # TODO Build JWT VC and sign VC
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
-    vc = json.load(open(file_path))
-    issuer_key = json.dumps(json.load(open("keys.json", "r"))['talao_P256_private_key'])
-    issuer_key =  json.loads(db_api.read_ebsi_issuer(issuer_id))['jwk'] 
-    issuer_did = json.loads(db_api.read_ebsi_issuer(issuer_id))['did_ebsi'] 
+    credential = json.load(open(file_path))
+    issuer_key =  issuer_data['jwk'] 
+    issuer_did = issuer_data['did_ebsi'] 
     issuer_vm = issuer_did + "#" +  ebsi.thumbprint(issuer_key)
-    vc['credentialSubject']['id'] = holder_payload['iss']
-    vc['issuer']= issuer_data['did_ebsi']
-    vc['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    vc['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    vc ['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential = ebsi.sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, vc['credentialSubject']['id'], access_token_data["c_nonce"])
+    credential['credentialSubject']['id'] = holder_did
+    credential['issuer']= issuer_data['did_ebsi']
+    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, issuer_did, holder_did, access_token_data["c_nonce"])
     
+    # Follow up page
+    event_data = json.dumps({
+        "stream_id" : access_token_data['issuer_state'],
+        "result" : True})           
+    red.publish('issuer_ebsi', event_data)
+
     # Transfer VC
     payload = {
         "format" : proof_format,
-        "credential" : credential,
+        "credential" : credential_signed,
         "c_nonce": str(uuid.uuid1()),
         "c_nonce_expires_in": C_NONCE_LIFE
     }
@@ -397,19 +433,15 @@ def ebsi_issuer_credential(issuer_id, red) :
   
 
 def ebsi_issuer_followup():  
-    if not session.get('is_connected') :
-        logging.error('user is not connectd')
-        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-        return render_template('op_issuer_removed.html',next = issuer_data['issuer_landing_page'])
-    session.clear()
-    issuer_id = request.args.get('issuer_id')
+    try :
+        issuer_id = request.args['issuer_id']
+    except :
+        return jsonify('Unhautorized'), 401
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    if not issuer_data :
+        return jsonify('Not found'), 404
     if request.args.get('message') :
         return render_template('op_issuer_failed.html', next = issuer_data['issuer_landing_page'])
-    try :
-        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    except :
-        return render_template('op_issuer_removed.html',next = issuer_data['issuer_landing_page'])
     return redirect (issuer_data['callback'])
     
     
@@ -417,7 +449,7 @@ def ebsi_issuer_followup():
 def ebsi_issuer_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()
-        pubsub.subscribe('op_issuer')
+        pubsub.subscribe('issuer_ebsi')
         for message in pubsub.listen():
             if message['type']=='message':
                 yield 'data: %s\n\n' % message['data'].decode()  
