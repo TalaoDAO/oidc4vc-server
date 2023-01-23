@@ -88,6 +88,14 @@ def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
     return token.serialize()
 
 
+def verif_proof_of_key(signer_pub_key, token) :
+  # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
+  a =jwt.JWT.from_jose_token(token)
+  issuer_key = jwk.JWK(**signer_pub_key) 
+  a.validate(issuer_key)
+  return
+
+
 def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   key = json.loads(key) if isinstance(key, str) else key
   signer_key = jwk.JWK(**key) 

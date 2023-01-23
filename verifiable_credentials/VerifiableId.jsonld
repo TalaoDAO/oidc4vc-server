@@ -1,42 +1,23 @@
 {
     "@context": [
-      "https://www.w3.org/2018/credentials/v1",
-      {
-        "VerifiableId" : {
-            "@id": "https://github.com/TalaoDAO/context#verifiableid",
-            "@context": {
-                "@version": 1.1,
-                "@protected": true,
-                "schema" : "https://schema.org/",
-                "id": "@id",
-                "type": "@type",
-                "firstName" : "schema:givenName",
-                "familyName" : "schema:familyName",
-                "gender" : "schema:gender",
-                "dateOfBirth" : "schema:birthDate",
-                "placeOfBirth" : "schema:birthPlace",
-                "personalIdentifier" : "schema:identifier"
-              }
-        }
-    }
+      "https://www.w3.org/2018/credentials/v1"
     ],
-    "id": "urn:ebsi:1dee355d-0432-4910-ac9c-70d89e8d674e",
+    "id": "urn:did:30e69635-4f00-4fcb-ac56-b3e04a6140c5",
     "type": [
       "VerifiableCredential",
       "VerifiableAttestation",
       "VerifiableId"
     ],
-    "issuer": "",
-    "issuanceDate": "",
-    "validFrom": "",
-    "issued": "",
+    "issuer": "did:ebsi:zcfcwGjLBojczw9yhmUFE3Z",
+    "issuanceDate": "2022-12-20T14:25:22Z",
+    "validFrom": "2022-12-20T14:25:22Z",
+    "issued": "2022-12-20T14:25:22Z",
     "credentialSubject": {
-      "type" : "VerifiableId",
-      "id": "",
-      "personalIdentifier": "",
-      "familyName": "",
-      "firstName": "",
-      "dateOfBirth": ""
+      "id": "did:ebsi:zmSKef6zQZDC66MppKLHou9zCwjYE4Fwar7NSVy2c7aya",
+      "personalIdentifier": "IT/DE/1234",
+      "familyName": "Castafiori",
+      "firstName": "Bianca",
+      "dateOfBirth": "1930-10-01"
     },
     "credentialSchema": {
       "id": "https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv",

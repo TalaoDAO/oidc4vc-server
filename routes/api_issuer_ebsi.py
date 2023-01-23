@@ -330,28 +330,28 @@ def ebsi_issuer_token(issuer_id, red) :
 
 # credential endpoint
 def ebsi_issuer_credential(issuer_id, red) :
-
-    access_token = request.headers['Authorization'].split()[1]
+    
+    # Check access token
+    try :
+        access_token = request.headers['Authorization'].split()[1]
+    except :
+        return Response(**manage_error('invalid_token', 'Access token not passed in request header'))
     try :
         access_token_data = json.loads(red.get(access_token).decode())
     except :
-        return Response(**manage_error('invalid_token', 'Access token expired'))
-        
+        return Response(**manage_error('invalid_token', 'Access token expired')) 
     if access_token_data['issuer_id'] != issuer_id :
-        return Response (**manage_error('invalid_token', 'Access token does not match')) 
-
+        return Response (**manage_error('invalid_token', 'Access token does not match with issuer')) 
+    
+    # Check request 
     result = request.json
     try :
         credential_type = result['type']
         proof_format = result['format']
         proof_type  = result['proof']['proof_type']
-        jwt = result['proof']['jwt']
+        proof = result['proof']['jwt']
     except :
         return Response(**manage_error('invalid_request', 'Invalid request format')) 
-    
-    logging.info('credential_type = %s', credential_type)
-    logging.info('proof_format = %s', proof_format)
-    logging.info('proof type = %s', proof_type )
     if credential_type != access_token_data['credential_type'] :
         return Response(**manage_error('unsupported_credential_tyoe', 'The credential type is not supported')) 
     if proof_format != 'jwt_vc' :
@@ -359,17 +359,29 @@ def ebsi_issuer_credential(issuer_id, red) :
     if proof_type != 'jwt' :
         return Response(**manage_error('invalid_or_missing_proof ', 'The proof type is not supported')) 
 
-    # Build JWT VC
+    # Get holder pub key and verify proof
+    holder_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
+    holder_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
+    holder_pub_key = holder_header['jwk']
+    try :
+        ebsi.verif_proof_of_key (holder_pub_key, proof)
+    except :
+        return Response(**manage_error('invalid_or_missing_proof ', 'The proof check failed')) 
+
+    # Build JWT VC and sign VC
+    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
     vc = json.load(open(file_path))
     issuer_key = json.dumps(json.load(open("keys.json", "r"))['talao_P256_private_key'])
     issuer_key =  json.loads(db_api.read_ebsi_issuer(issuer_id))['jwk'] 
     issuer_did = json.loads(db_api.read_ebsi_issuer(issuer_id))['did_ebsi'] 
     issuer_vm = issuer_did + "#" +  ebsi.thumbprint(issuer_key)
-    holder_did = vc['credentialSubject']['id']
-    
-    # Sign VC
-    credential = ebsi.sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, holder_did, access_token_data["c_nonce"])
+    vc['credentialSubject']['id'] = holder_payload['iss']
+    vc['issuer']= issuer_data['did_ebsi']
+    vc['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    vc['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    vc ['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential = ebsi.sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, vc['credentialSubject']['id'], access_token_data["c_nonce"])
     
     # Transfer VC
     payload = {
@@ -387,6 +399,7 @@ def ebsi_issuer_credential(issuer_id, red) :
 def ebsi_issuer_followup():  
     if not session.get('is_connected') :
         logging.error('user is not connectd')
+        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
         return render_template('op_issuer_removed.html',next = issuer_data['issuer_landing_page'])
     session.clear()
     issuer_id = request.args.get('issuer_id')
