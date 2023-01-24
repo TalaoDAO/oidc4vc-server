@@ -31,33 +31,27 @@ alg value https://www.rfc-editor.org/rfc/rfc7518#page-6
    | ES256        | ECDSA using P-256 and SHA-256 | Recommended+       |
    | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
    | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
-   | PS256        | RSASSA-PSS using SHA-256 and  | Optional           |
-   |              | MGF1 with SHA-256             |                    |
-   | PS384        | RSASSA-PSS using SHA-384 and  | Optional           |
-   |              | MGF1 with SHA-384             |                    |
-   | PS512        | RSASSA-PSS using SHA-512 and  | Optional           |
-   |              | MGF1 with SHA-512             |                    |
    +--------------+-------------------------------+--------------------+
 """
 
 def alg(key) :
   key = json.loads(key) if isinstance(key, str) else key
   if key['kty'] == 'EC' :
-    if key['crv'] == "secp256k1" :
-      alg = 'ES256K' 
-    elif key['crv'] == "P-256" :
-      alg = "ES256"
-    elif key['crv'] == "P-384" :
-      alg = "ES384"
-    elif key['crv'] == "P-521" :
-      alg = "ES512"
+    if key['crv'] == 'secp256k1' :
+      return 'ES256K' 
+    elif key['crv'] == 'P-256' :
+      return 'ES256'
+    elif key['crv'] == 'P-384' :
+      return 'ES384'
+    elif key['crv'] == 'P-521' :
+      return 'ES512'
     else :
       raise Exception ("Curve not supported")
-    return alg
   elif key['kty'] == 'RSA' :
-    alg = "RS256"
+    return 'RS256'
   else :
     raise Exception ("Key type not supported")
+
 
 def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
     """
@@ -69,19 +63,19 @@ def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
     vc = json.loads(vc) if isinstance(vc, str) else vc
     issuer_key = jwk.JWK(**key) 
     header = {
-        "typ" :"JWT",
-        "kid": issuer_vm,
-        "alg": alg(key)
+      'typ' :'JWT',
+      'kid': issuer_vm,
+      'alg': alg(key)
     }
     payload = {
-        "iss" : issuer_did,
-        "nonce" : nonce,
-        "iat": datetime.timestamp(datetime.now()),
-        "nbf" : datetime.timestamp(datetime.now()),
-        "jti" : vc['id'],
-        "exp": datetime.timestamp(datetime.now()) + 1000,
-        "sub" : wallet_did,
-        "vc" : vc
+      'iss' : issuer_did,
+      'nonce' : nonce,
+      'iat': datetime.timestamp(datetime.now()),
+      'nbf' : datetime.timestamp(datetime.now()),
+      'jti' : vc['id'],
+      'exp': datetime.timestamp(datetime.now()) + 1000,
+      'sub' : wallet_did,
+      'vc' : vc
     }  
     token = jwt.JWT(header=header,claims=payload, algs=[alg(key)])
     token.make_signed_token(issuer_key)
@@ -101,16 +95,16 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   signer_key = jwk.JWK(**key) 
   signer_pub_key = signer_key.export(private_key=False, as_dict=True)
   header = {
-        "typ" :"JWT",
-        "alg": alg(key),
-        "jwk" : signer_pub_key, # for natural person
-        "kid" : kid
+    'typ' :'JWT',
+    'alg': alg(key),
+    'jwk' : signer_pub_key, # for natural person
+    'kid' : kid
   }
   payload = {
-    "iss" : signer_did,
-    "nonce" : nonce,
-    "iat": datetime.timestamp(datetime.now()),
-    "aud" : aud
+    'iss' : signer_did,
+    'nonce' : nonce,
+    'iat': datetime.timestamp(datetime.now()),
+    'aud' : aud
   }  
   token = jwt.JWT(header=header,claims=payload, algs=[alg(key)])
   token.make_signed_token(signer_key)
@@ -140,7 +134,7 @@ def generate_np_did(key) :
 
 def verification_method(did, key) : # = kid
     key = json.loads(key) if isinstance(key, str) else key
-    return did + "#" + thumbprint(key)
+    return did + '#' + thumbprint(key)
 
 
 def did_resolve(did, key) :
@@ -180,12 +174,12 @@ def sign_jsonld_vc(credential, key, did) :
     credential = json.loads(credential)
   proof= {
     #'@context':'https://w3id.org/security/v2',
-    'type': 'EcdsaSecp256k1Signature2019',
-    'created': datetime.now().replace(microsecond=0).isoformat() + "Z",
+    "type": "EcdsaSecp256k1Signature2019",
+    "created": datetime.now().replace(microsecond=0).isoformat() + 'Z',
     "verificationMethod": did + '#' + thumbprint(key),
-    'proofPurpose': 'assertionMethod'
+    "proofPurpose": "assertionMethod"
   }
-  h = {"alg":alg(key),"b64":False,"crit":["b64"]}
+  h = {'alg':alg(key),'b64':False,'crit':['b64']}
   jws_header = json.dumps(h).encode()
 
   normalized_doc   = jsonld.normalize(credential , {'algorithm': 'URDNA2015', 'format': 'application/n-quads'})
@@ -201,7 +195,7 @@ def sign_jsonld_vc(credential, key, did) :
 
   issuer_key = jwk.JWK(**key) 
   jwstoken = jws.JWS(to_sign)
-  jwstoken.add_signature(issuer_key, None, json_encode({"alg": alg(key)}))
+  jwstoken.add_signature(issuer_key, None, json_encode({'alg': alg(key)}))
 
   sig = json.loads(jwstoken.serialize())['signature']
   proof_jws =encodedHeader + b'..' + base64.urlsafe_b64encode(sig.encode())
@@ -218,8 +212,7 @@ def sign_jsonld_vc(credential, key, did) :
 
 
 
-
-# TEST VECTORS
+########################## TEST VECTORS
 
 key1 =  {
   'crv': 'P-256',

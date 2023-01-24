@@ -106,11 +106,8 @@
         var source = new EventSource('/sandbox/ebsi/issuer_stream');
         source.onmessage = function (event) {
         const data = JSON.parse(event.data)
-        if (data.stream_id == '{{stream_id}}' && data.result == true){
+        if (data.stream_id == '{{stream_id}}'){
           window.location.href='/sandbox/ebsi/issuer_followup?issuer_id=' + '{{issuer_id}}';
-          }
-          if (data.stream_id == '{{stream_id}}' && data.result == false){
-          window.location.href='/sandbox/ebsi/issuer_followup?issuer_id=' + '{{issuer_id}}' + '&message=' + data.message;
           }
         };
       </script>
