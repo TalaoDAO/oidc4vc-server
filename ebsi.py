@@ -83,8 +83,11 @@ def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
 
 
 def verif_proof_of_key(token) :
+  """
+  For issuer 
+  """
   header = token.split('.')[0]
-  header += "=" * ((4 - len(header) % 4) % 4)
+  header += "=" * ((4 - len(header) % 4) % 4) # solve the padding issue of the base64 python lib
   proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
   # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
@@ -93,7 +96,11 @@ def verif_proof_of_key(token) :
   return
 
 
+
 def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
+  """
+  For wallets
+  """
   key = json.loads(key) if isinstance(key, str) else key
   signer_key = jwk.JWK(**key) 
   signer_pub_key = signer_key.export(private_key=False, as_dict=True)
@@ -101,7 +108,7 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
     'typ' :'JWT',
     'alg': alg(key),
     'jwk' : signer_pub_key, # for natural person
-    'kid' : kid
+    'kid' : kid # only for EBSI
   }
   payload = {
     'iss' : signer_did,

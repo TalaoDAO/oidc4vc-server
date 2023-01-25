@@ -1,6 +1,6 @@
 """
-https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-response
 
+https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
 
 """
 from flask import jsonify, request, render_template, Response, redirect
@@ -25,7 +25,6 @@ CRYPTOGRAPHIC_SUITES = ['ES256K','ES256','ES384','ES512','RS256']
 #DID_METHODS = ['did:ebsi','did:key','did:tz','did:pkh','did:ethr','did:web']
 DID_METHODS = ['did:ebsi']
 
-
 def init_app(app,red, mode) :
     # endpoint for application
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>',  view_func=ebsi_issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
@@ -47,7 +46,10 @@ def ebsi_issuer_openid_configuration(issuer_id, mode):
 def oidc(issuer_id, mode) :
     """
     Attention for EBSI "types" = id of data model
-    https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#section-10.2.3
+    specs actuelles : 
+    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
+
+    ATTENTION new standard is https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html
     """
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id)) 
     
@@ -98,9 +100,9 @@ def oidc(issuer_id, mode) :
 # initiate endpoint with QRcode
 def ebsi_issuer_landing_page(issuer_id, red, mode) :
     """
-    see EBSI specs as OpenID siopv2 for issuance has changed
+    see EBSI specs as OpenID OIDC4VC issuance for issuance has changed
 
-    https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-issuance-initiation-request
+    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
 
     openid://initiate_issuance
     ?issuer=http%3A%2F%2F192.168.0.65%3A3000%2Fsandbox%2Febsi%2Fissuer%2Fhqplzbjrhg
@@ -122,23 +124,9 @@ def ebsi_issuer_landing_page(issuer_id, red, mode) :
     url_data  = { 
         'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
         'credential_type'  : issuer_data['credential_to_issue'],
-        'issuer_state' : issuer_state
+        'issuer_state' : issuer_state #  op_stat
     }
     url = 'openid://initiate_issuance?' + urlencode(url_data)
-    """
-    # Option 2 new credential offer https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-offer-endpoint
-    url_data = {
-        'credential_issuer': mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-        'credentials': [
-            {
-                'format': 'jwt_vc_json',
-                'types': [issuer_data['credential_to_issue']
-                ]
-            }
-        ]
-    }
-    url = 'openid-credential-offer://credential_offer=' + urlencode(url_data)
-    """
     logging.info('qrcode = %s', url)
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
 
@@ -167,7 +155,9 @@ def ebsi_issuer_landing_page(issuer_id, red, mode) :
 
 def ebsi_issuer_authorize(issuer_id, red) :
     """
-      my_request = {
+    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-credential-authorization-re
+      
+    my_request = {
         'scope' : 'openid',
         'client_id' : 'https://wallet.com/callback',
         'response_type' : 'code',
@@ -180,11 +170,10 @@ def ebsi_issuer_authorize(issuer_id, red) :
         }
 
     """
-    def manage_error(error, error_description, stream_id, red) :
+    def authorization_error_response(error, error_description, stream_id, red) :
         """
-        error=invalid_request
-        &error_description=Unsupported%20response_type%20value
-        https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-authorization-error-respons
+        https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-authentication-error-respon
+        
         https://www.rfc-editor.org/rfc/rfc6749.html#page-26
         """
         # front channel follow up 
@@ -212,39 +201,39 @@ def ebsi_issuer_authorize(issuer_id, red) :
     try :
         scope = request.args['scope']
     except :
-        return manage_error("invalid_request", "scope is missing", issuer_state, red)
+        return authorization_error_response("invalid_request", "scope is missing", issuer_state, red)
     
     try :
         response_type = request.args['response_type']
     except :
-        return manage_error("invalid_request", "reponse_type is missing", issuer_state, red)
+        return authorization_error_response("invalid_request", "reponse_type is missing", issuer_state, red)
     
     try :
         credential_type = json.loads(request.args['authorization_details'])[0]['credential_type']
     except :
-        return manage_error("invalid_request", "credential_type is missing", issuer_state, red)
+        return authorization_error_response("invalid_request", "credential_type is missing", issuer_state, red)
     
     try :
         format = json.loads(request.args['authorization_details'])[0]['format']
     except :
-        return manage_error("invalid_request", "format is missing", issuer_state, red)
+        return authorization_error_response("invalid_request", "format is missing", issuer_state, red)
 
     if not db_api.read_ebsi_issuer(issuer_id) :
-        return manage_error("unauthorized_client", "issuer_id not found in data base", issuer_state, red)
+        return authorization_error_response("unauthorized_client", "issuer_id not found in data base", issuer_state, red)
     
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
 
     if scope != 'openid' :
-        return manage_error("invalid_scope", "unsupported scope", issuer_state, red)
+        return authorization_error_response("invalid_scope", "unsupported scope", issuer_state, red)
 
     if response_type != 'code' :
-        return manage_error("unsupported_response_type", "unsupported response type", issuer_state, red)
+        return authorization_error_response("unsupported_response_type", "unsupported response type", issuer_state, red)
 
     if credential_type != issuer_data['credential_to_issue'] :
-        return manage_error("invalid_request", "unsupported credential type", issuer_state, red)
+        return authorization_error_response("invalid_request", "unsupported credential type", issuer_state, red)
 
     if format not in ['jwt_vc', 'jwt_vc_json'] :
-        return manage_error("invalid_request", "unsupported format", issuer_state, red)
+        return authorization_error_response("invalid_request", "unsupported format", issuer_state, red)
 
     # Code creation
     code = str(uuid.uuid1())
@@ -275,22 +264,27 @@ def ebsi_issuer_authorize(issuer_id, red) :
 
 
 def manage_error(error, error_description) :
-        # https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-error-response
-        logging.warning(error_description)   
-        payload = {
-            'error' : error,
-            'error_description' : error_description
-        }
-        headers = {
-            'Cache-Control' : 'no-store',
-            'Content-Type': 'application/json'}
-        return {'response' : json.dumps(payload), 'status' : 400, 'headers' : headers}
+    """
+    # https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-credential-error-response
+    """
+    logging.warning(error_description)   
+    payload = {
+        'error' : error,
+        'error_description' : error_description
+    }
+    headers = {
+        'Cache-Control' : 'no-store',
+        'Content-Type': 'application/json'}
+    return {'response' : json.dumps(payload), 'status' : 400, 'headers' : headers}
 
 
 # token endpoint
 def ebsi_issuer_token(issuer_id, red) :
-     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
+    """
+    https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
 
+    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-token-endpoint
+    """
     try :
         #token = request.headers['Authorization']
         #token = token.split(" ")[1]
@@ -340,6 +334,10 @@ def ebsi_issuer_token(issuer_id, red) :
 
 # credential endpoint
 def ebsi_issuer_credential(issuer_id, red) :
+    """
+    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-credential-endpoint
+    
+    """
     # Check access token
     try :
         access_token = request.headers['Authorization'].split()[1]
@@ -361,6 +359,7 @@ def ebsi_issuer_credential(issuer_id, red) :
         proof = result['proof']['jwt']
     except :
         return Response(**manage_error("invalid_request", "Invalid request format")) 
+
     if credential_type != access_token_data['credential_type'] :
         return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
     if proof_format != 'jwt_vc' :
@@ -374,7 +373,7 @@ def ebsi_issuer_credential(issuer_id, red) :
         ebsi.verif_proof_of_key(proof)
     except Exception as e :
         logging.error("verif proof error = %s", str(e))
-        return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
+        return Response(**manage_error("invalid_or_missing_proof", str(e))) 
     
     # TODO Build JWT VC and sign VC
     payload = proof.split('.')[1]
