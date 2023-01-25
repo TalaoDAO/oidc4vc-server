@@ -69,7 +69,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/credentialOffer_back',  view_func=test_credentialOffer_back, methods = ['GET'])
     app.add_url_rule('/sandbox/wallet_credential/<id>',  view_func=test_credentialOffer_endpoint, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/offer_stream',  view_func=offer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/sandbox/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
+    #app.add_url_rule('/sandbox/display',  view_func=test_credential_display, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
 
     # Test QueryByExample test
@@ -168,6 +168,9 @@ def test_direct_offer(red, mode) :
     
     elif VC_filename == "PCDSAgentCertificate.jsonld" :
         filename = "./credential_manifest/PCDSAgentCertificate_credential_manifest.json"
+    
+    elif VC_filename == "Test.jsonld" :
+        filename = "./credential_manifest/Test_credential_manifest.json"
 
     elif VC_filename == "MembershipCard_1.jsonld" :
         filename = "./credential_manifest/MembershipCard_1_credential_manifest.json"
