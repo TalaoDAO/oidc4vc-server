@@ -178,6 +178,7 @@ def ebsi_issuer_authorize(issuer_id, red) :
         'state' : '1234',
         'issuer_state' : 'mlkmlkhm'
         }
+
     """
     def manage_error(error, error_description, stream_id, red) :
         """
@@ -197,6 +198,7 @@ def ebsi_issuer_authorize(issuer_id, red) :
         }
         return redirect(redirect_uri + '?' + urlencode(resp))
 
+    logging.info("authorization request received = %s", request.args)
     try :
         client_id = request.args['client_id']
         redirect_uri = request.args['redirect_uri']
@@ -368,18 +370,16 @@ def ebsi_issuer_credential(issuer_id, red) :
 
     # Get holder pub key from holder wallet and verify proof
     logging.info("proof of owbership = %s", proof)
-    header = proof.split('.')[0]
-    payload = proof.split('.')[1]
-    header += "=" * ((4 - len(header) % 4) % 4)
-    payload += "=" * ((4 - len(payload) % 4) % 4)
-    proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
-    proof_payload = json.loads(base64.urlsafe_b64decode(payload).decode())
     try :
-        ebsi.verif_proof_of_key (proof_header['jwk'], proof)
-    except :
+        ebsi.verif_proof_of_key(proof)
+    except Exception as e :
+        logging.error("verif proof error = %s", str(e))
         return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
     
     # TODO Build JWT VC and sign VC
+    payload = proof.split('.')[1]
+    payload += "=" * ((4 - len(payload) % 4) % 4)
+    proof_payload = json.loads(base64.urlsafe_b64decode(payload).decode())
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
     credential = json.load(open(file_path))

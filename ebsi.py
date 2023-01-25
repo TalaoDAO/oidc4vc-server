@@ -82,10 +82,13 @@ def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
     return token.serialize()
 
 
-def verif_proof_of_key(signer_pub_key, token) :
+def verif_proof_of_key(token) :
+  header = token.split('.')[0]
+  header += "=" * ((4 - len(header) % 4) % 4)
+  proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
   # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
-  issuer_key = jwk.JWK(**signer_pub_key) 
+  issuer_key = jwk.JWK(**proof_header['jwk']) 
   a.validate(issuer_key)
   return
 
