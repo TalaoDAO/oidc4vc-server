@@ -357,7 +357,6 @@ def ebsi_issuer_credential(issuer_id, red) :
         proof_format = result['format']
         proof_type  = result['proof']['proof_type']
         proof = result['proof']['jwt']
-        print('proof = ', proof)
     except :
         return Response(**manage_error("invalid_request", "Invalid request format")) 
     if credential_type != access_token_data['credential_type'] :
@@ -368,19 +367,18 @@ def ebsi_issuer_credential(issuer_id, red) :
         return Response(**manage_error("invalid_or_missing_proof", "The proof type is not supported")) 
 
     # Get holder pub key from holder wallet and verify proof
-    try :
-        proof_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
-        proof_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
-    except :
-        proof_header = json.loads(base64.b64decode(proof.split('.')[0]).decode())
-        proof_payload = json.loads(base64.b64decode(proof.split('.')[1]).decode())
+    logging.info("proof of owbership = %s", proof)
+    header = proof.split('.')[0]
+    payload = proof.split('.')[1]
+    header += "=" * ((4 - len(header) % 4) % 4)
+    payload += "=" * ((4 - len(payload) % 4) % 4)
+    proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
+    proof_payload = json.loads(base64.urlsafe_b64decode(payload).decode())
     try :
         ebsi.verif_proof_of_key (proof_header['jwk'], proof)
     except :
-        #return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
-        logging.error("The proof check failed")
-        print(proof)
-
+        return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
+    
     # TODO Build JWT VC and sign VC
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
