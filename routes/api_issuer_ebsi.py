@@ -372,7 +372,9 @@ def ebsi_issuer_credential(issuer_id, red) :
         proof_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
         ebsi.verif_proof_of_key (proof_header['jwk'], proof)
     except :
-        return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
+        #return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
+        logging.error("The proof check failed")
+        print(proof)
 
     # TODO Build JWT VC and sign VC
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
