@@ -357,6 +357,7 @@ def ebsi_issuer_credential(issuer_id, red) :
         proof_format = result['format']
         proof_type  = result['proof']['proof_type']
         proof = result['proof']['jwt']
+        print('proof = ', proof)
     except :
         return Response(**manage_error("invalid_request", "Invalid request format")) 
     if credential_type != access_token_data['credential_type'] :
@@ -367,9 +368,10 @@ def ebsi_issuer_credential(issuer_id, red) :
         return Response(**manage_error("invalid_or_missing_proof", "The proof type is not supported")) 
 
     # Get holder pub key from holder wallet and verify proof
-    try : 
-        proof_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
-        proof_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
+    
+    proof_header = json.loads(base64.urlsafe_b64decode(proof.split('.')[0]).decode())
+    proof_payload = json.loads(base64.urlsafe_b64decode(proof.split('.')[1]).decode())
+    try :
         ebsi.verif_proof_of_key (proof_header['jwk'], proof)
     except :
         #return Response(**manage_error("invalid_or_missing_proof", "The proof check failed")) 
