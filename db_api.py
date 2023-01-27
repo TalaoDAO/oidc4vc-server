@@ -125,9 +125,10 @@ def create(db, user, mode, method) :
         data['standalone'] = "on"
         method = 'ebsi'
         key = jwk.JWK.generate(kty="EC", crv="P-256", alg="ES256")
-    if db == 'ebsi_verifier.db' :
+    elif db == 'ebsi_verifier.db' :
         data['protocol'] = 'siopv2'
-    if db == 'issuer.db' :
+        key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")
+    else : # db == 'issuer.db' 
         data['issuer_landing_page'] = mode.server + 'sandbox/op/issuer/' + data['client_id']
         # init with did:ethr
         key = jwk.JWK.generate(kty="EC", crv="secp256k1", alg="ES256K-R")

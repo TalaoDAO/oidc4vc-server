@@ -68,6 +68,7 @@
                             <div class="form-group"><label><strong>Note</strong><br></label><textarea class="form-control" name="note" >{{note}}</textarea></div>
                           </div>
                         </div>
+                        <input hidden class="form-control" type="text" name="client_id" value="{{client_id}}"></div>
 
 
                         </div>
@@ -76,35 +77,26 @@
                         <div class="card shadow my-3">
                           <div class="card-header py-3">
                             <div class="d-flex justify-content-between">
-                              <p style="color: #09060f;" class="m-0 font-weight-bold">Landing page link, client secret and application endpoints</p>
+                              <p style="color: #09060f;" class="m-0 font-weight-bold">API endpoint, client secret and application callback</p>
                             </div>
                           </div>
                           <div class="card-body">
 
-                        <div class="form-row">
-                          <div class="col">
-                            <div class="form-group"><label><strong>Issuer landing page link to redirect your user</strong></label><input readonly class="form-control" type="text" value="{{issuer_landing_page}}"></div>
-                          </div>
-
-                          <div class="col" hidden>
-                            <div class="form-group"><label><strong>Issuer Id</strong></label><input readonly class="form-control" name="client_id" type="text" value={{client_id}}></div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group"><label><strong>Client secret to check webhook call</strong></label><input readonly class="form-control" type="text" value={{client_secret}}></div>
-                          </div>
-                        </div>
 
                         <div class="form-row">
+                          <div class="col">
+                            <div class="form-group"><label><strong>API endpoint</strong></label><input readonly class="form-control" type="text" value="{{issuer_landing_page}}"></div>
+                          </div>
+
+                          <div class="col">
+                            <div class="form-group"><label><strong>Client secret</strong></label><input readonly class="form-control" type="text" value={{client_secret}}></div>
+                          </div>
+                       
+
                           <div class="col" >
                             <div class="form-group"><label><strong>Callback URL of your application (required) </strong></label><input reequired class="form-control" name="callback" type="text" value={{callback}}></div>
                           </div>
-                          <div class="col-6">
-                            <div class="form-group"><label><strong>Webhook URL of your application (Required)</strong><br></label><input  required class="form-control" type="text" value="{{webhook}}" name="webhook" ></div>
-                          </div> 
-                        </div>
-
-
-
+        
                         </div>
                         </div>
 
@@ -124,15 +116,19 @@
                                  {{credential_to_issue_select|safe}}
                                   </select></div>
                             </div>  
+
+                            <div class="col">
+                              <div class="form-group"><label><strong>Pre authorized code</strong></label><input class="form-control" name="pre_authorized_code" type="text" value={{pre_authorized_code}}></div>
+                            </div>
                             
-                         
+                         <!--
                             <div class="col-6">
                                 <div class="form-group"><label><strong>Credential to issue 2</strong></label>
                                   <select  onchange="getResponse();" id="selectCredential" name="credential_to_issue_2" class="form-control">
                                   <option value="">--Please choose an option--</option>
                                  {{credential_to_issue_select|safe}}
                                   </select></div>
-                            </div>  
+                            </div>  -->
                            
                           </div> 
 
@@ -141,7 +137,7 @@
                           </div>
                           </div>
                      
-                          
+                          <!--
 
                           <div class="card shadow my-3">
                             <div class="card-header py-3">
@@ -190,7 +186,7 @@
                             </div>
 
                             </div>
-                            </div>
+                            </div>  -->
 
 
                           <div class="card shadow my-3">
@@ -262,6 +258,8 @@
                         </div>
                    
                         </div>
+
+                        <!--
                         <div class="form-row">
                             <div class="col">
                               <div class="form-group"><label><strong>In wallet message for credential requested 1 </strong><br></label><input type="text" class="form-control" name="reason" value="{{reason}}"></div>
@@ -283,7 +281,7 @@
                           </div>
 
                          
-                       </div>
+                       </div> -->
 
 
                         <div class="form-row">

@@ -185,6 +185,7 @@ def ebsi_issuer_console(mode) :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
 
+        """
         # credential requested 1
         credential_requested_select = str()
         for key, value in ebsi_credential_requested_list.items() :
@@ -192,7 +193,7 @@ def ebsi_issuer_console(mode) :
                     credential_requested_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_select +=  "<option value=" + key + ">" + value + "</option>"
-        
+        """
 
         landing_page_style_select = str()
         for key, value in landing_page_style_list.items() :
@@ -200,7 +201,7 @@ def ebsi_issuer_console(mode) :
                     landing_page_style_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
-        
+        """
         # credential requested 2
         credential_requested_2_select = str()
         for key, value in ebsi_credential_requested_list.items() :
@@ -224,7 +225,7 @@ def ebsi_issuer_console(mode) :
                     credential_requested_4_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_requested_4_select +=  "<option value=" + key + ">" + value + "</option>"
-        
+        """
         # cedential to usse for EBSI issuer
         credential_items = ebsi_credential_to_issue_list.items()
         credential_to_issue_select = str()
@@ -233,18 +234,13 @@ def ebsi_issuer_console(mode) :
                     credential_to_issue_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     credential_to_issue_select +=  "<option value=" + key + ">" + value + "</option>"
-        if not session['client_data'].get('secret') :
-            secret = pyotp.random_base32()
-        else :
-            secret = session['client_data']["secret"] 
         return render_template('ebsi/ebsi_issuer_console.html',
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
-                secret=secret,
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 callback=session['client_data']['callback'],
-                webhook=session['client_data']['webhook'],
+                pre_authorized_code = session['client_data'].get('pre-authorized_code'), 
                 issuer_landing_page = session['client_data']['issuer_landing_page'],
                 title = session['client_data'].get('title'),
                 contact_name = session['client_data'].get('contact_name'),
@@ -254,10 +250,10 @@ def ebsi_issuer_console(mode) :
                 terms_url = session['client_data'].get('terms_url'),
                 client_id= session['client_data']['client_id'],
                 company_name = session['client_data']['company_name'],
-                reason = session['client_data']['reason'],
-                reason_2 = session['client_data'].get('reason_2', ""),
-                reason_3 = session['client_data'].get('reason_3', ""),
-                reason_4 = session['client_data'].get('reason_4', ""),
+                #reason = session['client_data']['reason'],
+                #reason_2 = session['client_data'].get('reason_2', ""),
+                #reason_3 = session['client_data'].get('reason_3', ""),
+                #reason_4 = session['client_data'].get('reason_4', ""),
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
@@ -265,11 +261,11 @@ def ebsi_issuer_console(mode) :
                 qrcode_message = session['client_data'].get('qrcode_message', ""),
                 mobile_message = session['client_data'].get('mobile_message', ""),
                 credential_to_issue_select = credential_to_issue_select,
-                credential_requested_select =  credential_requested_select,
+                #credential_requested_select =  credential_requested_select,
                 landing_page_style_select =  landing_page_style_select,
-                credential_requested_2_select =  credential_requested_2_select,
-                credential_requested_3_select =  credential_requested_3_select,
-                credential_requested_4_select =  credential_requested_4_select,
+                #credential_requested_2_select =  credential_requested_2_select,
+                #credential_requested_3_select =  credential_requested_3_select,
+                #credential_requested_4_select =  credential_requested_4_select,
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
@@ -284,7 +280,6 @@ def ebsi_issuer_console(mode) :
             session['client_data']['user'] = request.form['user']
             session['client_data']['callback'] = request.form['callback']
             #session['client_data']['secret'] = request.form['secret']
-            session['client_data']['webhook'] = request.form['webhook']
             session['client_data']['landing_page_style'] = request.form['landing_page_style']
             session['client_data']['page_title'] = request.form['page_title']
             session['client_data']['page_subtitle'] = request.form['page_subtitle']
@@ -298,16 +293,17 @@ def ebsi_issuer_console(mode) :
             session['client_data']['client_id'] =  request.form['client_id']
             session['client_data']['company_name'] = request.form['company_name']
             session['client_data']['application_name'] = request.form['application_name']
-            session['client_data']['reason'] = request.form['reason']
-            session['client_data']['reason_2'] = request.form.get('reason_2', "")
-            session['client_data']['reason_3'] = request.form.get('reason_4', "")
-            session['client_data']['reason_4'] = request.form.get('reason_4', "")
-            session['client_data']['credential_requested'] = request.form['credential_requested']
-            session['client_data']['credential_requested_2'] = request.form['credential_requested_2']
-            session['client_data']['credential_requested_3'] = request.form['credential_requested_3']
-            session['client_data']['credential_requested_4'] = request.form['credential_requested_4']
+            session['client_data']['pre-authorized_code'] = request.form['pre_authorized_code']
+            #session['client_data']['reason'] = request.form['reason']
+            #session['client_data']['reason_2'] = request.form.get('reason_2', "")
+            #session['client_data']['reason_3'] = request.form.get('reason_4', "")
+            #session['client_data']['reason_4'] = request.form.get('reason_4', "")
+            #session['client_data']['credential_requested'] = request.form['credential_requested']
+            #session['client_data']['credential_requested_2'] = request.form['credential_requested_2']
+            #session['client_data']['credential_requested_3'] = request.form['credential_requested_3']
+            #session['client_data']['credential_requested_4'] = request.form['credential_requested_4']
             session['client_data']['credential_to_issue'] = request.form['credential_to_issue']
-            session['client_data']['credential_to_issue_2'] = request.form['credential_to_issue_2']
+            #session['client_data']['credential_to_issue_2'] = request.form['credential_to_issue_2']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
             session['client_data']['page_background_color'] = request.form['page_background_color']      

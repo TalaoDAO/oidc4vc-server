@@ -1,9 +1,6 @@
 """
-NEW
 
 https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
-
-support Authorization code flow and pre-authorized code flow of OIDC4VCI
 
 """
 from flask import jsonify, request, render_template, Response, redirect
@@ -27,16 +24,12 @@ C_NONCE_LIFE = 1000
 CRYPTOGRAPHIC_SUITES = ['ES256K','ES256','ES384','ES512','RS256']
 #DID_METHODS = ['did:ebsi','did:key','did:tz','did:pkh','did:ethr','did:web']
 DID_METHODS = ['did:ebsi']
-GRANT_TYPE_SUPPORTED = [ 'urn:ietf:params:oauth:grant-type:pre-authorized_code', 'authorization_code']
 
 def init_app(app,red, mode) :
     # endpoint for application
-    app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/<user_id>',  view_func=ebsi_issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>',  view_func=ebsi_issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/issuer_stream',  view_func=ebsi_issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/issuer_followup',  view_func=ebsi_issuer_followup, methods = ['GET'])
- 
-    # api v2
-    app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>',  view_func=ebsi_issuer_api, methods = ['POST'], defaults={'red' :red, 'mode' : mode})
     
     # EBSI protocol with wallet
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/.well-known/openid-configuration', view_func=ebsi_issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
@@ -48,40 +41,6 @@ def init_app(app,red, mode) :
 
 def ebsi_issuer_openid_configuration(issuer_id, mode):
     return jsonify(oidc(issuer_id, mode))
-
-
-def ebsi_issuer_api(issuer_id, red, mode) :
-    """
-    headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
-    }
-    data = { "vc" : {....}}
-    resp = requests.post(token_endpoint, headers=headers, data = data)
-    print("status code token endpoint =", resp.status_code)
-    return resp.json()
-    """
-    try :
-        token = request.headers['Authorization']
-        client_secret = token.split(" ")[1]
-        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-        vc =  request.form['vc']
-    except :
-        return Response(**manage_error("invalid_request", "Request format is incorrect"))
-    
-    if client_secret != issuer_data['client_secret'] :
-        return Response(**manage_error("Unauthorized", "Client secret is incorrect"))
-    
-    user_id = str(uuid.uuid1())
-    file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(issuer_data['credential_to_issue']) + '.jsonld'
-    vc = json.load(open(file_path))
-    user_data = {
-        'vc' : vc,
-        'credential_type' : issuer_data['credential_to_issue']
-    }
-    red.setex(user_id, 300, json.dumps(user_data))
-    response = {"initiate_qrcode" : mode.server+ '/sandbox/ebsi/issuer/' + issuer_id +'/' +user_id}
-    print('initiate qrcode = ', mode.server+ '/sandbox/ebsi/issuer/' + issuer_id +'/' +user_id)
-    return jsonify( response)
 
 
 def oidc(issuer_id, mode) :
@@ -130,7 +89,7 @@ def oidc(issuer_id, mode) :
         'token_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/token',
         'credential_endpoint': mode.server + 'sandbox/ebsi/issuer/' + issuer_id + '/credential',
         'batch_credential_endpoint' : None,
-        'pre-authorized_grant_anonymous_access_supported' : True,
+        'pre-authorized_grant_anonymous_access_supported' : False,
         'subject_syntax_types_supported': DID_METHODS,
         'credential_supported' : credential_supported,
         'credential_manifests' : credential_manifest,
@@ -139,7 +98,7 @@ def oidc(issuer_id, mode) :
 
 
 # initiate endpoint with QRcode
-def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
+def ebsi_issuer_landing_page(issuer_id, red, mode) :
     """
     see EBSI specs as OpenID OIDC4VC issuance for issuance has changed
 
@@ -148,9 +107,7 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
     openid://initiate_issuance
     ?issuer=http%3A%2F%2F192.168.0.65%3A3000%2Fsandbox%2Febsi%2Fissuer%2Fhqplzbjrhg
     &credential_type=Pass
-    &op_state=40fd65cf-98ba-11ed-957d-512a313adf23
-
-    pre_authorized_code
+    &op_stat=40fd65cf-98ba-11ed-957d-512a313adf23
 
     """
     logging.info('Issuer openid-configuration = %s', mode.server + '/sandbox/ebsi/issuer/' + issuer_id + '/.well-known/openid-configuration' )
@@ -160,25 +117,15 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
     except :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
-    try :
-        user_data = json.loads(red.get(user_id).decode())
-        credential_type = user_data['credential_type']
-    except :
-        credential_type = issuer_data['credential_to_issue']
-
+    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_state = str(uuid.uuid1())
     qrcode_page = issuer_data.get('landing_page_style')
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     url_data  = { 
         'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-        'credential_type'  : credential_type,
-        'op_state' : user_id #  op_stat
+        'credential_type'  : issuer_data['credential_to_issue'],
+        'issuer_state' : issuer_state #  op_stat
     }
-    #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
-    # PIN code not supported
-    if issuer_data.get('pre-authorized_code') :
-        url_data['pre-authorized_code'] = issuer_data['pre-authorized_code']
-        url_data['user_pin_required']=False
-
     url = 'openid://initiate_issuance?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
@@ -189,7 +136,7 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
         url_data = json.dumps(url_data,indent = 6),
         url=url,
         deeplink_altme='',
-        stream_id=user_id,
+        stream_id=issuer_state,
         issuer_id=issuer_id,
         page_title=issuer_data['page_title'],
         page_subtitle=issuer_data['page_subtitle'],
@@ -219,7 +166,7 @@ def ebsi_issuer_authorize(issuer_id, red) :
                         'format':'jwt_vc'}]),
         'redirect_uri' :  ngrok + '/callback',
         'state' : '1234',
-        'op_state' : 'mlkmlkhm'
+        'issuer_state' : 'mlkmlkhm'
         }
 
     """
@@ -247,47 +194,51 @@ def ebsi_issuer_authorize(issuer_id, red) :
     except :
         return jsonify('invalid_request'), 400
 
-    op_state = request.args.get('op_state')
-    if not op_state :
-        logging.warning("op_state is missing")
-    user_id = op_state
+    issuer_state = request.args.get('issuer_state')
+    if not issuer_state :
+        logging.warning("issuer state is missing")
     
     try :
         scope = request.args['scope']
     except :
-        return authorization_error_response("invalid_request", "scope is missing", op_state, red)
+        return authorization_error_response("invalid_request", "scope is missing", issuer_state, red)
     
     try :
         response_type = request.args['response_type']
     except :
-        return authorization_error_response("invalid_request", "reponse_type is missing", op_state, red)
+        return authorization_error_response("invalid_request", "reponse_type is missing", issuer_state, red)
+    
+    # manage different format 
+    authorization_details = json.loads(request.args['authorization_details'])
+    if isinstance(authorization_details, dict) :
+        authorization_details_list = [authorization_details] 
+   
+    try :
+        credential_type = authorization_details_list[0]['credential_type']
+    except :
+        return authorization_error_response("invalid_request", "credential_type is missing", issuer_state, red)
     
     try :
-        credential_type = json.loads(request.args['authorization_details'])[0]['credential_type']
+        format = authorization_details_list[0]['format']
     except :
-        return authorization_error_response("invalid_request", "credential_type is missing", op_state, red)
-    
-    try :
-        format = json.loads(request.args['authorization_details'])[0]['format']
-    except :
-        return authorization_error_response("invalid_request", "format is missing", op_state, red)
+        return authorization_error_response("invalid_request", "format is missing", issuer_state, red)
 
     if not db_api.read_ebsi_issuer(issuer_id) :
-        return authorization_error_response("unauthorized_client", "issuer_id not found in data base", op_state, red)
+        return authorization_error_response("unauthorized_client", "issuer_id not found in data base", issuer_state, red)
     
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
 
     if scope != 'openid' :
-        return authorization_error_response("invalid_scope", "unsupported scope", op_state, red)
+        return authorization_error_response("invalid_scope", "unsupported scope", issuer_state, red)
 
     if response_type != 'code' :
-        return authorization_error_response("unsupported_response_type", "unsupported response type", op_state, red)
+        return authorization_error_response("unsupported_response_type", "unsupported response type", issuer_state, red)
 
     if credential_type != issuer_data['credential_to_issue'] :
-        return authorization_error_response("invalid_request", "unsupported credential type", op_state, red)
+        return authorization_error_response("invalid_request", "unsupported credential type", issuer_state, red)
 
     if format not in ['jwt_vc', 'jwt_vc_json'] :
-        return authorization_error_response("invalid_request", "unsupported format", op_state, red)
+        return authorization_error_response("invalid_request", "unsupported format", issuer_state, red)
 
     # Code creation
     code = str(uuid.uuid1())
@@ -296,7 +247,6 @@ def ebsi_issuer_authorize(issuer_id, red) :
         'nonce' : request.args.get('nonce'),
         'credential_type' : credential_type,
         'format' : format,
-        'user_id' : user_id
         # TODO PKCE
         #'code_challenge' : request.args.get('code_challenge'), 
         #'code_challenge_method' : request.args.get('code_challenge_method'),
@@ -308,8 +258,8 @@ def ebsi_issuer_authorize(issuer_id, red) :
     # https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#name-cross-device-self-issued-ope
     
     # Follow up 
-    if op_state :
-        event_data = json.dumps({'stream_id' : op_state})           
+    if issuer_state :
+        event_data = json.dumps({'stream_id' : issuer_state})           
         red.publish('issuer_ebsi', event_data)
 
     resp = {'code' : code}
@@ -358,15 +308,8 @@ def ebsi_issuer_token(issuer_id, red) :
     except :
         return Response(**manage_error("invalid_grant", "Code expired"))     
     
-    if grant_type not in GRANT_TYPE_SUPPORTED :
+    if grant_type != 'authorization_code' :
         return Response(**manage_error("invalid_grant", "Authorization code not supported"))
-
-    if grant_type == 'urn:ietf:params:oauth:grant-type:pre-authorized_code' :
-        try :
-            if request.form['pre-authorized_code'] != issuer_data['pre-authorized_code'] :
-                return Response(**manage_error("invalid_grant", "Pre authorized code incorrrect"))
-        except :
-            return Response(**manage_error("invalid_grant", "Pre authorized code missing"))
 
     # token response
     access_token = str(uuid.uuid1())
@@ -384,8 +327,7 @@ def ebsi_issuer_token(issuer_id, red) :
         'client_id' : data['client_id'],
         'issuer_id' : issuer_id,
         'format' : data['format'],
-        'credential_type' : data['credential_type'],
-        'user_id' : data['user_id']
+        'credential_type' : data['credential_type']
     }
     red.setex(access_token, ACCESS_TOKEN_LIFE,json.dumps(token_endpoint_data))
 
@@ -443,11 +385,8 @@ def ebsi_issuer_credential(issuer_id, red) :
     payload += "=" * ((4 - len(payload) % 4) % 4)
     proof_payload = json.loads(base64.urlsafe_b64decode(payload).decode())
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    if access_token_data['user_id'] == 'test' :
-        file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
-        credential = json.load(open(file_path))
-    else :
-        credential = json.loads(red.get(access_token_data['user_id']).decode())
+    file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
+    credential = json.load(open(file_path))
     issuer_key =  issuer_data['jwk'] 
     issuer_did = issuer_data['did_ebsi'] 
     issuer_vm = issuer_did + '#' +  ebsi.thumbprint(issuer_key)
