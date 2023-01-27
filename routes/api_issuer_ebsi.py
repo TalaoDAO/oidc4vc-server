@@ -352,7 +352,7 @@ def ebsi_issuer_token(issuer_id, red) :
 
     if grant_type == 'urn:ietf:params:oauth:grant-type:pre-authorized_code' :
         try :
-            code = issuer_data['pre-authorized_code']
+            code = request.form['pre-authorized_code']
         except :
             logging.warning('pre authorized code is missing')
             return Response(**manage_error("invalid_grant", "Request format is incorrect"))
@@ -366,7 +366,7 @@ def ebsi_issuer_token(issuer_id, red) :
     try :
         data = json.loads(red.get(code).decode())
     except :
-        return Response(**manage_error("invalid_grant", "Code expired"))     
+        return Response(**manage_error("invalid_grant", "Grant code expired"))     
     
     # token response
     access_token = str(uuid.uuid1())
