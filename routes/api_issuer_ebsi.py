@@ -22,12 +22,13 @@ from op_constante_ebsi import ebsi_credential_to_issue_list
 logging.basicConfig(level=logging.INFO)
 
 ACCESS_TOKEN_LIFE = 1000
-GRANT_LIFE = 180
+GRANT_LIFE = 1000
 C_NONCE_LIFE = 1000
 CRYPTOGRAPHIC_SUITES = ['ES256K','ES256','ES384','ES512','RS256']
 #DID_METHODS = ['did:ebsi','did:key','did:tz','did:pkh','did:ethr','did:web']
 DID_METHODS = ['did:ebsi']
 GRANT_TYPE_SUPPORTED = [ 'urn:ietf:params:oauth:grant-type:pre-authorized_code', 'authorization_code']
+
 
 def init_app(app,red, mode) :
     # endpoint for application
@@ -110,12 +111,6 @@ def oidc(issuer_id, mode) :
             {
                 'name': issuer_data['company_name'],
                 'locale': 'en-US',
-                #'logo': {
-                #    'url': 'https://exampleuniversity.com/public/logo.png',
-                #    'alternative_text': 'a square logo of a university'
-                #},
-                #'background_color': '#12107c',
-                #'text_color': '#FFFFFF'
             }
         ],
         'cryptographic_binding_methods_supported': [
@@ -171,13 +166,19 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
     url_data  = { 
         'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
         'credential_type'  : credential_type,
-        'op_state' : user_id #  op_stat
-    }
+        'op_state' : user_id #  op_stat       
+        }
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
     # PIN code not supported
     if issuer_data.get('pre-authorized_code') :
-        url_data['pre-authorized_code'] = issuer_data['pre-authorized_code']
+        url_data['pre-authorized_code'] = str(uuid.uuid1())
         url_data['user_pin_required']=False
+        code_data = {
+            'credential_type' : credential_type,
+            'format' : 'jwt_vc',
+            'user_id' : user_id,
+        }
+        red.setex(url_data['pre-authorized_code'], GRANT_LIFE, json.dumps(code_data)) 
 
     url = 'openid://initiate_issuance?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
@@ -341,33 +342,32 @@ def ebsi_issuer_token(issuer_id, red) :
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-token-endpoint
     """
     try :
-        #token = request.headers['Authorization']
-        #token = token.split(" ")[1]
-        #token = base64.b64decode(token).decode()
-        #client_secret = token.split(":")[1]
-        #client_id = token.split(":")[0]
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
         grant_type =  request.form['grant_type']
-        code = request.form['code']
-        #redirect_uri = request.form['redirect_uri']
     except :
         return Response(**manage_error("invalid_request", "Request format is incorrect"))
+    
+    if grant_type not in GRANT_TYPE_SUPPORTED :
+        return Response(**manage_error("invalid_grant", "Grant type not supported"))
+
+    if grant_type == 'urn:ietf:params:oauth:grant-type:pre-authorized_code' :
+        try :
+            code = issuer_data['pre-authorized_code']
+        except :
+            logging.warning('pre authorized code is missing')
+            return Response(**manage_error("invalid_grant", "Request format is incorrect"))
+    else:
+        try :
+            code = request.form['code']
+        except :
+            logging.warning('code from authorization server is missing')
+            return Response(**manage_error("invalid_request", "Request format is incorrect"))
 
     try :
         data = json.loads(red.get(code).decode())
     except :
         return Response(**manage_error("invalid_grant", "Code expired"))     
     
-    if grant_type not in GRANT_TYPE_SUPPORTED :
-        return Response(**manage_error("invalid_grant", "Authorization code not supported"))
-
-    if grant_type == 'urn:ietf:params:oauth:grant-type:pre-authorized_code' :
-        try :
-            if request.form['pre-authorized_code'] != issuer_data['pre-authorized_code'] :
-                return Response(**manage_error("invalid_grant", "Pre authorized code incorrrect"))
-        except :
-            return Response(**manage_error("invalid_grant", "Pre authorized code missing"))
-
     # token response
     access_token = str(uuid.uuid1())
     endpoint_response = {
@@ -381,7 +381,7 @@ def ebsi_issuer_token(issuer_id, red) :
         'access_token' : access_token,
         'c_nonce' : endpoint_response['c_nonce'],
         'access_token_expires_in': ACCESS_TOKEN_LIFE,
-        'client_id' : data['client_id'],
+        #'client_id' : data['client_id'],
         'issuer_id' : issuer_id,
         'format' : data['format'],
         'credential_type' : data['credential_type'],
@@ -422,6 +422,8 @@ def ebsi_issuer_credential(issuer_id, red) :
         proof = result['proof']['jwt']
     except :
         return Response(**manage_error("invalid_request", "Invalid request format")) 
+    print('access token credential_type  =', access_token_data['credential_type'])
+    print('credential type = ', credential_type)
 
     if credential_type != access_token_data['credential_type'] :
         return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
