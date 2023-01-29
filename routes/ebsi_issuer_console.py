@@ -6,12 +6,10 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante_ebsi import pre_authorized_code_list, ebsi_credential_requested_list
-from op_constante_ebsi import ebsi_vc_type_list, method_list, landing_page_style_list, ebsi_credential_to_issue_list
+from op_constante_ebsi import  ebsi_credential_requested_list
+from op_constante_ebsi import ebsi_vc_type_list, landing_page_style_list, ebsi_credential_to_issue_list
 import ebsi
 import issuer_activity_db_api
-import pyotp
-import datetime
 
 logging.basicConfig(level=logging.INFO)
 

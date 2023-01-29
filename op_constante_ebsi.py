@@ -16,81 +16,20 @@ ebsi_vp_type_list = {
 }
 
 
-# for issuer with webhook
-method_list = {
-                    "relay" : "Relay (external issuer)",
-                }
-
-# for verifier admin
-credential_list = {
-                    'Pass' : 'Pass',
-                    'EmailPass' : 'Proof of email',
-                    'PhoneProof' : 'Proof of phone',
-                    'AgeRange' : 'Age range',
-                    'Nationality' : 'Nationality',
-                    'Gender' : 'Gender',
-                    'IdCard' : 'Identity card',
-                    'VerifiableId' : 'EBSI Verifiable ID',
-                    'Over18' : 'Over 18',
-                    'Over13' : 'Over 13',
-                    'PassportNumber' : 'Passport footprint',
-                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
-                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
-                    'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
-                    "BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
-                    "FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
-                    "DeviceInfo" : "Device info",
-                    'Tez_Voucher_1' : "Voucher Tezotopia",
-                    'VerifiableDiploma' : 'EBSI Verifiable Diploma',
-                    'LearningAchievement' : 'Diploma',
-                    'StudentCard' : 'Student card',
-                    'AragoPass' : 'Arago Pass',
-                    'InfrachainPass' : 'Infrachain Pass',
-                    'TalaoCommunity' : 'Talao Community card',
-                    'DID' : "None",
-                    'ANY' : 'Any'
-                }
-
-# for verifier  guest
-credential_list_for_guest = {
-                    'Pass' : 'Pass',
-                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
-                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
-                    'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
-                    #"BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
-                    #"FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
-                    'DeviceInfo' : 'Device info',
-                    'EmailPass' : 'Proof of email',
-                    'PassportNumber' : 'Passport footprint',
-                    'PhoneProof' : 'Proof of phone',
-                    'AgeRange' : 'Age range',
-                    'Nationality' : 'Nationality',
-                    'Gender' : 'Gender',
-                    'IdCard' : 'Identity card',
-                    'VerifiableId' : 'EBSI Verifiable ID',
-                    'Over18' : 'Age Over 18',
-                    'Over13' : 'Age Over 13',
-                    'AragoPass' : 'Arago Pass',
-                    'InfrachainPass' : 'Infrachain Pass',
-                    'DID' : "None",
-                    'ANY' : 'Any'
-                }
-
-
+#EBSI Verifier
 ebsi_verifier_credential_list = {
     "DID" : "None",
-    "https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv" : "EBSI Natural Person Verifiable ID"
+    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
+    'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
 }
-
-
 
 
 # EBSI issuer
 ebsi_credential_to_issue_list = {
-                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
+                   'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
                     'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
-                    'None' : 'None'
-                }
+                    'DID' : 'None'
+                } 
 
 # EBSI issuer
 ebsi_credential_requested_list = {
@@ -110,28 +49,18 @@ landing_page_style_list = {
 
 # verifier
 ebsi_verifier_landing_page_style_list = {
-                    "ebsi/ebsi_verifier_qrcode_1.html" : "EBSI - Style 1 ",
-                    "ebsi/ebsi_verifier_qrcode_2.html" : "EBSI - Style 2",
-                    "ebsi/ebsi_verifier_qrcode_2.html" : "EBSI - Large QRcode",
-                    "ebsi/ebsi_verifier_qrcode_3.html" : "EBSI - Style 3",
-                    "ebsi/ebsi_verifier_qrcode_4.html" : "EBSI - Altme landing page",
-                    "ebsi/ebsi_verifier_qrcode_5.html" : "EBSI - Style 2 with counter",
-                    "ebsi/ebsi_verifier_qrcode_6.html" : "EBSI - Style 2 with html",
-                    "ebsi/ebsi_verifier_qrcode_7.html" : "EBSI - Altme style with html",
-                    "ebsi/ebsi_test.html" : "EBSI test"
+                    "./ebsi/ebsi_verifier_qrcode_1.html" : "Style 1 ",
+                    "./ebsi/ebsi_verifier_qrcode_2.html" : "Style 2",
+                    "./ebsi/ebsi_verifier_qrcode_3.html" : "Style 3",
+                    "./ebsi/ebsi_verifier_qrcode_6.html" : "Style 2 with html",
+                    "./ebsi/ebsi_verifier_qrcode_test.html" : "EBSI test"
 }
 
-
-protocol_list = {'w3cpr' : "W3C Presentation Request ",
-                 'siopv2' : 'Siop V2 EBSI implementation',
-                  'siopv2_openid' : 'Siop V2 OpenID implementation'
-                 }
 
 pre_authorized_code_list = {'none' : "None",
                  'pac' : 'Pre authorized code',
                   'pac_pin' : 'Pre authorized code + PIN code'
                  }
-
 
 
 client_data_pattern_ebsi = {

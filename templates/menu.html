@@ -24,22 +24,25 @@
             <div class="col-4 mx-auto">
               <div id="id_qrcode" class="text-center">
                  <a href="/sandbox/saas4ssi/verifier"> 
-                 <h3><strong>Verifier with OpenID for Altme Wallet</strong></h3>
+                 <h3><strong>Verifier with OpenID for Altme Wallet and Talao Wallet</strong></h3>
                  </a>
+                 This is a bridge between the Verifiable Presentation Request standard supported by Altme and a standard OpenID.<br>
                  Web2 or Web3 applications with a backend. Standard OIDC authorization code flow or implicit flow.
                  More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...).
                  CMS as Webflow, Wordpress with OpenID pluggins.
+                 <a href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowSteps">See OpenID standards</a>
               </div> 
           </div>
 
           <div class="col-4 mx-auto">
             <div id="id_qrcode" class="text-center">
                 <a href="/sandbox/saas4ssi/beacon/verifier">
-                <h3><strong>Verifier with Beacon for Altme Wallet</strong></h3>
+                <h3><strong>Verifier with Tezos Beacon for Altme Wallet</strong></h3>
                 </a>
                 Web3 applications on Tezos. Beacon is the protocol used between dApps and wallets in the Tezos ecosystem. 
                 You can now request credentials to your users through a unique Beacon QRcode.
-                 Integration in minutes through a Beacon payload. Backend recieves data in a webhook and user's addresses could be whitelisted or a SBT could be minted.
+                 Integration in minutes through a Beacon payload. 
+                <br> Support of TezID whitelist.
             </div> 
         </div>
 
@@ -50,22 +53,20 @@
         <div class="col-4 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/ebsi/verifier">
-              <h3><strong>Verifier with OpenID for EBSI wallets</strong></h3>
+              <h3><strong>EBSI Verifier for conformant mobile wallets</strong></h3>
               </a>
+              This is a bridge between the SIOPv2 EBSI verifier flow and a standard OpenID authorization code flow and implicit flow.
               For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
-              Connect with standard OpenID auhorization code flow or implicit flow. This verifiers accepts EBSI compliant wallets with support for
-              did:ebsi. 
+            This verifier accepts EBSI compliant wallets with support for did:ebsi.
           </div> 
       </div>
 
         <div class="col-4 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="">
-              <h3><strong>Verifier with WalletConnect for Altme Wallet (soon)</strong></h3>
+              <h3><strong>Verifier with EVM WalletConnect for Altme Wallet</strong></h3>
               </a>
-              Web3 applications on Ethereum, Polygon, Fantom, Binance. WalletConnect is the protocol used between dApp and wallet in the EVM ecosystem. 
-              You can now request credentials to your users through WalletConnect QR code.
-               Integration in minutes with a personal sign walletconnect message. Backend recieves data in a webhook and addresses could be whitelisted or a SBT could be minted.
+              Available soon
           </div> 
       </div>
 
@@ -76,7 +77,7 @@
         <div class="col-4 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/issuer">           
-                <h3><strong>Issuer with a Webhook for Altme Wallet</strong></h3>
+                <h3><strong>Issuer with a Webhook for Altme Wallet and Talao Wallet</strong></h3>
               </a>
               Web2 or Web3 applications with a backend. More than 20 supported VC. KMS support.
               Simply add a webhook in your application to receive requested VCs for issuance and export user data.
@@ -87,10 +88,11 @@
         <div class="col-4 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/beacon">
-              <h3><strong>Issuer with Beacon for Altme Wallet</strong></h3>
+              <h3><strong>Issuer with Tezos Beacon for Altme Wallet</strong></h3>
               </a>
               Web3 applications on Tezos. Beacon is the protocol used between dApp and wallet in the Tezos ecosystem. 
               You can now issue credentials to your users through Beacon. Integration in minutes with a beacon payload.
+              <br> Support of TezID whitelist.
           </div> 
       </div>
 
@@ -101,10 +103,9 @@
       <div class="col-4 mx-auto">
         <div id="id_qrcode" class="text-center">
             <a href="">
-            <h3><strong>Issuer with WalletConnect for Altme WAllet (soon)</strong></h3>
+            <h3><strong>Issuer with EVM WalletConnect for Altme Wallet</strong></h3>
             </a>
-            Web3 applications on Ethereum, Polygon, Fantom, Binance. WalletConnect is the protocol used between dApps and wallets in the EVM ecosystem.
-          You can now issue credentials to your users through WallketConnect pairing. Integration in minutes with a personal sign message.
+           Available soon
         </div> 
     </div>
 
@@ -112,9 +113,12 @@
     <div class="col-4 mx-auto">
       <div id="id_qrcode" class="text-center">
         <a href="/sandbox/saas4ssi/ebsi/issuer">
-          <h3><strong>Issuer with a Webhook for EBSI wallets</strong></h3>
+          <h3><strong>EBSI issuer for conformant mobile wallets</strong></h3>
           </a>
-         Issuer for EBSI-V2 , OIDC4VC issuance
+         Issuer for EBSI-V2 , OIDC4VC issuance<br>
+         Support of authorization code flow and pre-authorized_code flow <br>
+         <a href="https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
+         ">See OIDC4VCI standards</a>
       </div> 
   </div>
    

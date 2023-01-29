@@ -10,7 +10,6 @@ from urllib.parse import urlencode
 import uuid
 from op_constante_ebsi import ebsi_verifier_credential_list
 from op_constante_ebsi import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
-from op_constante import model_one, model_any, model_DIDAuth
 
 logging.basicConfig(level=logging.INFO)
 
@@ -23,7 +22,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/ebsi/verifier/console/preview',  view_func=ebsi_verifier_console_preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
     app.add_url_rule('/sandbox/ebsi/verifier/console/activity',  view_func=ebsi_verifier_console_activity, methods = ['GET', 'POST'])
 
-    app.add_url_rule('/sandbox/ebsi/verifier/preview_presentation/<stream_id>',  view_func=ebsi_verifier_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    #app.add_url_rule('/sandbox/ebsi/verifier/preview_presentation/<stream_id>',  view_func=ebsi_verifier_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
 
       # nav bar option
     app.add_url_rule('/sandbox/ebsi/verifier/nav/logout',  view_func=ebsi_verifier_nav_logout, methods = ['GET'])
@@ -114,28 +113,12 @@ def ebsi_verifier_console_activity() :
 def ebsi_verifier_console_preview (red, mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-        
     stream_id = str(uuid.uuid1())
     client_id = session['client_data']['client_id']
     verifier_data = json.loads(db_api.read_ebsi_verifier(client_id))
     qrcode_message = verifier_data.get('qrcode_message', "No message")
     mobile_message = verifier_data.get('mobile_message', "No message")
-    if verifier_data['vc'] == "ANY" :
-        pattern = model_any
-    elif verifier_data['vc'] == "DID" :
-        pattern = model_DIDAuth
-    else :
-        pattern = model_one
-        pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
-        pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
-    data = { "pattern": pattern }
-    red.set(stream_id,  json.dumps(data))
-
-    if not verifier_data.get('verifier_landing_page_style') :
-        qrcode_page = "op_verifier_qrcode_2.html"
-    else : 
-        qrcode_page = verifier_data.get('verifier_landing_page_style')
-    
+    qrcode_page = verifier_data.get('verifier_landing_page_style')
     url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,

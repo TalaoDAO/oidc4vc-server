@@ -43,7 +43,7 @@ from routes import api_issuer_ebsi, ebsi_issuer_console
 #from routes import dapp_over13, dapp_tezid_over13
 
 # Server Release
-VERSION = "0.9.1"
+VERSION = "0.9.2"
 logging.info('Altme Sandbox version : %s', VERSION)
 
 # Framework Flask and Session setup

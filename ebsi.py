@@ -46,26 +46,38 @@ def alg(key) :
     elif key['crv'] == 'P-521' :
       return 'ES512'
     else :
-      raise Exception ("Curve not supported")
+      raise Exception("Curve not supported")
   elif key['kty'] == 'RSA' :
     return 'RS256'
   else :
-    raise Exception ("Key type not supported")
+    raise Exception("Key type not supported")
 
 
-def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
+
+def pub_key(key_dict) :
+    key_dict = json.loads(key_dict) if isinstance(key_dict, str) else key_dict
+    return {"crv": key_dict['crv'],
+            "kty":"EC",
+            "x": key_dict['x'],
+            "y": key_dict['y']}
+
+
+
+def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
     """
+    For isuer
+
     https://jwcrypto.readthedocs.io/en/latest/jwk.html
     https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
     """
-    key = json.loads(key) if isinstance(key, str) else key
+    issuer_key = json.loads(issuer_key) if isinstance(issuer_key, str) else issuer_key
     vc = json.loads(vc) if isinstance(vc, str) else vc
-    issuer_key = jwk.JWK(**key) 
+    signer_key = jwk.JWK(**issuer_key) 
     header = {
       'typ' :'JWT',
       'kid': issuer_vm,
-      'alg': alg(key)
+      'alg': alg(issuer_key)
     }
     payload = {
       'iss' : issuer_did,
@@ -77,24 +89,93 @@ def sign_jwt_vc(vc, issuer_vm , key, issuer_did, wallet_did, nonce) :
       'sub' : wallet_did,
       'vc' : vc
     }  
-    token = jwt.JWT(header=header,claims=payload, algs=[alg(key)])
-    token.make_signed_token(issuer_key)
+    token = jwt.JWT(header=header,claims=payload, algs=[alg(issuer_key)])
+    token.make_signed_token(signer_key)
     return token.serialize()
 
 
-def verif_proof_of_key(token) :
+  
+
+"""
+For holder/wallet
+Build and sign verifiable presentation as vp_token
+Ascii is by default in the json string 
+"""
+def sign_jwt_vp(vc, audience, holder_vm, holder_did, nonce, vp_id, holder_key) :
+    holder_key = json.loads(holder_key) if isinstance(holder_key, str) else holder_key
+    signer_key = jwk.JWK(**holder_key) 
+    header = {
+        "typ" :"JWT",
+        "alg": alg(holder_key),
+        "kid" : holder_vm,
+        "jwk" : pub_key(holder_key),
+    }
+    iat = round(datetime.timestamp(datetime.now()))
+    payload = {
+        "iat": iat,
+        "jti" : vp_id,
+        "nbf" : iat -10,
+        "aud" : audience,
+        "exp": iat + 1000,
+        "sub" : holder_did,
+        "iss" : holder_did,
+        "vp" : {
+            "@context": ["https://www.w3.org/2018/credentials/v1"],
+            "id": vp_id,
+            "type": ["VerifiablePresentation"],
+            "holder": holder_did,
+            "verifiableCredential": [vc]
+        },
+        "nonce": nonce
+    }
+    token = jwt.JWT(header=header,claims=payload, algs=[alg(holder_key)])
+    token.make_signed_token(signer_key)
+    return token.serialize()
+
+
+def verif_proof_of_key(token, nonce) :
   """
   For issuer 
   """
   header = token.split('.')[0]
   header += "=" * ((4 - len(header) % 4) % 4) # solve the padding issue of the base64 python lib
   proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
+  payload = token.split('.')[1] 
+  payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
+  payload_dict = json.loads(base64.urlsafe_b64decode(payload).decode())
+  if payload_dict['nonce'] != nonce :
+    raise Exception("Nonce is incorrect")
   # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
   issuer_key = jwk.JWK(**proof_header['jwk']) 
   a.validate(issuer_key)
   return
 
+
+def verify_jwt_credential(token, pub_key) :
+  """
+  For verifier and holder
+  """
+  # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
+  a =jwt.JWT.from_jose_token(token)
+  issuer_key = jwk.JWK(**pub_key) 
+  a.validate(issuer_key)
+  return
+
+def get_payload_from_token(token, nonce) :
+  """
+  For verifier
+
+  check the signature and return None if failed
+  """
+  payload = token.split('.')[1]
+  payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
+  payload = json.loads(base64.urlsafe_b64decode(payload).decode())
+  try :
+    verif_proof_of_key(token, nonce)
+  except :
+    return
+  return payload
 
 
 def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
@@ -121,10 +202,30 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   return token.serialize()
 
 
-def thumbprint(key) :
-    key = json.loads(key) if isinstance(key, str) else key
-    KEY = jwk.JWK(**key) 
-    return KEY.thumbprint()
+def thumbprint(key_dict) :
+    """
+    https://www.rfc-editor.org/rfc/rfc7638.html
+    """
+    key_dict = json.loads(key_dict) if isinstance(key_dict, str) else key_dict
+    if key_dict['kty'] == 'EC' :
+        JWK = json.dumps({
+            'crv':key_dict['crv'],
+            'kty':"EC",
+            'x':key_dict['x'],
+            'y':key_dict['y']
+            }).replace(' ','')
+    elif key_dict['kty'] == 'RSA' :
+        JWK = json.dumps({
+            'e' : key_dict['e'],
+            'kty' : 'RSA',
+            'n' : key_dict['n']
+        }).replace(' ', '')
+    else :
+      raise Exception('Key type not supported')
+    m = hashlib.sha256()
+    m.update(JWK.encode())
+    return m.hexdigest()
+
 
 
 def generate_lp_ebsi_did() :
