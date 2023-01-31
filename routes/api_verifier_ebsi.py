@@ -412,7 +412,7 @@ def ebsi_login_qrcode(red, mode):
     url = 'openid://' + '?' + urlencode(pattern)
     deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
-    logging.info("qrcode size = ", len(url))
+    logging.info("qrcode size = %s", len(url))
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     return render_template(qrcode_page,
                             back_button = False,
