@@ -450,6 +450,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
     vp_token_status = "Unknown"
     id_token_status = "Unknown"
     credential_status = "unknown"
+    holder_did_status = "unbknown"
     access = "ok"
        
     # Check qrcode expiration
@@ -494,7 +495,30 @@ def ebsi_login_endpoint(stream_id, red,mode):
         vp_token_status = "ok"
     else :
         vp_token_payload = ""
-    
+
+    # check wallet DID
+    if access == "ok" :
+        jwk = ebsi.get_header_from_token(id_token)['jwk']
+        kid = ebsi.get_header_from_token(id_token)['kid']
+        did_wallet = ebsi.generate_np_did(jwk)
+        if did_wallet != kid.split('#')[0] :
+            holder_did_status = "DID incorrect"
+            status_code = 400
+            access = "access_denied"
+        else :
+            holder_did_status = "ok"
+
+    # check iss and sub
+    if access == "ok" :
+        jwk = ebsi.get_header_from_token(id_token)['jwk']
+        did_wallet = ebsi.generate_np_did(jwk)
+        if did_wallet != vp_token_payload['iss'] or did_wallet != vp_token_payload['sub'] :
+            vp_token_status = "iss or sub not set correctly"
+            status_code = 400
+            access = "access_denied"
+        else :
+            vp_token_status = "ok"
+
     # verify credential signature
     if access == "ok" : 
         vp_token_payload = ebsi.get_payload_from_token(vp_token, nonce)
@@ -521,6 +545,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
     response = {
       "created": datetime.timestamp(datetime.now()),
       "qrcode_status" : qrcode_status,
+      "holder_did_status" : holder_did_status,
       "response_format" : response_format,
       "id_token_status" : id_token_status,
       "vp_token_status" : vp_token_status,

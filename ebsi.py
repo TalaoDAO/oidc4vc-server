@@ -37,7 +37,8 @@ alg value https://www.rfc-editor.org/rfc/rfc7518#page-6
 def alg(key) :
   key = json.loads(key) if isinstance(key, str) else key
   if key['kty'] == 'EC' :
-    if key['crv'] == 'secp256k1' :
+    if key['crv'] in ['secp256k1', 'P-256K'] :
+      key['crv'] = 'secp256k1'
       return 'ES256K' 
     elif key['crv'] == 'P-256' :
       return 'ES256'
@@ -53,15 +54,11 @@ def alg(key) :
     raise Exception("Key type not supported")
 
 
-
-def pub_key(key_dict) :
-    key_dict = json.loads(key_dict) if isinstance(key_dict, str) else key_dict
-    return {"crv": key_dict['crv'],
-            "kty":"EC",
-            "x": key_dict['x'],
-            "y": key_dict['y']}
-
-
+def pub_key(key) :
+    key = json.loads(key) if isinstance(key, str) else key
+    Key = jwk.JWK(**key) 
+    return Key.export_public(as_dict=True)
+    
 
 def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
     """
@@ -93,8 +90,6 @@ def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
     token.make_signed_token(signer_key)
     return token.serialize()
 
-
-  
 
 """
 For holder/wallet
@@ -136,6 +131,7 @@ def sign_jwt_vp(vc, audience, holder_vm, holder_did, nonce, vp_id, holder_key) :
 def verif_proof_of_key(token, nonce) :
   """
   For issuer 
+  raise exception if problem
   """
   header = token.split('.')[0]
   header += "=" * ((4 - len(header) % 4) % 4) # solve the padding issue of the base64 python lib
@@ -147,6 +143,8 @@ def verif_proof_of_key(token, nonce) :
     raise Exception("Nonce is incorrect")
   # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
+  if isinstance (proof_header['jwk'], str) :
+    proof_header['jwk'] = json.loads(proof_header['jwk'])
   issuer_key = jwk.JWK(**proof_header['jwk']) 
   a.validate(issuer_key)
   return
@@ -155,17 +153,20 @@ def verif_proof_of_key(token, nonce) :
 def verify_jwt_credential(token, pub_key) :
   """
   For verifier and holder
+  raise an exception if problem
+  pub_key is not in header
   """
   # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
+  pub_key = json.loads(pub_key) if isinstance(pub_key, str) else pub_key
   issuer_key = jwk.JWK(**pub_key) 
   a.validate(issuer_key)
   return
 
+
 def get_payload_from_token(token, nonce) :
   """
   For verifier
-
   check the signature and return None if failed
   """
   payload = token.split('.')[1]
@@ -178,9 +179,15 @@ def get_payload_from_token(token, nonce) :
   return payload
 
 
+def get_header_from_token(token) :
+  header = token.split('.')[0]
+  header += "=" * ((4 - len(header) % 4) % 4) # solve the padding issue of the base64 python lib
+  return json.loads(base64.urlsafe_b64decode(header).decode())
+
+
 def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   """
-  For wallets
+  For wallets natural person as jwk is added in header
   """
   key = json.loads(key) if isinstance(key, str) else key
   signer_key = jwk.JWK(**key) 
@@ -202,30 +209,12 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   return token.serialize()
 
 
-def thumbprint(key_dict) :
-    """
-    https://www.rfc-editor.org/rfc/rfc7638.html
-    """
-    key_dict = json.loads(key_dict) if isinstance(key_dict, str) else key_dict
-    if key_dict['kty'] == 'EC' :
-        JWK = json.dumps({
-            'crv':key_dict['crv'],
-            'kty':"EC",
-            'x':key_dict['x'],
-            'y':key_dict['y']
-            }).replace(' ','')
-    elif key_dict['kty'] == 'RSA' :
-        JWK = json.dumps({
-            'e' : key_dict['e'],
-            'kty' : 'RSA',
-            'n' : key_dict['n']
-        }).replace(' ', '')
-    else :
-      raise Exception('Key type not supported')
-    m = hashlib.sha256()
-    m.update(JWK.encode())
-    return m.hexdigest()
-
+def thumbprint(key) :
+  key = json.loads(key) if isinstance(key, str) else key
+  signer_key = jwk.JWK(**key) 
+  a = signer_key.thumbprint()
+  a  += "=" * ((4 - len(a) % 4) % 4) 
+  return base64.urlsafe_b64decode(a).hex()
 
 
 def generate_lp_ebsi_did() :
@@ -245,17 +234,22 @@ def generate_np_did(key) :
 
 def verification_method(did, key) : # = kid
     key = json.loads(key) if isinstance(key, str) else key
-    return did + '#' + thumbprint(key)
+    signer_key = jwk.JWK(**key) 
+    thumb_print = signer_key.thumbprint()
+    return did + '#' + thumb_print
 
 
 def did_resolve(did, key) :
+  """
+  https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
+  """
   key = json.loads(key) if isinstance(key, str) else key
   did_document = {
     "@context": "https://w3id.org/did/v1",
     "id": did,
     "verificationMethod": [
       {
-        "id": did + '#' +  thumbprint(key),
+        "id": verification_method(did, key),
         "type": "JsonWebKey2020",
         "controller": did,
         "publicKeyJwk": {
@@ -268,26 +262,26 @@ def did_resolve(did, key) :
       }
     ],
     "authentication": [
-      did + '#' +  thumbprint(key)
+      verification_method(did, key)
     ],
     "assertionMethod": [
-      did + '#' +  thumbprint(key)
+      verification_method(did, key)
       ]
     }
   return json.dumps(did_document)
 
 
-
 # JSON-LD sign
 def sign_jsonld_vc(credential, key, did) :
   key = json.loads(key) if isinstance(key, str) else key
+  issuer_key = jwk.JWK(**key) 
   if isinstance(credential, str) :
     credential = json.loads(credential)
   proof= {
     #'@context':'https://w3id.org/security/v2',
     "type": "EcdsaSecp256k1Signature2019",
     "created": datetime.now().replace(microsecond=0).isoformat() + 'Z',
-    "verificationMethod": did + '#' + thumbprint(key),
+    "verificationMethod": verification_method(did, key),
     "proofPurpose": "assertionMethod"
   }
   h = {'alg':alg(key),'b64':False,'crit':['b64']}
@@ -304,7 +298,6 @@ def sign_jsonld_vc(credential, key, did) :
   encodedHeader = base64.urlsafe_b64encode(jws_header)
   to_sign = encodedHeader + b'.' + proof_hash.digest() + doc_hash.digest()
 
-  issuer_key = jwk.JWK(**key) 
   jwstoken = jws.JWS(to_sign)
   jwstoken.add_signature(issuer_key, None, json_encode({'alg': alg(key)}))
 
@@ -325,31 +318,6 @@ def sign_jsonld_vc(credential, key, did) :
 
 ########################## TEST VECTORS
 
-key1 =  {
-  'crv': 'P-256',
-  'd': 'gifPl6onSK0UUcV02_FtnmPY9NEQGP2j2EUIKTDhyH8',
-  'kty': 'EC',
-  'x': 'zBiQktwhMspVmI14Cy0jn2mSiYi2mbXKG1ZQqt-QzKo',
-  'y': 'A22Fda-NX_yTAbXfAWudpOFMJEpipNAw1y7iTWDMG78'
-}
-
-"""
-did =  did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh
-verification method = kid  =  did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh#d819023d5dd21163bfa3b943282b75c0d211b007f9adb080aca1377cf0396a4a
-DID Document  =  {'@context': 'https://w3id.org/did/v1', 'id': 'did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh', 'verificationMethod': [{'id': 'did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh#d819023d5dd21163bfa3b943282b75c0d211b007f9adb080aca1377cf0396a4a', 'type': 'JsonWebKey2020', 'controller': 'did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh', 'publicKeyJwk': {'kty': 'EC', 'crv': 'P-256', 'x': 'zBiQktwhMspVmI14Cy0jn2mSiYi2mbXKG1ZQqt-QzKo', 'y': 'A22Fda-NX_yTAbXfAWudpOFMJEpipNAw1y7iTWDMG78', 'alg': 'ES256'}}], 'authentication': ['did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh#d819023d5dd21163bfa3b943282b75c0d211b007f9adb080aca1377cf0396a4a'], 'assertionMethod': ['did:ebsi:zr1BvU3y9ybxc6ViZPoQDwYfjWGtKrMyge2ebVUkFneGh#d819023d5dd21163bfa3b943282b75c0d211b007f9adb080aca1377cf0396a4a']}
-
-"""
-key2 =  {'crv': 'P-256', 'd': '-5s6EQzg8IJ7ZSNAsNcBZmXiT697L_RIyNM_b6KugCA', 'kty': 'EC', 'x': 'Q9NeTcpgzLwavEDZ5xAnK1hCpUzJq6Ghof1Q2sdhou8', 'y': 'y4XrDLh-qK5y3m2WHO-SV7Q_FFTYS2kKfG67QUYhieo'}
-"""
-did =  did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk
-verification method = kid  =  did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk#2582aa43a137ca231679e01c2128ecf85d396e43332810a8befdc2e4d4625c93
-DID Document  =  {'@context': 'https://w3id.org/did/v1', 'id': 'did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk', 'verificationMethod': [{'id': 'did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk#2582aa43a137ca231679e01c2128ecf85d396e43332810a8befdc2e4d4625c93', 'type': 'JsonWebKey2020', 'controller': 'did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk', 'publicKeyJwk': {'kty': 'EC', 'crv': 'P-256', 'x': 'Q9NeTcpgzLwavEDZ5xAnK1hCpUzJq6Ghof1Q2sdhou8', 'y': 'y4XrDLh-qK5y3m2WHO-SV7Q_FFTYS2kKfG67QUYhieo', 'alg': 'ES256'}}], 'authentication': ['did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk#2582aa43a137ca231679e01c2128ecf85d396e43332810a8befdc2e4d4625c93'], 'assertionMethod': ['did:ebsi:zdz4PSgCAyrQKmChiLJL659imLvTx9tm3zSWcoaWnQEXk#2582aa43a137ca231679e01c2128ecf85d396e43332810a8befdc2e4d4625c93']}
-"""
-
-key3 =  {"crv": "secp256k1", "d": "fxEWvbcF8-UaKZof4Ethng4lFiWO8YeUYHawQVHs6KU", "kty": "EC", "x": "uPSr7x3mgveGQ_xvuxO6CFIY6GG09ZsmngY5S2EixKk", "y": "mq7je_woNa3iMGoYWQ1uZKPjbDgDCskAbh12yuGAoKw", "alg": "ES256K"}
-
-
-
 # EBSI TEST VECTORS
 
 alice_key = {
@@ -363,21 +331,19 @@ alice_key = {
 }
 
 alice_DID = "did:ebsi:znxntxQrN369GsNyjFjYb8fuvU7g3sJGyYGwMTcUGdzuy"
-
-
-
-KEY_DICT = {"crv":"P-256",
-            "d":"ZpntMmvHtDxw6przKSJY-zOHMrEZd8C47D3yuqAsqrw",
-            "kty":"EC",
-            "x":"NB1ylMveV4_PPYtx9KYEjoS1WWA8qN33SJav9opWTaM",
-            "y":"UtOG2jR3NHadMMJ7wdYEq5_nHJHVfcy7QPt_OBHhBrE"}
-
-
-DID = "did:ebsi:zmSKef6zQZDC66MppKLHou9zCwjYE4Fwar7NSVy2c7aya"
-KID =  "did:ebsi:zmSKef6zQZDC66MppKLHou9zCwjYE4Fwar7NSVy2c7aya#lD7U7tcVLZWmqECJYRyGeLnDcU4ETX3reBN3Zdd0iTU"
-
+KID       = "did:ebsi:znxntxQrN369GsNyjFjYb8fuvU7g3sJGyYGwMTcUGdzuy#qujALp4bIDg5qs4lGuG_1OLycbh3ZyUfL-SJwiM9YjQ",
 
 """
+{'crv': 'P-256', 'd': 'fdoUpbYXqQwLdA59KAGjHDK-tfSwILl6KOgmUR-9G-E', 'kty': 'EC', 'x': 'swb4CEhlK9LVttgfhkTE3fyzh3CVJOJWZFwnpvws06w', 'y': '61sQzFW216xWdfXhWi7oHzLH7AW55Sb_cRnpvMt0o_c'}
+did:ebsi:zmBbuRFdCyzo8YXxdFfiWiDm5SYbAAXM2Qks824hv1WKK
+did:ebsi:zmBbuRFdCyzo8YXxdFfiWiDm5SYbAAXM2Qks824hv1WKK#kHl_qBhwIoW9hiQDYDVxxg4vDt6vbg-_YCHXY3Piwso
+
+
+{'crv': 'secp256k1', 'd': 'btbbhfOMozv735FBv1vE7oajjrvgjOmFz0RPPrKGIhI', 'kty': 'EC', 'x': 'jueEqLxxzNYzjuitj-6wQVjMKHtbVkz336BWmrv2n5k', 'y': 'fy-awzXPdLe_AzKvDHWMWxpVvDsXv_jZ3WcOxdaZ5CQ'}
+did:ebsi:ztMVxH9gTfWxLVePz348Rme8fZqNL5vn7wJ8Ets2fAgSX
+did:ebsi:ztMVxH9gTfWxLVePz348Rme8fZqNL5vn7wJ8Ets2fAgSX#-wRjA5dN5TJvZH_epIsrzZvAt28DHwPXloQvMVWevqw
+
+
 key = jwk.JWK.generate(kty='EC', crv='P-256')
 key = jwk.JWK.generate(kty='EC', crv='secp256k1')
 my_key = json.loads(key.export(private_key=True))   #doctest: +ELLIPSIS
@@ -385,11 +351,3 @@ print(my_key)
 print(did_ebsi(my_key))
 print(verification_method_ebsi(my_key))
 """
-
-KEY_DICT = {'crv': 'secp256k1',
-             'd': 'dBE5MSwGh1ypjymY48CGv_FaFQHQUPaZ632rhFVpZNw',
-              'kty': 'EC', 'x': 'liIvy6clecfH9riQNvs1VsX7m1bYmYZ2JsHhpPJjfgY',
-               'y': 'j8Q9Xfa8MIY78JiEpzMrlJzYz2vTkJY183hJBLLcKiU'}
-
-DID = "did:ebsi:zdzaNUxpxnvTzMw8Hfnr6kg3AgJP8cXwvvKQVb61vstF1"
-KID = "did:ebsi:zdzaNUxpxnvTzMw8Hfnr6kg3AgJP8cXwvvKQVb61vstF1#JaSRRiETIVHdByAG3e9N7NQ7MPXIILd1_lfyPYUWJ7g"
