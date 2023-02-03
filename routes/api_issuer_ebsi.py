@@ -102,7 +102,8 @@ def oidc(issuer_id, mode) :
 def ebsi_issuer_api(issuer_id, red, mode) :
     """
     headers = {
-        'Content-Type': 'application/x-www-form-urlencoded'
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Authorization' : 'Bearer <client_secret>'
     }
     data = { 
         "vc" : {....}, -> object
@@ -118,10 +119,10 @@ def ebsi_issuer_api(issuer_id, red, mode) :
         client_secret = token.split(" ")[1]
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
         vc =  request.form['vc']
-        pre_authorized_code = request.form.get('pre-authorized_code')
     except :
         return Response(**manage_error("invalid_request", "Request format is incorrect"))
     
+    pre_authorized_code = request.form.get('pre-authorized_code')
     if client_secret != issuer_data['client_secret'] :
         return Response(**manage_error("Unauthorized", "Client secret is incorrect"))
     
@@ -166,8 +167,13 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
         logging.error('credetial to issue not set')
         return jsonify('Credential to issue not set correctly')
     
+    # Test with pre authorized code
     if user_id == 'test' :
         pre_authorized_code = str(uuid.uuid1())
+    # Test with authorization server
+    elif user_id == 'test_authorization_server' :
+        pre_authorized_code = None
+    # Production
     else :
         try :
             user_data = json.loads(red.get(user_id).decode())
@@ -184,10 +190,10 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
         'op_state' : user_id, #  op_stat 
         }
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
-    # PIN code not supported
+    # TODO PIN code not supported
     if pre_authorized_code :
         url_data['pre-authorized_code'] = pre_authorized_code
-        url_data['user_pin_required']=False
+        url_data['user_pin_required']= False
         code_data = {
             'credential_type' : issuer_data['credential_to_issue'],
             'format' : 'jwt_vc',
@@ -195,18 +201,20 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
             'user_id' : user_id
         }
         red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
-        print("redis = ", red.get(pre_authorized_code))
 
     url = 'openid://initiate_issuance?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
+    deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
+    deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
 
     return render_template(
         qrcode_page,
         openid_configuration = openid_configuration,
         url_data = json.dumps(url_data,indent = 6),
         url=url,
-        deeplink_altme='',
+        deeplink_altme=deeplink_altme,
+        deeplink_talao=deeplink_talao,
         stream_id=user_id,
         issuer_id=issuer_id,
         page_title=issuer_data['page_title'],

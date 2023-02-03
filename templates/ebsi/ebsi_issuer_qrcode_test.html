@@ -67,26 +67,43 @@
         
         
           
-        <div id="content_smartphone" class="d-block d-sm-none" style="background-color: {{page_background_color}} " > 
+        <div id="content_smartphone" class="d-block d-sm-none " style="background-color: {{page_background_color}} " > 
           <div class="mt-5">
-          <div class="text-center">
+            <div class="text-center">
+              <div class="row mt-5">
+                <did class="col-10 offset-1" >
 
-            <h3>{{page_title}}</h3><br>
-            <h5>{{page_subtitle}}</h5><br>
+              
+                <div class="card shadow border-dark mt-2 " style="border-radius: 10%; background-color: {{qrcode_background_color}} ">
 
-            <div class="row">
-              <div class="col-6 offset-3">
-                <h6>{{page_description}}</h6>
-              </div>
-            </div>
+                  <div class="my-3">
+                    <h6>Choose your preferred wallet</h6>
+                  </div>
+
+                    <div class="row mt-3">
+                      <div class="col">
                          
                         <a href="{{deeplink_altme}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/AltMe.png"  style="width: 50px;"></a>
-                        <h6 class=" mt-4">{{mobile_message}}</h6>
-                        <div class="mt-5"><h6 class="text-secondary"><a href={{landing_page_url}}>{{landing_page_url}} </a></h6></div>
+                        <br><bt><br><h6>Altme wallet</h6>
+                      </div>
+                     
+                    </div>
+
+                    <div class="row my-3">
+                      <div class="col">
+                         
+                        <a href="{{deeplink_talao}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/talao_icon.png"  style="width: 100px;"></a>
+                        <h6>Talao wallet</h6>
+                      </div>
+                    </div>
          
-          </div>
+                </div>
+                      </div>
+              </div>
+            </div>
           </div>
         </div>
+         
 
 
        
