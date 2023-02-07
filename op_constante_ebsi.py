@@ -132,7 +132,7 @@ input_descriptor = {
                     "constraints":{
                         "fields":[
                             {
-                                "path":["$.vc.credentialSchema"],
+                                "path":["$.vc.credentialSchema.id"],
                                 "filter": ""
                             }
                         ]
