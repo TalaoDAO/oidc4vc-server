@@ -379,34 +379,39 @@ def ebsi_login_qrcode(red, mode):
         logging.error("credential not defined")
         return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
-        filter = op_constante_ebsi.filter
+        # TODO
+        filter = op_constante_ebsi.filter2
         input_descriptor = op_constante_ebsi.input_descriptor
-        input_descriptor['id'] = str(uuid.uuid1())
-        input_descriptor['name'] = "Input descriptor 1"
-        input_descriptor['purpose'] = verifier_data['reason'] 
-        filter['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc'] 
-        input_descriptor['constraints']['fields'][0]['filter'] = filter
-        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor)
+        input_descriptor["id"] = str(uuid.uuid1())
+        input_descriptor["name"] = "Input descriptor 1"
+        input_descriptor["purpose"] = verifier_data['reason'] 
+        #filter["allOf"][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc'] 
+        filter["pattern"] =  verifier_data['vc']
+        input_descriptor["constraints"]["fields"][0]["filter"] = filter
+        claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor)
     else :
-        filter_1 = deepcopy(op_constante_ebsi.filter)
+        # TODO
+        filter_1 = deepcopy(op_constante_ebsi.filter2)
         input_descriptor_1 = deepcopy(op_constante_ebsi.input_descriptor)
-        input_descriptor_1['id'] = str(uuid.uuid1())
-        input_descriptor_1['name'] = "Input descriptor 1"
-        input_descriptor_1['purpose'] = verifier_data['reason'] 
-        filter_1['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc'] 
-        input_descriptor_1['constraints']['fields'][0]['filter'] = filter_1
-        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor_1)
+        input_descriptor_1["d"] = str(uuid.uuid1())
+        input_descriptor_1["name"] = "Input descriptor 1"
+        input_descriptor_1["purpose"] = verifier_data['reason'] 
+        #filter_1["allOf"][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc'] 
+        filter_1["pattern"] = verifier_data['vc'] 
+        input_descriptor_1["constraints"]["fields"][0]["filter"] = filter_1
+        claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor_1)
         
-        filter_2 = deepcopy(op_constante_ebsi.filter)
+        filter_2 = deepcopy(op_constante_ebsi.filter2)
         input_descriptor_2 = deepcopy(op_constante_ebsi.input_descriptor)
-        input_descriptor_2['id'] = str(uuid.uuid1())
-        input_descriptor_2['name'] = "input descriptor 2"
-        input_descriptor_2['purpose'] = verifier_data['reason_2'] 
-        filter_2['allOf'][0]['contains']['properties']['id']['pattern'] = verifier_data['vc_2'] 
-        input_descriptor_2['constraints']['fields'][0]['filter'] = filter_2
-        claims['vp_token']['presentation_definition']['input_descriptors'].append(input_descriptor_2)
+        input_descriptor_2["id"] = str(uuid.uuid1())
+        input_descriptor_2["name"] = "input descriptor 2"
+        input_descriptor_2["purpose"] = verifier_data["reason_2"] 
+        filter_2['allOf'][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc_2'] 
+        filter_2["pattern"] = verifier_data['vc_2'] 
+        input_descriptor_2["constraints"]["fields"][0]["filter"] = filter_2
+        claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
 
-    pattern['claims'] = claims
+    pattern["claims"] = claims
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
     url = 'openid://' + '?' + urlencode(pattern)

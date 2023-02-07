@@ -131,7 +131,7 @@ def ebsi_issuer_api(issuer_id, red, mode) :
     vc = json.load(open(file_path))
     user_data = {
         'vc' : vc,
-        'credential_type' : issuer_data['credential_to_issue'],
+        'credential_type' : issuer_data['credential_to_issue'], # useless
         'pre-authorized_code' : pre_authorized_code
     }
     red.setex(user_id, API_LIFE, json.dumps(user_data))
@@ -167,10 +167,10 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
         logging.error('credetial to issue not set')
         return jsonify('Credential to issue not set correctly')
     
-    # Test with pre authorized code
+    # For wallet test with pre authorized code
     if user_id == 'test' :
         pre_authorized_code = str(uuid.uuid1())
-    # Test with authorization server
+    # For wallet test with authorization server
     elif user_id == 'test_authorization_server' :
         pre_authorized_code = None
     # Production

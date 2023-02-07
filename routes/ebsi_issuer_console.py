@@ -238,7 +238,6 @@ def ebsi_issuer_console(mode) :
                 client_secret=session['client_data']['client_secret'],
                 user=session['client_data']['user'], 
                 callback=session['client_data']['callback'],
-                pre_authorized_code = session['client_data'].get('pre-authorized_code'), 
                 issuer_landing_page = session['client_data']['issuer_landing_page'],
                 title = session['client_data'].get('title'),
                 contact_name = session['client_data'].get('contact_name'),
@@ -291,7 +290,6 @@ def ebsi_issuer_console(mode) :
             session['client_data']['client_id'] =  request.form['client_id']
             session['client_data']['company_name'] = request.form['company_name']
             session['client_data']['application_name'] = request.form['application_name']
-            session['client_data']['pre-authorized_code'] = request.form['pre_authorized_code']
             #session['client_data']['reason'] = request.form['reason']
             #session['client_data']['reason_2'] = request.form.get('reason_2', "")
             #session['client_data']['reason_3'] = request.form.get('reason_4', "")

@@ -157,4 +157,7 @@ filter = {
             ]
         }
 
-
+filter2 = {
+    "type": "string",
+     "pattern" :""
+}
