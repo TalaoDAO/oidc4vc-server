@@ -274,14 +274,7 @@ def ebsi_issuer_authorize(issuer_id, red) :
     except :
         return jsonify('invalid_request'), 400
 
-    """
-    op_state = request.args.get('op_state')
-    if not op_state :
-        logging.warning("op_state is missing")
-    """
-
     user_id = op_state
-    
     try :
         scope = request.args['scope']
     except :
@@ -469,7 +462,7 @@ def ebsi_issuer_credential(issuer_id, red) :
     payload += "=" * ((4 - len(payload) % 4) % 4)
     proof_payload = json.loads(base64.urlsafe_b64decode(payload).decode())
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    if access_token_data['user_id'] == 'test' :
+    if access_token_data['user_id'] in ['test', 'test_authorization_server'] :
         logging.info("test use case")
         file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list.get(credential_type) + '.jsonld'
         credential = json.load(open(file_path))
