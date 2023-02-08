@@ -270,12 +270,16 @@ def ebsi_issuer_authorize(issuer_id, red) :
     try :
         client_id = request.args['client_id']
         redirect_uri = request.args['redirect_uri']
+        op_state = request.args['op_state']
     except :
         return jsonify('invalid_request'), 400
 
+    """
     op_state = request.args.get('op_state')
     if not op_state :
         logging.warning("op_state is missing")
+    """
+
     user_id = op_state
     
     try :

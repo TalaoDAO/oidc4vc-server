@@ -211,6 +211,8 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
 
 def thumbprint(key) :
   key = json.loads(key) if isinstance(key, str) else key
+  if key['crv'] == 'P-256K' :
+    key['crv'] = 'secp256k1'
   signer_key = jwk.JWK(**key) 
   a = signer_key.thumbprint()
   a  += "=" * ((4 - len(a) % 4) % 4) 
