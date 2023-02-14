@@ -29,7 +29,7 @@ ACCESS_TOKEN_LIFE = 1000
 CODE_LIFE = 1000
 
 # wallet
-QRCODE_LIFE = 1000
+QRCODE_LIFE = 2000
 
 # OpenID key of the OP for customer application
 try :
@@ -380,29 +380,27 @@ def ebsi_login_qrcode(red, mode):
         return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         # TODO
-        filter = op_constante_ebsi.filter2
-        input_descriptor = op_constante_ebsi.input_descriptor
+        filter = {"type": "string"}  
+        input_descriptor = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
         input_descriptor["id"] = str(uuid.uuid1())
         input_descriptor["name"] = "Input descriptor 1"
         input_descriptor["purpose"] = verifier_data['reason'] 
-        #filter["allOf"][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc'] 
         filter["pattern"] =  verifier_data['vc']
         input_descriptor["constraints"]["fields"][0]["filter"] = filter
         claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor)
     else :
         # TODO
-        filter_1 = deepcopy(op_constante_ebsi.filter2)
-        input_descriptor_1 = deepcopy(op_constante_ebsi.input_descriptor)
-        input_descriptor_1["d"] = str(uuid.uuid1())
+        filter_1 = {"type": "string"} 
+        input_descriptor_1 = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
+        input_descriptor_1["id"] = str(uuid.uuid1())
         input_descriptor_1["name"] = "Input descriptor 1"
         input_descriptor_1["purpose"] = verifier_data['reason'] 
-        #filter_1["allOf"][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc'] 
         filter_1["pattern"] = verifier_data['vc'] 
         input_descriptor_1["constraints"]["fields"][0]["filter"] = filter_1
         claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor_1)
         
-        filter_2 = deepcopy(op_constante_ebsi.filter2)
-        input_descriptor_2 = deepcopy(op_constante_ebsi.input_descriptor)
+        filter_2 = {"type": "string"} 
+        input_descriptor_2 = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
         input_descriptor_2["id"] = str(uuid.uuid1())
         input_descriptor_2["name"] = "input descriptor 2"
         input_descriptor_2["purpose"] = verifier_data["reason_2"] 
@@ -412,11 +410,12 @@ def ebsi_login_qrcode(red, mode):
         claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
 
     pattern["claims"] = claims
+    print("patter = ", pattern)
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
     url = 'openid://' + '?' + urlencode(pattern)
-    deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
-    deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
     logging.info("qrcode size = %s", len(url))
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     return render_template(qrcode_page,
@@ -457,6 +456,8 @@ def ebsi_login_endpoint(stream_id, red,mode):
     credential_status = "unknown"
     holder_did_status = "unbknown"
     access = "ok"
+    vp_token_payload = {}
+    id_token_payload = {}
        
     # Check qrcode expiration
     if not red.get(stream_id) :
@@ -474,37 +475,37 @@ def ebsi_login_endpoint(stream_id, red,mode):
             vp_token =request.form['vp_token']
             id_token = request.form['id_token']
             response_format = "ok"
+            logging.info('id_token = %s', json.dumps(id_token, indent=4))
+            logging.info('vp token = %s', json.dumps(vp_token, indent=4))
         except :
-            response_format = "invalid format",
+            response_format = "invalid request format",
             status_code = 400
             access = "access_denied"
     
-    # check signature of id_token
-    if access == "ok" and not ebsi.get_payload_from_token(id_token, nonce) :
-        id_token_status = "signature check failed"
-        status_code = 400
-        access = "access_denied"
-    elif access == "ok" :
-        id_token_payload = ebsi.get_payload_from_token(id_token, nonce)
-        id_token_status = "ok"
-    else :
-        id_token_payload = {'sub' : 'unknown'}
-
-    # check signature of vp_token
-    if access == "ok" and not ebsi.get_payload_from_token(vp_token, nonce) :
-        vp_token_status = "signature check failed"
-        status_code = 400
-        access = "access_denied"
-    elif access == "ok" :
-        vp_token_payload = ebsi.get_payload_from_token(vp_token, nonce)
-        vp_token_status = "ok"
-    else :
-        vp_token_payload = ""
+    # check signature of id_token and vp_token
+    if access == "ok"  :
+        try :
+            ebsi.verif_token(id_token, nonce)
+            id_token_payload = ebsi.get_payload_from_token(id_token)
+            id_token_status = "ok"
+        except :
+            id_token_status = "signature check failed"
+            status_code = 400
+            access = "access_denied" 
+        try :
+            ebsi.verif_token(id_token, nonce)
+            vp_token_status = "ok"
+            vp_token_payload = ebsi.get_payload_from_token(vp_token)
+        except :
+            vp_token_status = "signature check failed"
+            status_code = 400
+            access = "access_denied"
 
     # check wallet DID
     if access == "ok" :
-        jwk = ebsi.get_header_from_token(id_token)['jwk']
-        kid = ebsi.get_header_from_token(id_token)['kid']
+        id_token_header = ebsi.get_header_from_token(id_token)
+        jwk = id_token_header['jwk']
+        kid = id_token_header['kid']
         did_wallet = ebsi.generate_np_did(jwk)
         if did_wallet != kid.split('#')[0] :
             holder_did_status = "DID incorrect"
@@ -515,36 +516,32 @@ def ebsi_login_endpoint(stream_id, red,mode):
 
     # check iss and sub
     if access == "ok" :
-        jwk = ebsi.get_header_from_token(id_token)['jwk']
-        did_wallet = ebsi.generate_np_did(jwk)
         if did_wallet != vp_token_payload['iss'] or did_wallet != vp_token_payload['sub'] :
             vp_token_status = "iss or sub not set correctly"
-            status_code = 400
-            access = "access_denied"
+            #status_code = 400
+            #access = "access_denied"
         else :
             vp_token_status = "ok"
-
-    # verify credential signature
+    
+    # verify credentials signatures
     if access == "ok" : 
-        vp_token_payload = ebsi.get_payload_from_token(vp_token, nonce)
         credential_list = vp_token_payload['vp']['verifiableCredential']
         test = True
+        # TODO API to get EBSI DID document
+        pub_key = ""
         for credential in credential_list :
             # TODO verify credential signature with Issuer pub_key from EBSI API
-            # try :
-            #   ebsi.verify_jwt_credential(token, pub_key)
-            # except :
-            #   credential_status = "signature check failed"
-            #   status_code = 400
-            #   access = "access_denied"
-            #   break
-            #   test = False
-            pass
-        #if test :
-            #credential_status = "ok"
-        #else :
-            #credential_status = "signature check failed"
-            #status_code = 400
+            try :
+               ebsi.verify_jwt_credential(credential, pub_key)
+            except :
+               test = False
+               break
+        if test :
+            credential_status = "ok"
+        else :
+            # TODO
+            credential_status = "signature check failed"
+            status_code = 200
             #access = "access_denied"
 
     response = {
@@ -558,7 +555,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
       "access" : access,
       "status_code" : status_code    
     }
-    logging.info("response = %s",response)
+    logging.info("response = %s",json.dumps(response, indent=4))
     # follow up
     value = json.dumps({
                     "access" : access,

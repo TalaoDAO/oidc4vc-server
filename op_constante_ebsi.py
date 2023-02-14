@@ -125,39 +125,4 @@ ebsi_verifier_claims = {
     }
 }
 
-input_descriptor = {
-                    "id":"",
-                    "name":"",
-                    "purpose":"",
-                    "constraints":{
-                        "fields":[
-                            {
-                                "path":["$.vc.credentialSchema.id"],
-                                "filter": ""
-                            }
-                        ]
-                    }
-                }
 
-filter = {
-            "allOf":[
-                {
-                    "type":"array",
-                    "contains":{
-                        "type":"object",
-                        "properties":{
-                            "id":{
-                                "type":"string",
-                                "pattern":""
-                            }
-                        },
-                        "required":["id"]
-                    }
-                }
-            ]
-        }
-
-filter2 = {
-    "type": "string",
-     "pattern" :""
-}

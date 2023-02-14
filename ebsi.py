@@ -128,24 +128,21 @@ def sign_jwt_vp(vc, audience, holder_vm, holder_did, nonce, vp_id, holder_key) :
     return token.serialize()
 
 
-def verif_proof_of_key(token, nonce) :
+def verif_token(token, nonce) :
   """
   For issuer 
   raise exception if problem
+  pub _key is in header
+  https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   """
-  header = token.split('.')[0]
-  header += "=" * ((4 - len(header) % 4) % 4) # solve the padding issue of the base64 python lib
-  proof_header = json.loads(base64.urlsafe_b64decode(header).decode())
-  payload = token.split('.')[1] 
-  payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
-  payload_dict = json.loads(base64.urlsafe_b64decode(payload).decode())
-  if payload_dict['nonce'] != nonce :
+  header = get_header_from_token(token)
+  payload = get_payload_from_token(token)
+  if payload['nonce'] != nonce :
     raise Exception("Nonce is incorrect")
-  # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
-  if isinstance (proof_header['jwk'], str) :
-    proof_header['jwk'] = json.loads(proof_header['jwk'])
-  issuer_key = jwk.JWK(**proof_header['jwk']) 
+  if isinstance (header['jwk'], str) :
+    header['jwk'] = json.loads(header['jwk'])
+  issuer_key = jwk.JWK(**header['jwk']) 
   a.validate(issuer_key)
   return
 
@@ -155,20 +152,16 @@ def verify_jwt_credential(token, pub_key) :
   For verifier and holder
   raise an exception if problem
   pub_key is not in header
+  https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   """
-  # https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   a =jwt.JWT.from_jose_token(token)
   pub_key = json.loads(pub_key) if isinstance(pub_key, str) else pub_key
   issuer_key = jwk.JWK(**pub_key) 
   a.validate(issuer_key)
   return
 
-
+"""
 def get_payload_from_token(token, nonce) :
-  """
-  For verifier
-  check the signature and return None if failed
-  """
   payload = token.split('.')[1]
   payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
   payload = json.loads(base64.urlsafe_b64decode(payload).decode())
@@ -177,7 +170,17 @@ def get_payload_from_token(token, nonce) :
   except :
     return
   return payload
+  """
 
+def get_payload_from_token(token) :
+  """
+  For verifier
+  check the signature and return None if failed
+  """
+  payload = token.split('.')[1]
+  payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
+  return json.loads(base64.urlsafe_b64decode(payload).decode())
+ 
 
 def get_header_from_token(token) :
   header = token.split('.')[0]
