@@ -435,8 +435,8 @@ def login_qrcode(red, mode):
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_VERIFIER})
-    deeplink_talao = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
-    deeplink_altme= mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
 
     if not verifier_data.get('verifier_landing_page_style') :
         qrcode_page = "op_verifier_qrcode_2.html"

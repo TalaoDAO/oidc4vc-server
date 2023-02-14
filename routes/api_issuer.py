@@ -238,7 +238,8 @@ def issuer_landing_page(issuer_id, red, mode) :
     # TODO
     issuer_did = "did:tz:tz1NyjrTUNxDpPaqNZ84ipGELAcTWYg6s5Du"
     url = mode.server + "sandbox/op/issuer_endpoint/" + issuer_id + '/' + stream_id + '?issuer=' + issuer_did 
-    deeplink_altme = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
     red.setex(stream_id, 180, json.dumps(credentialOffer))
     if issuer_data['credential_requested'] == "login" :
         red.setex(stream_id + "_login", 180, json.dumps({"username" : session['username'],
@@ -252,6 +253,7 @@ def issuer_landing_page(issuer_id, red, mode) :
     return render_template(qrcode_page,
                                 url=url,
                                 deeplink_altme=deeplink_altme,
+                                deeplink_talao=deeplink_talao,
                                 stream_id=stream_id,
                                 issuer_id=issuer_id,
                                 page_title=issuer_data['page_title'],
