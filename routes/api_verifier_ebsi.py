@@ -6,8 +6,8 @@ Customer can use any OpenId lib in its own framework to access an EBSI conforman
 
 """
 
-from flask import jsonify, request, render_template, Response, redirect, session, jsonify
-from flask import session,Response, jsonify
+from flask import jsonify, request, render_template, redirect
+from flask import session, Response, jsonify
 import json
 import uuid
 from urllib.parse import urlencode
@@ -119,9 +119,10 @@ id_token -> implicit flow
 def ebsi_authorize(red, mode) :
     logging.info("authorization endpoint request args = %s", request.args)
     """ https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
-     code_ebsi = {
-        "vp_token" + vp_token,
-        "wallet_DID" : id_token_payload['sub']
+     code_wallet_data = 
+    {
+        "vp_token_payload", : xxxxx
+        "sub" : xxxxxx
     }
     """
     # user is connected, successfull exit to client with code
@@ -139,14 +140,14 @@ def ebsi_authorize(red, mode) :
             sep = "?" if session.get('response_mode') == 'query' else "#"
             code = request.args['code'] 
             try :
-                code_ebsi = json.loads(red.get(code + "_ebsi").decode())
+                code_wallet_data = json.loads(red.get(code + "_wallet_data").decode())
             except :
                 logging.error("code expired")
                 resp = {'error' : "access_denied"}
                 redirect_uri = session['redirect_uri']
                 session.clear()
                 return redirect(redirect_uri + sep + urlencode(resp)) 
-            id_token = ebsi_build_id_token(session['client_id'], code_ebsi['wallet_DID'], session.get('nonce'), mode)
+            id_token = ebsi_build_id_token(session['client_id'], code_wallet_data['sub'], session.get('nonce'), mode)
             resp = {"id_token" : id_token} 
             logging.info("redirect to client with id-token = %s", id_token)
             return redirect(session['redirect_uri'] + sep + urlencode(resp))
@@ -273,11 +274,11 @@ def ebsi_token(red, mode) :
     
     # token response
     try :
-        code_ebsi = json.loads(red.get(code + "_ebsi").decode())
+        code_wallet_data = json.loads(red.get(code + "_wallet_data").decode())
     except :
         logging.error("redis get problem to get code_ebsi")
         return manage_error("invalid_grant")
-    id_token = ebsi_build_id_token(client_id, code_ebsi['wallet_DID'], data['nonce'], mode)
+    id_token = ebsi_build_id_token(client_id, code_wallet_data['sub'], data['nonce'], mode)
     logging.info('id_token and access_token sent to client from token endpoint')
     access_token = str(uuid.uuid1())
     endpoint_response = {"id_token" : id_token,
@@ -285,12 +286,12 @@ def ebsi_token(red, mode) :
                         "token_type" : "Bearer",
                         "expires_in": ACCESS_TOKEN_LIFE
                         }
-    red.setex(access_token, 
+    red.setex(access_token + '_wallet_data', 
             ACCESS_TOKEN_LIFE,
             json.dumps({
                 "client_id" : client_id,
-                "sub" : code_ebsi['wallet_DID'],
-                "vp_token" : code_ebsi['vp_token']}))
+                "sub" : code_wallet_data['sub'],
+                "vp_token_payload" : code_wallet_data['vp_token_payload']}))
     headers = {
         "Cache-Control" : "no-store",
         "Pragma" : "no-cache",
@@ -324,10 +325,10 @@ def ebsi_userinfo(red) :
     logging.info("user info endpoint request")
     access_token = request.headers["Authorization"].split()[1]
     try :
-        data = json.loads(red.get(access_token).decode())
+        wallet_data = json.loads(red.get(access_token + '_wallet_data').decode())
         payload = {
-            "sub" : data['sub'],
-            "vp_token" : data["vp_token"]
+            "sub" : wallet_data['sub'],
+            "vp_token_payload" : wallet_data["vp_token_payload"]
         }
         headers = {
             "Cache-Control" : "no-store",
@@ -340,7 +341,7 @@ def ebsi_userinfo(red) :
         headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
         return Response(status=401,headers=headers)
     
-############################################################################
+################################# wallet siopv2 ###########################################
 
 """
 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#section-10
@@ -379,9 +380,10 @@ def ebsi_login_qrcode(red, mode):
         logging.error("credential not defined")
         return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
-        # TODO
+        logging.info("1 credential requested")
         filter = {"type": "string"}  
-        input_descriptor = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
+        input_descriptor = {"constraints":{"fields":[{"path":[]}]}}
+        input_descriptor["constraints"]["fields"][0]['path'].append(verifier_data.get("path_1", "$.credentialSchema.id"))
         input_descriptor["id"] = str(uuid.uuid1())
         input_descriptor["name"] = "Input descriptor 1"
         input_descriptor["purpose"] = verifier_data['reason'] 
@@ -389,9 +391,10 @@ def ebsi_login_qrcode(red, mode):
         input_descriptor["constraints"]["fields"][0]["filter"] = filter
         claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor)
     else :
-        # TODO
+        logging.info("2 credentials requested")
         filter_1 = {"type": "string"} 
-        input_descriptor_1 = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
+        input_descriptor_1 = {"constraints":{"fields":[{"path":[]}]}}
+        input_descriptor_1["constraints"]["fields"][0]['path'].append(verifier_data.get("path_1", "$.credentialSchema.id"))
         input_descriptor_1["id"] = str(uuid.uuid1())
         input_descriptor_1["name"] = "Input descriptor 1"
         input_descriptor_1["purpose"] = verifier_data['reason'] 
@@ -400,17 +403,16 @@ def ebsi_login_qrcode(red, mode):
         claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor_1)
         
         filter_2 = {"type": "string"} 
-        input_descriptor_2 = {"constraints":{"fields":[{"path":["$.credentialSchema.id"]}]}}
+        input_descriptor_2 = {"constraints":{"fields":[{"path":[]}]}}
+        input_descriptor_2["constraints"]["fields"][0]['path'].append(verifier_data.get("path_2", "$.credentialSchema.id"))
         input_descriptor_2["id"] = str(uuid.uuid1())
         input_descriptor_2["name"] = "input descriptor 2"
         input_descriptor_2["purpose"] = verifier_data["reason_2"] 
-        filter_2['allOf'][0]["contains"]["properties"]["id"]["pattern"] = verifier_data['vc_2'] 
         filter_2["pattern"] = verifier_data['vc_2'] 
         input_descriptor_2["constraints"]["fields"][0]["filter"] = filter_2
         claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
 
     pattern["claims"] = claims
-    print("patter = ", pattern)
     data = { "pattern": pattern,"code" : request.args['code'] }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
     url = 'openid://' + '?' + urlencode(pattern)
@@ -443,6 +445,7 @@ def ebsi_login_qrcode(red, mode):
     
 
 def ebsi_login_endpoint(stream_id, red,mode):
+    logging.info("Enter wallet response endpoint")
     """
     https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-6.2
     
@@ -540,7 +543,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
             credential_status = "ok"
         else :
             # TODO
-            credential_status = "signature check failed"
+            credential_status = "signature check bypassed"
             status_code = 200
             #access = "access_denied"
 
@@ -557,12 +560,12 @@ def ebsi_login_endpoint(stream_id, red,mode):
     }
     logging.info("response = %s",json.dumps(response, indent=4))
     # follow up
-    value = json.dumps({
+    wallet_data = json.dumps({
                     "access" : access,
-                    "vp_token" : vp_token_payload,
-                    "wallet_DID" : id_token_payload.get('sub')
+                    "vp_token_payload" : vp_token_payload,
+                    "sub" : id_token_payload.get('sub')
                     })
-    red.setex(stream_id + "_DIDAuth", CODE_LIFE, value)
+    red.setex(stream_id + "_wallet_data", CODE_LIFE, wallet_data)
     event_data = json.dumps({"stream_id" : stream_id})           
     red.publish('api_ebsi_verifier', event_data)
     return jsonify(response), status_code
@@ -575,30 +578,32 @@ def ebsi_login_followup(red):
     Prepare de data to transfer
     create activity record
     """
+    logging.info("Enter follow up endpoint")
     try :
-        client_id = session['client_id']
+        _session = session['client_id'] # needed to check authorized session
         stream_id = request.args.get('stream_id')
     except :
         return jsonify("Forbidden"), 403 
     code = json.loads(red.get(stream_id).decode())['code']
     try :
-        stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())
+        stream_id_wallet_data = json.loads(red.get(stream_id + '_wallet_data').decode())
     except :
-        logging.error("code expired")
+        logging.error("code expired in follow up")
         resp = {'code' : code, 'error' : "access_denied"}
         session['verified'] = False
         return redirect ('/sandbox/ebsi/authorize?' + urlencode(resp))
 
-    if stream_id_DIDAuth['access'] != 'ok' :
-        resp = {'code' : code, 'error' : stream_id_DIDAuth['access']}
+    if stream_id_wallet_data['access'] != 'ok' :
+        resp = {'code' : code, 'error' : stream_id_wallet_data['access']}
         session['verified'] = False
     else :
         session['verified'] = True
-        del stream_id_DIDAuth['access']
-        # this will be used in the authorization endpoint
-        red.setex(code +"_ebsi", CODE_LIFE, json.dumps(stream_id_DIDAuth))
+        red.setex(code +"_wallet_data", CODE_LIFE, json.dumps(stream_id_wallet_data))
         resp = {'code' : code}
+
+    """
     verifier_data = json.loads(read_ebsi_verifier(client_id))
+    
     # for activity tracking
     activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
                 "user" : stream_id_DIDAuth["wallet_DID"],
@@ -607,6 +612,7 @@ def ebsi_login_followup(red):
                 "status" : session['verified']
     }
     activity_db_api.create(client_id, activity) 
+    """
     return redirect ('/sandbox/ebsi/authorize?' + urlencode(resp))
 
 

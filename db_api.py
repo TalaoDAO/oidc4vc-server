@@ -112,7 +112,7 @@ def create_b(db, user, mode, method) :
 
 def create(db, user, mode, method) :
     letters = string.ascii_lowercase
-    if db == 'ebsi_issuer.db' :
+    if db in ['ebsi_issuer.db', 'ebsi_verifier.db'] :
         data = client_data_pattern_ebsi
     else :
         data = client_data_pattern

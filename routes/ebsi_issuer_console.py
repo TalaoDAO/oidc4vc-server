@@ -140,10 +140,12 @@ def ebsi_issuer_preview (mode) :
         issuer_did = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
         
     url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,
 							url=url,
-                            deeplink=deeplink,
+                            deeplink=deeplink_altme,
+                            deeplink_talao=deeplink_talao,
 							stream_id=stream_id,
                             qrcode_message=qrcode_message,
                             mobile_message=mobile_message,

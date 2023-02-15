@@ -15,12 +15,21 @@ ebsi_vp_type_list = {
     #"ldp_vp" : "ldp_vp",
 }
 
+ebsi_path_list = {
+    "$.credentialSchema.id" : "$.credentialSchema.id",
+    "$.credentialSubject.type" : "$.credentialSubject.type",
+    "$.issuer" : "$.issuer"
+}
+
 
 #EBSI Verifier
 ebsi_verifier_credential_list = {
     "DID" : "None",
     'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
     'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
+    'EmailPass' : 'Email proof',
+    'PhoneProof' : 'Phone proof',
+    'DeviceInfo' : 'Device information'
 }
 
 
@@ -43,7 +52,7 @@ ebsi_credential_requested_list = {
 landing_page_style_list = {
                     "./ebsi/ebsi_issuer_qrcode_1.html" : "Style 1",
                     "./ebsi/ebsi_issuer_qrcode_2.html" : "Style 2",
-                    "./ebsi/ebsi_issuer_qrcode_test.html" : "EBSI issuer test"
+                    "./ebsi/ebsi_issuer_qrcode_test.html" : "Test"
                 }
 
 
@@ -53,7 +62,7 @@ ebsi_verifier_landing_page_style_list = {
                     "./ebsi/ebsi_verifier_qrcode_2.html" : "Style 2",
                     "./ebsi/ebsi_verifier_qrcode_3.html" : "Style 3",
                     "./ebsi/ebsi_verifier_qrcode_6.html" : "Style 2 with html",
-                    "./ebsi/ebsi_verifier_qrcode_test.html" : "EBSI test"
+                    "./ebsi/ebsi_verifier_qrcode_test.html" : "Test"
 }
 
 
@@ -82,19 +91,20 @@ client_data_pattern_ebsi = {
                 "note" : "",
                 "company_name" : "New company",
                 "application_name" : "Application name",
-                "reason" : " ",
-                "reason_2" : " ",
-                "reason_3" : " ",
-                "reason_4" : " ",
+                "reason" : "This purpose 1",
+                "reason_2" : "This is purpose 2 ",
+                "reason_3" : "This is purpose 3 ",
+                "reason_4" : "This purpose 4",
                 "credential_requested" : "DID",
                 "credential_requested_2" : "DID",
                 "credential_requested_3" : "DID",
                 "credential_requested_4" : "DID",
                 "credential_to_issue" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
                 "credential_to_issue_2" : "None",
-                "protocol" : "w3cpr",
+                'path_1' : "$.credentialSchema.id",
+                'path-2' : "$.credentialSchema.id",
                 "landing_page_style" : "./ebsi/ebsi_issuer_qrcode_test.html",
-                "verifier_landing_page_style" : "op_verifier_qrcode_2.html",
+                "verifier_landing_page_style" : "./ebsi/ebsi_verifier_qrcode_2.html",
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
                 "page_description" : "Add here a credential description as you would like to see it displayed on the landing page of your app.",

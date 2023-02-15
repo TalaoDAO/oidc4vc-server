@@ -8,7 +8,7 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante_ebsi import ebsi_verifier_credential_list
+from op_constante_ebsi import ebsi_verifier_credential_list, ebsi_path_list
 from op_constante_ebsi import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
@@ -120,10 +120,12 @@ def ebsi_verifier_console_preview (red, mode) :
     mobile_message = verifier_data.get('mobile_message', "No message")
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,
 							url=url,
-                            deeplink=deeplink,
+                            deeplink=deeplink_altme,
+                            deeplink_talao=deeplink_talao,
 							stream_id=stream_id,
                             page_title=verifier_data['page_title'],
                             page_subtitle=verifier_data['page_subtitle'],
@@ -194,6 +196,20 @@ def ebsi_verifier_console(mode) :
                     vc_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
+
+        path_select_1 = str()
+        for key, value in ebsi_path_list.items() :
+                if key ==   session['client_data'].get('path_1', "$.credentialSchema.id") :
+                    path_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    path_select_1 +=  "<option value=" + key + ">" + value + "</option>"
+        
+        path_select_2 = str()
+        for key, value in ebsi_path_list.items() :
+                if key ==   session['client_data'].get('path_2', "$.credentialSchema.id") :
+                    path_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    path_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
         authorization_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
         implicit_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
@@ -235,6 +251,8 @@ def ebsi_verifier_console(mode) :
                 vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
                 ebsi_vp_type_select=ebsi_vp_type_select,
+                path_select_1=path_select_1,
+                path_select_2=path_select_2,
                 login_name=session['login_name']
                 )
     if request.method == 'POST' :
@@ -273,6 +291,8 @@ def ebsi_verifier_console(mode) :
             session['client_data']['vc'] = request.form['vc_1']
             #session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']
+            session['client_data']['path_1'] = request.form['path_1']
+            session['client_data']['path_2'] = request.form['path_2']
             session['client_data']['user'] = request.form['user_name']
             session['client_data']['ebsi_vp_type'] = request.form['ebsi_vp_type']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
