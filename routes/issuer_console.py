@@ -6,9 +6,8 @@ import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_requested_list, pre_authorized_code_list, credential_requested_list_2, credential_to_issue_list
-from op_constante import protocol_list, method_list, landing_page_style_list, credential_to_issue_list_for_guest
-import ebsi
+from op_constante import credential_requested_list, credential_requested_list_2, credential_to_issue_list
+from op_constante import method_list, landing_page_style_list, credential_to_issue_list_for_guest
 import issuer_activity_db_api
 import pyotp
 import datetime
@@ -158,10 +157,11 @@ def issuer_preview (mode) :
         issuer_did = didkit.key_to_did(session['client_data']['method'], session['client_data']['jwk'])
         
     url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,
 							url=url,
-                            deeplink=deeplink,
+                            deeplink=deeplink_altme,
 							stream_id=stream_id,
                             qrcode_message=qrcode_message,
                             mobile_message=mobile_message,

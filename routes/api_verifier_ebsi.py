@@ -606,7 +606,7 @@ def ebsi_login_followup(red):
     
     # for activity tracking
     activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
-                "user" : stream_id_DIDAuth["wallet_DID"],
+                "user" : stream_id_wallet_data["sub"],
                 "credential_1" : verifier_data['vc'],
                 "credential_2" : verifier_data.get('vc_2', "None"),
                 "status" : session['verified']

@@ -134,10 +134,12 @@ def preview (red, mode) :
         qrcode_page = verifier_data.get('verifier_landing_page_style')
     
     url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url})
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,
 							url=url,
-                            deeplink=deeplink,
+                            deeplink=deeplink_altme,
+                            deeplink_talao=deeplink_talao,
 							stream_id=stream_id,
                             page_title=verifier_data['page_title'],
                             page_subtitle=verifier_data['page_subtitle'],

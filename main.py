@@ -38,17 +38,9 @@ from routes import api_verifier_ebsi, ebsi_verifier_console
 from routes import api_issuer_ebsi, ebsi_issuer_console
 
 
-#from routes import dapp_check_gamer_pass
-
-#from routes import dapp_over13, dapp_tezid_over13
-
-# Server Release
-VERSION = "0.9.2"
-logging.info('Altme Sandbox version : %s', VERSION)
-
 # Framework Flask and Session setup
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = VERSION
+app.jinja_env.globals['Version'] = "0.9.3"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
