@@ -54,7 +54,6 @@ def ebsi_verifier_console_select(mode) :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :  
         my_list = db_api.list_ebsi_verifier()
-        print("my list = ", my_list)
         verifier_list=str()
         for data in my_list :
             data_dict = json.loads(data)

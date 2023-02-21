@@ -1,5 +1,6 @@
 import hashlib
 from pyld import jsonld
+import requests
 from jwcrypto import jwk, jws, jwt
 import base64
 import base58
@@ -52,6 +53,7 @@ def alg(key) :
     return 'RS256'
   else :
     raise Exception("Key type not supported")
+
 
 
 def pub_key(key) :
@@ -242,6 +244,62 @@ def verification_method(did, key) : # = kid
     signer_key = jwk.JWK(**key) 
     thumb_print = signer_key.thumbprint()
     return did + '#' + thumb_print
+
+
+def did_resolve_lp(did) :
+  """
+  API v3
+  Get DID document with EBSI API
+  https://api-pilot.ebsi.eu/docs/apis/did-registry/latest#/operations/get-did-registry-v3-identifier
+  """
+  try :
+    url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
+    r = requests.get(url) 
+  except :
+    logging.error('cannot access API')
+    return 
+  if 399 < r.status_code < 500 :
+    logging.warning('return API code = %s', r.status_code)
+    return 
+  return r.json()
+
+
+def get_lp_public_jwk(did, kid) :
+  """
+  API v3
+  """
+  did_document = did_resolve_lp(did)
+  if not did_document :
+    logging.warning('DID Document not found')
+    return
+  for key in did_document['verificationMethod'] :
+    if key['id'] == kid :
+      return key['publicKeyJwk']
+  logging.warning('public key not found')
+  return  
+  
+
+def get_issuer_registry_data(did) :
+  """
+  API v3
+  https://api-pilot.ebsi.eu/docs/apis/trusted-issuers-registry/latest#/operations/get-trusted-issuers-registry-v3-issuers-issuer
+  """
+  try :
+    url = 'https://api-pilot.ebsi.eu/trusted-issuers-registry/v3/issuers/' + did
+    r = requests.get(url) 
+  except :
+    logging.error('cannot access API')
+    return 
+  if 399 < r.status_code < 500 :
+    logging.warning('return API code = %s', r.status_code)
+    return
+  try : 
+    body = r.json()['attributes'][0]['body']
+    return base64.urlsafe_b64decode(body).decode()
+  except :
+    logging.error('registry data in invalid format')
+    return
+
 
 
 def did_resolve(did, key) :

@@ -52,6 +52,7 @@ def init_app(app,red, mode) :
     # endpoints for siopv2/EBSI wallet
     app.add_url_rule('/sandbox/ebsi/login',  view_func=ebsi_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/login/request_uri/<stream_id>',  view_func=ebsi_request_uri, methods = ['GET'], defaults={'red' : red})
     app.add_url_rule('/sandbox/ebsi/login/followup',  view_func=ebsi_login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/login/stream',  view_func=ebsi_login_stream, defaults={ 'red' : red})
     return
@@ -361,18 +362,18 @@ def ebsi_login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
+        verifier_data = json.loads(read_ebsi_verifier(client_id))
     except :
         logging.error("session expired in login_qrcode")
         return render_template("ebsi/verifier_session_problem.html", message='Session expired')
     pattern = { 
         "scope" : "openid",
         "response_type" : "id_token",
-        "client_id" : client_id,
+        "client_id" : verifier_data['did_ebsi'],
         "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
-        "claims" : "",
-        "nonce" : str(uuid.uuid1())
+        "nonce" : str(uuid.uuid1()),
+        "request_uri" : mode.server + "sandbox/ebsi/login/request_uri/" + stream_id 
     }
-    verifier_data = json.loads(read_ebsi_verifier(client_id))
     claims = deepcopy(op_constante_ebsi.ebsi_verifier_claims)
     claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
     claims['vp_token']['presentation_definition']['format'] = {verifier_data.get('ebsi_vp_type', "jwt_vp") : {"alg": ["ES256K", "ES256", "PS256", "RS256"]}} #alg value = https://www.rfc-editor.org/rfc/rfc7518#section-3
@@ -443,6 +444,10 @@ def ebsi_login_qrcode(red, mode):
                             qrcode_background_color = verifier_data['qrcode_background_color']
                             )
     
+def ebsi_request_uri(stream_id, red) :
+    request_uri = json.loads(red.get(stream_id).decode())['pattern']
+    return request_uri
+
 
 def ebsi_login_endpoint(stream_id, red,mode):
     logging.info("Enter wallet response endpoint")
@@ -503,7 +508,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
             vp_token_status = "signature check failed"
             status_code = 400
             access = "access_denied"
-
+    print("id_token payload = ", id_token_payload)
     # check wallet DID
     if access == "ok" :
         id_token_header = ebsi.get_header_from_token(id_token)

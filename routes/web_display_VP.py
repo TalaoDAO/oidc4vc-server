@@ -36,12 +36,12 @@ def init_app(app,red, mode) :
 def test_display_VP_qrcode(mode):
     stream_id = str(uuid.uuid1())
     url = mode.server + 'sandbox/VP_presentation/' + stream_id +'?issuer=' + did_selected
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
     return render_template('VP_presentation_qr.html',
 							url=url,
-                            deeplink=deeplink,
-                            altme_deeplink=altme_deeplink,
+                            deeplink=deeplink_talao,
+                            altme_deeplink=deeplink_altme,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
                             simulator="Display VP")

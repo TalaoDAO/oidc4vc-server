@@ -187,14 +187,14 @@ def test_direct_offer(red, mode) :
 
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
-    deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-    altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
+    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
+    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
     red.set(id, json.dumps(credentialOffer))
     mytype = credentialOffer['credentialPreview']['type'][1]
     return render_template('credential_offer_qr_2.html',
                                 url=url,
-                                deeplink=deeplink,
-                                altme_deeplink=altme_deeplink,
+                                deeplink=deeplink_talao,
+                                altme_deeplink=deeplink_altme,
                                 id=id,
                                 credential_manifest = json.dumps(credentialOffer['credential_manifest'],indent=4),
                                 )
@@ -262,14 +262,14 @@ def test_credentialOffer_qrcode(red, mode) :
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         }
         url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
-        deeplink = mode.deeplink + 'app/download?' + urlencode({'uri' : url })
-        altme_deeplink = mode.altme_deeplink + 'app/download?' + urlencode({'uri' : url })
+        deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
+        deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
         red.set(credential['id'], json.dumps(credentialOffer))
         type = credentialOffer['credentialPreview']['type'][1]
         return render_template('credential_offer_qr.html',
                                 url=url,
-                                deeplink=deeplink,
-                                altme_deeplink=altme_deeplink,
+                                deeplink=deeplink_talao,
+                                altme_deeplink=deeplink_altme,
                                 id=credential['id'],
                                 credentialOffer=json.dumps(credentialOffer, indent=4),
                                 simulator='Verifier Simulator' 
