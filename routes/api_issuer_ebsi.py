@@ -200,9 +200,11 @@ def ebsi_issuer_landing_page(issuer_id, user_id, red, mode) :
 
     url = 'openid://initiate_issuance?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
+    
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
     deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    logging.info("deeplink altme = %s", deeplink_altme)
 
     return render_template(
         qrcode_page,
