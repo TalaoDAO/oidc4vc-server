@@ -31,6 +31,9 @@ CODE_LIFE = 1000
 # wallet
 QRCODE_LIFE = 2000
 
+# verfier supported alg for siopv2
+SUPPORTED_ALG = ['ES256K', 'ES256', 'ES384', 'ES512', 'RS256']
+
 # OpenID key of the OP for customer application
 try :
     RSA_KEY_DICT = json.load(open("/home/admin/sandbox/keys.json", "r"))['RSA_key']
@@ -347,6 +350,7 @@ def ebsi_userinfo(red) :
 """
 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#section-10
 
+example of an siopv2 authorisation request
 qrcode ="openid://
     ?scope=openid
     &response_type=id_token
@@ -366,7 +370,7 @@ def ebsi_login_qrcode(red, mode):
     except :
         logging.error("session expired in login_qrcode")
         return render_template("ebsi/verifier_session_problem.html", message='Session expired')
-    pattern = { 
+    authorization_request = { 
         "scope" : "openid",
         "response_type" : "id_token",
         "client_id" : verifier_data['did_ebsi'],
@@ -376,10 +380,15 @@ def ebsi_login_qrcode(red, mode):
     }
     claims = deepcopy(op_constante_ebsi.ebsi_verifier_claims)
     claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
-    claims['vp_token']['presentation_definition']['format'] = {verifier_data.get('ebsi_vp_type', "jwt_vp") : {"alg": ["ES256K", "ES256", "PS256", "RS256"]}} #alg value = https://www.rfc-editor.org/rfc/rfc7518#section-3
+    claims['vp_token']['presentation_definition']['format'] = {
+        "jwt_vp" : {
+            "alg" : SUPPORTED_ALG
+        }
+    } 
     if verifier_data['vc'] == "DID" :
         logging.error("credential not defined")
         return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
+    
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         logging.info("1 credential requested")
         filter = {"type": "string"}  
@@ -413,18 +422,21 @@ def ebsi_login_qrcode(red, mode):
         input_descriptor_2["constraints"]["fields"][0]["filter"] = filter_2
         claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
 
-    pattern["claims"] = claims
-    data = { "pattern": pattern,"code" : request.args['code'] }
+    authorization_request["claims"] = claims
+    data = { 
+        "pattern": authorization_request,
+        "code" : request.args['code'],
+        "client_id" : client_id }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
-    url = 'openid://' + '?' + urlencode(pattern)
-    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
-    deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    url = 'openid://' + '?' + urlencode(authorization_request)
+    deeplink_talao = mode.deeplink_talao + 'app/download/ebsi?' + urlencode({'uri' : url})
+    deeplink_altme= mode.deeplink_altme + 'app/download/ebsi?' + urlencode({'uri' : url})
     logging.info("qrcode size = %s", len(url))
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
-                            url_json=json.dumps(pattern, indent=4),
+                            url_json=json.dumps(authorization_request, indent=4),
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
@@ -444,9 +456,26 @@ def ebsi_login_qrcode(red, mode):
                             qrcode_background_color = verifier_data['qrcode_background_color']
                             )
     
+
 def ebsi_request_uri(stream_id, red) :
-    request_uri = json.loads(red.get(stream_id).decode())['pattern']
-    return request_uri
+    """
+    Request by uri
+    https://www.rfc-editor.org/rfc/rfc9101.html
+    """
+    payload = json.loads(red.get(stream_id).decode())['pattern']
+    client_id = json.loads(red.get(stream_id).decode())['client_id']
+    verifier_data = json.loads(read_ebsi_verifier(client_id))
+    verifier_key = verifier_data['jwk']
+    verifier_key = json.loads(verifier_key) if isinstance(verifier_key, str) else verifier_key
+    signer_key = jwk.JWK(**verifier_key) 
+    header = {
+      'typ' :'JWT',
+      'kid': ebsi.verification_method(verifier_data['did_ebsi'], verifier_key),
+      'alg': ebsi.alg(verifier_key)
+    }
+    token = jwt.JWT(header=header,claims=payload, algs=[ebsi.alg(verifier_key)])
+    token.make_signed_token(signer_key)
+    return jsonify(token.serialize())
 
 
 def ebsi_login_endpoint(stream_id, red,mode):
@@ -531,26 +560,35 @@ def ebsi_login_endpoint(stream_id, red,mode):
         else :
             vp_token_status = "ok"
     
-    # verify credentials signatures
+    # verify issuers signatures
     if access == "ok" : 
         credential_list = vp_token_payload['vp']['verifiableCredential']
+        if isinstance(credential_list, str) :
+            credential_list = [credential_list]
         test = True
-        # TODO API to get EBSI DID document
-        pub_key = ""
         for credential in credential_list :
-            # TODO verify credential signature with Issuer pub_key from EBSI API
+            # Check credential signature with Issuers public key received from EBSI
+            header = ebsi.get_header_from_token(credential)
+            issuer_vm = header['kid']
+            issuer_did = issuer_vm.split('#')[0]
+            logging.info('issuer did = %s', issuer_did)
+            pub_key = ebsi.get_lp_public_jwk(issuer_did,issuer_vm)
+            if not pub_key :
+                test = False
+                logging.warning('Issuer not registered')
+                break
+            logging.info('EBSI issuer pub key = %s', pub_key)
             try :
-               ebsi.verify_jwt_credential(credential, pub_key)
+                ebsi.verify_jwt_credential(credential, pub_key)
             except :
-               test = False
-               break
+                test = False
+                logging.warning('Signature check failed')
+                break
         if test :
             credential_status = "ok"
         else :
-            # TODO
-            credential_status = "signature check bypassed"
-            status_code = 200
-            #access = "access_denied"
+            access = "access_denied"
+            status_code = 400
 
     response = {
       "created": datetime.timestamp(datetime.now()),

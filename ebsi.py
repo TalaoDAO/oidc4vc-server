@@ -17,7 +17,12 @@ logging.basicConfig(level=logging.INFO)
  DIDS method https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
  supported signature : https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/E-signing+and+e-sealing+Verifiable+Credentials+and+Verifiable+Presentations
 
-alg value https://www.rfc-editor.org/rfc/rfc7518#page-6
+"""
+
+
+def generate_key(curve) :
+  """
+  alg value https://www.rfc-editor.org/rfc/rfc7518#page-6
 
    +--------------+-------------------------------+--------------------+
    | "alg" Param  | Digital Signature or MAC      | Implementation     |
@@ -33,7 +38,15 @@ alg value https://www.rfc-editor.org/rfc/rfc7518#page-6
    | ES384        | ECDSA using P-384 and SHA-384 | Optional           |
    | ES512        | ECDSA using P-521 and SHA-512 | Optional           |
    +--------------+-------------------------------+--------------------+
-"""
+  """
+  if curve in  ['P-256', 'P-384', 'P-521', 'secp256k1'] :
+    key = jwk.JWK.generate(kty='EC', crv='P-256')
+  elif curve == 'RSA' :
+    key = jwk.JWK.generate(kty='RSA', size=2048)
+  else :
+    raise Exception("Curve not supported")
+  return json.loads(key.export(private_key=True))  
+
 
 def alg(key) :
   key = json.loads(key) if isinstance(key, str) else key
@@ -64,7 +77,7 @@ def pub_key(key) :
 
 def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
     """
-    For isuer
+    For issuer
 
     https://jwcrypto.readthedocs.io/en/latest/jwk.html
     https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
@@ -231,7 +244,7 @@ def generate_lp_ebsi_did() :
     return  'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
 
 
-def generate_np_did(key) :
+def generate_np_ebsi_did(key) :
     """
     for natural person / wallet
     """
@@ -248,6 +261,7 @@ def verification_method(did, key) : # = kid
 
 def did_resolve_lp(did) :
   """
+  for legal person
   API v3
   Get DID document with EBSI API
   https://api-pilot.ebsi.eu/docs/apis/did-registry/latest#/operations/get-did-registry-v3-identifier
@@ -304,6 +318,7 @@ def get_issuer_registry_data(did) :
 
 def did_resolve(did, key) :
   """
+  for natural person
   https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
   """
   key = json.loads(key) if isinstance(key, str) else key
