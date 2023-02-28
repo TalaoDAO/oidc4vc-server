@@ -505,6 +505,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
         qrcode_status = "ok"
         data = json.loads(red.get(stream_id).decode())
 
+    print("request = ", request)
     # get nonce and token
     if access == "ok" :
         nonce = data['pattern']['nonce']
@@ -543,7 +544,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
         id_token_header = ebsi.get_header_from_token(id_token)
         jwk = id_token_header['jwk']
         kid = id_token_header['kid']
-        did_wallet = ebsi.generate_np_did(jwk)
+        did_wallet = ebsi.generate_np_ebsi_did(jwk)
         if did_wallet != kid.split('#')[0] :
             holder_did_status = "DID incorrect"
             status_code = 400
