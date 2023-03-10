@@ -174,7 +174,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     elif stream_id == 'test_authorization_server' :
         pre_authorized_code = None
 
-    # PODUCTION
+    # PrODUCTION
     else :
         try :
             user_data = json.loads(red.get(stream_id).decode())
@@ -247,8 +247,8 @@ def ebsi_issuer_authorize(issuer_id, red) :
                         'credential_type': credential_type,
                         'format':'jwt_vc'}]),
         'redirect_uri' :  ngrok + '/callback',
-        'state' : '1234',
-        'op_state' : 'mlkmlkhm'
+        'state' : '1234', # wallet state
+        'op_state' : 'mlkmlkhm' #issuer state
         }
 
     """
