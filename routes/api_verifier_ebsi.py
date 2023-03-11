@@ -491,6 +491,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
     vp_token_status = "Unknown"
     id_token_status = "Unknown"
     credential_status = "unknown"
+    issuer_status = "Unknown"
     holder_did_status = "unbknown"
     access = "ok"
     vp_token_payload = {}
@@ -575,15 +576,18 @@ def ebsi_login_endpoint(stream_id, red,mode):
             logging.info('issuer did = %s', issuer_did)
             pub_key = ebsi.get_lp_public_jwk(issuer_did,issuer_vm)
             if not pub_key :
-                test = False
+                #test =  False
                 logging.warning('Issuer not registered')
+                issuer_status = 'Issuer not registered'
                 break
             logging.info('EBSI issuer pub key = %s', pub_key)
             try :
                 ebsi.verify_jwt_credential(credential, pub_key)
+                issuer_status = 'Issuer is registered and signature ok'
             except :
-                test = False
+                #test = False
                 logging.warning('Signature check failed')
+                issuer_status = 'Issuer signature failed'
                 break
         if test :
             credential_status = "ok"
@@ -598,6 +602,7 @@ def ebsi_login_endpoint(stream_id, red,mode):
       "response_format" : response_format,
       "id_token_status" : id_token_status,
       "vp_token_status" : vp_token_status,
+      "issuer_status" : issuer_status,
       "credential_status" : credential_status,
       "access" : access,
       "status_code" : status_code    
