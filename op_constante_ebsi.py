@@ -76,6 +76,7 @@ client_data_pattern_ebsi = {
                 "ebsi_vp_type" : "jwt_vp",
                 "ebsi_issuer_vc_type" : "jwt_vc",
                 "pkce" : None,
+                "request_uri" : None,
                 "vc" : "DID",
                 "vc_issuer_id" : "",
                 "vc_2" : "DID",

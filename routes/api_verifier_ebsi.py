@@ -54,7 +54,7 @@ def init_app(app,red, mode) :
     
     # endpoints for siopv2/EBSI wallet
     app.add_url_rule('/sandbox/ebsi/login',  view_func=ebsi_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red, 'mode' : mode})
+    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red})
     app.add_url_rule('/sandbox/ebsi/login/request_uri/<stream_id>',  view_func=ebsi_request_uri, methods = ['GET'], defaults={'red' : red})
     app.add_url_rule('/sandbox/ebsi/login/followup',  view_func=ebsi_login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/login/stream',  view_func=ebsi_login_stream, defaults={ 'red' : red})
@@ -370,14 +370,7 @@ def ebsi_login_qrcode(red, mode):
     except :
         logging.error("session expired in login_qrcode")
         return render_template("ebsi/verifier_session_problem.html", message='Session expired')
-    authorization_request = { 
-        "scope" : "openid",
-        "response_type" : "id_token",
-        "client_id" : verifier_data['did_ebsi'],
-        "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
-        "nonce" : str(uuid.uuid1()),
-        "request_uri" : mode.server + "sandbox/ebsi/login/request_uri/" + stream_id 
-    }
+    
     claims = deepcopy(op_constante_ebsi.ebsi_verifier_claims)
     claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
     claims['vp_token']['presentation_definition']['format'] = {
@@ -388,7 +381,6 @@ def ebsi_login_qrcode(red, mode):
     if verifier_data['vc'] == "DID" :
         logging.error("credential not defined")
         return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
-    
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
         logging.info("1 credential requested")
         filter = {"type": "string"}  
@@ -422,21 +414,34 @@ def ebsi_login_qrcode(red, mode):
         input_descriptor_2["constraints"]["fields"][0]["filter"] = filter_2
         claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
 
-    authorization_request["claims"] = claims
+    authorization_request = { 
+        "scope" : "openid",
+        "response_type" : "id_token",
+        "claims" : claims,
+        "client_id" : verifier_data['did_ebsi'],
+        "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
+        "nonce" : str(uuid.uuid1()),
+    }
+    if not verifier_data.get('request_uri') :
+        authorization_request_displayed = authorization_request
+    else :
+        authorization_request_displayed = { 
+            "client_id" : verifier_data['did_ebsi'],
+            "request_uri" : mode.server + "sandbox/ebsi/login/request_uri/" + stream_id 
+        }
     data = { 
         "pattern": authorization_request,
         "code" : request.args['code'],
         "client_id" : client_id }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
-    url = 'openid://' + '?' + urlencode(authorization_request)
+    url = 'openid://' + '?' + urlencode(authorization_request_displayed)
     deeplink_talao = mode.deeplink_talao + 'app/download/ebsi?' + urlencode({'uri' : url})
     deeplink_altme= mode.deeplink_altme + 'app/download/ebsi?' + urlencode({'uri' : url})
-    logging.info("qrcode size = %s", len(url))
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
-                            url_json=json.dumps(authorization_request, indent=4),
+                            url_json=json.dumps(authorization_request_displayed, indent=4),
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
@@ -475,10 +480,14 @@ def ebsi_request_uri(stream_id, red) :
     }
     token = jwt.JWT(header=header,claims=payload, algs=[ebsi.alg(verifier_key)])
     token.make_signed_token(signer_key)
-    return jsonify(token.serialize())
+    # https://tedboy.github.io/flask/generated/generated/flask.Response.html
+    headers = { "Content-Type" : "application/oauth-authz-req+jwt",
+                "Cache-Control" : "no-cache"
+    }
+    return Response(token.serialize(), headers=headers)
 
 
-def ebsi_login_endpoint(stream_id, red,mode):
+def ebsi_login_endpoint(stream_id, red):
     logging.info("Enter wallet response endpoint")
     """
     https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-6.2
