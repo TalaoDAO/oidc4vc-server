@@ -16,7 +16,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/dids',  view_func=dids, methods = ['GET'])
 
     app.add_url_rule('/sandbox/saas4ssi/verifier',  view_func=saas_verifier, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/device_detector',  view_func=saas_device_detector, methods = ['GET'])
     app.add_url_rule('/sandbox/saas4ssi/issuer',  view_func=saas_issuer, methods = ['GET', 'POST'])
     
     app.add_url_rule('/sandbox/saas4ssi/beacon',  view_func=saas_beacon, methods = ['GET', 'POST'])
@@ -25,18 +24,9 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/ebsi/verifier',  view_func=saas_ebsi_verifier, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/ebsi/issuer',  view_func=saas_ebsi_issuer, methods = ['GET', 'POST'])
 
-
-    #app.add_url_rule('/sandbox/saas4ssi/tezid/verifier',  view_func=saas_tezid_verifier, methods = ['GET', 'POST'])
-
     app.add_url_rule('/sandbox/saas4ssi/menu',  view_func=saas_menu, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/saas4ssi/credential_supported',  view_func=credential_supported, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing',  view_func=pricing, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing/gaming',  view_func=pricing_gaming, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing/defi',  view_func=pricing_defi, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing/marketplace',  view_func=pricing_marketplace, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing/issuer',  view_func=pricing_issuer, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/saas4ssi/pricing/web2',  view_func=pricing_web2, methods = ['GET', 'POST'])
 
     app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
@@ -93,18 +83,6 @@ def verifier():
 def dids():
     return render_template("dids.html")
 
-def pricing():
-    return render_template("pricing.html")
-def pricing_gaming():
-    return render_template("pricing_gaming.html")
-def pricing_defi():
-    return render_template("pricing_defi.html")
-def pricing_marketplace():
-    return render_template("pricing_marketplace.html")
-def pricing_issuer():
-    return render_template("pricing_issuer.html")
-def pricing_web2():
-    return render_template("pricing_web2.html")
 
 def saas_menu ():
     if not session.get('is_connected') or not session.get('login_name') :
