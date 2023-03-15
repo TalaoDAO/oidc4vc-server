@@ -437,6 +437,7 @@ def login_qrcode(red, mode):
     url = mode.server + 'sandbox/login_presentation/' + stream_id + '?' + urlencode({'issuer' : DID_VERIFIER})
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
+    print('deeplink altme = ', deeplink_altme)
 
     if not verifier_data.get('verifier_landing_page_style') :
         qrcode_page = "op_verifier_qrcode_2.html"
