@@ -165,8 +165,10 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
         return jsonify('Credential to issue not set correctly')
     
     # TEST : for wallet test with pre authorized code
-    file_path = './verifiable_credentials/VerifiableDiploma.jsonld'
+    file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list[issuer_data['credential_to_issue']] +'.jsonld'
+    print('file path = ', file_path)
     credential_for_test = json.load(open(file_path))
+    print('credential for test = ', credential_for_test)
     if stream_id == 'test' :
         pre_authorized_code = str(uuid.uuid1())
         vc = credential_for_test

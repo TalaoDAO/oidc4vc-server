@@ -291,11 +291,6 @@ def ebsi_issuer_token(issuer_id, red) :
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-token-endpoint
     """
     try :
-        #token = request.headers['Authorization']
-        #token = token.split(" ")[1]
-        #token = base64.b64decode(token).decode()
-        #client_secret = token.split(":")[1]
-        #client_id = token.split(":")[0]
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
         grant_type =  request.form['grant_type']
         code = request.form['code']

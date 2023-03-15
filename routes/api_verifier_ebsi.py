@@ -548,7 +548,6 @@ def ebsi_login_endpoint(stream_id, red):
             vp_token_status = "signature check failed"
             status_code = 400
             access = "access_denied"
-    print("id_token payload = ", id_token_payload)
     # check wallet DID
     if access == "ok" :
         id_token_header = ebsi.get_header_from_token(id_token)
