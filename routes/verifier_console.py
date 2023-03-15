@@ -123,7 +123,7 @@ def preview (red, mode) :
         pattern = model_DIDAuth
     else :
         pattern = model_one
-        pattern["query"][0]["credentialQuery"][0]["reason"][0]["@value"] = verifier_data['reason']
+        pattern["query"][0]["credentialQuery"][0]["reason"] = verifier_data['reason']
         pattern["query"][0]["credentialQuery"][0]["example"]["type"] = verifier_data['vc']
     data = { "pattern": pattern }
     red.set(stream_id,  json.dumps(data))
