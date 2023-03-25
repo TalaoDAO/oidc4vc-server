@@ -94,8 +94,11 @@ def sandbox() :
     return redirect("/sandbox/saas4ssi")
 
 def playground() :
-    global status
-    return render_template("playground.html")
+    if request.method == "GET" :
+        return render_template("playground.html")
+    else :
+        nationality = request.form['nationality']
+        return redirect("/sandbox/direct_offer?VC=Nationality.jsonld&nationality=" + nationality)
 
 
 ######################### Credential Offer ###########
@@ -131,6 +134,10 @@ def test_direct_offer(red, mode) :
         credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+    
+    elif VC_filename == "Nationality.jsonld" :
+        credential["credentialSubject"]["nationality"] = request.args['nationality']
+       
     
     credentialOffer = {
             "type": "CredentialOffer",
@@ -174,6 +181,9 @@ def test_direct_offer(red, mode) :
 
     elif VC_filename == "MembershipCard_1.jsonld" :
         filename = "./credential_manifest/MembershipCard_1_credential_manifest.json"
+    
+    elif VC_filename == "Nationality.jsonld" :
+     filename = "./credential_manifest/nationality_credential_manifest.json"
     
     else : 
         filename = None

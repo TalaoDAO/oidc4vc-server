@@ -40,7 +40,7 @@ def generate_key(curve) :
    +--------------+-------------------------------+--------------------+
   """
   if curve in  ['P-256', 'P-384', 'P-521', 'secp256k1'] :
-    key = jwk.JWK.generate(kty='EC', crv='P-256')
+    key = jwk.JWK.generate(kty='EC', crv=curve)
   elif curve == 'RSA' :
     key = jwk.JWK.generate(kty='RSA', size=2048)
   else :
@@ -64,6 +64,8 @@ def alg(key) :
       raise Exception("Curve not supported")
   elif key['kty'] == 'RSA' :
     return 'RS256'
+  elif key['kty'] == 'OKP' :
+    return 'EdDSA'
   else :
     raise Exception("Key type not supported")
 
@@ -261,30 +263,43 @@ def verification_method(did, key) : # = kid
 
 def did_resolve_lp(did) :
   """
-  for legal person
-  API v3
-  Get DID document with EBSI API
+  for legal person  did:ebsi and did:web
+  API v3   Get DID document with EBSI API
   https://api-pilot.ebsi.eu/docs/apis/did-registry/latest#/operations/get-did-registry-v3-identifier
   """
-  try :
-    url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
-    r = requests.get(url) 
-  except :
-    logging.error('cannot access API')
-    return 
+  if did.split(':')[1] not in ['ebsi', 'web'] :
+    logging.error('did method not supported')
+    return
+  if did.split(':')[1] == 'ebsi' :
+    try :
+      url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
+      r = requests.get(url) 
+    except :
+      logging.error('cannot access EBSI API')
+      return 
+  else : # example did:web:app.altme.io:issuer
+    url = 'https://' + did.split(':')[2] 
+    i = 3
+    try :
+      while did.split(':')[i] :
+        url = url + '/' +  did.split(':')[i]
+        i+= 1
+    except :
+      pass
+    r =  requests.get(url + '/did.json')
   if 399 < r.status_code < 500 :
     logging.warning('return API code = %s', r.status_code)
     return 
-  return r.json()
+  return r.json()             
 
 
 def get_lp_public_jwk(did, kid) :
   """
-  API v3
+  support publikeyJWK only
   """
   did_document = did_resolve_lp(did)
   if not did_document :
-    logging.warning('DID Document not found')
+    logging.warning('DID Document not found for %s', did)
     return
   for key in did_document['verificationMethod'] :
     if key['id'] == kid :
