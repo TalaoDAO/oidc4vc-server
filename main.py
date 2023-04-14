@@ -29,18 +29,15 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import  web_wallet_test
 from routes import web_display_VP
-from routes import saas4ssi, siopv2
-
-from routes import dapp, beacon_issuer_console, api_issuer_beacon
+from routes import saas4ssi
+from routes import beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
-
 from routes import api_verifier_ebsi, ebsi_verifier_console
 from routes import api_issuer_ebsi, ebsi_issuer_console
 
-
 # Framework Flask and Session setup
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.9.4"
+app.jinja_env.globals['Version'] = "0.9.5"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -59,19 +56,19 @@ def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
-# OPENID
+# BASIC wallet protocol
 api_verifier.init_app(app, red, mode)
 api_issuer.init_app(app, red, mode)
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
 
-# EBSI
+# EBSI wallet
 ebsi_verifier_console.init_app(app, red, mode)
 api_verifier_ebsi.init_app(app, red, mode)
 ebsi_issuer_console.init_app(app, red, mode)
 api_issuer_ebsi.init_app(app, red, mode)
 
-# BEACON
+# BEACON integration
 api_issuer_beacon.init_app(app, red, mode)
 api_verifier_beacon.init_app(app, red, mode)
 beacon_verifier_console.init_app(app, red, mode)
@@ -79,18 +76,8 @@ beacon_issuer_console.init_app(app, red, mode)
 
 # MAIN
 saas4ssi.init_app(app, red, mode)
-
-# TOOLS
 web_display_VP.init_app(app, red, mode)
-siopv2.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
-
-# use cases
-#dapp_over13.init_app(app, red, mode)
-#dapp_tezid_over13.init_app(app, red, mode)
-dapp.init_app(app, red, mode)
-#dapp_check_gamer_pass.init_app(app, red, mode)
-
 
 
 @app.route('/sandbox/md_file', methods = ['GET'])

@@ -111,6 +111,7 @@ def test_credentialOffer2_qrcode() :
 Direct access to one VC with filename passed as an argument
 """
 def test_direct_offer(red, mode) :
+    global did_selected 
     try :
         VC_filename= request.args['VC']
     except :
@@ -131,7 +132,8 @@ def test_direct_offer(red, mode) :
     credential['id'] = "urn:uuid:" + str(uuid.uuid1())
 
     if VC_filename == "VerifiableDiploma.jsonld" :
-        credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
+        #credential["issuer"] ="did:ebsi:zdRvvKbXhVVBsXhatjuiBhs"
+        credential["issuer"] = did_selected
         credential["issued"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential["validFrom"] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
     

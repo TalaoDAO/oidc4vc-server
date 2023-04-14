@@ -6,24 +6,34 @@ logging.basicConfig(level=logging.INFO)
 
 
 def register_tezid(address, id, network,  mode) :
-    # check if proof already registered
+    # check if one proof already registered for this address
     url = 'https://tezid.net/api/' + network + '/proofs/' + address
     r = requests.get(url)
-    logging.info("check if proof exist : status code = %s", r.status_code)
+    logging.info("check if one proof exists for address %s", address)
     if not 199<r.status_code<300 :
         logging.error("API call to TezID rejected %s", r.status_code)
-        return False
-    if not r.json() :
-        return True if register_proof_type(address, id, network, mode) else False
+        return False # API failed
+    if not r.json() : # this address has no proof registered
+        if register_proof_type(address, id, network, mode) :
+            logging.error("The proof %s is now registered for %s", id, address)
+            return True
+        else :
+            return # failed to register
     else :
         proof_registered = False
         for proof in r.json() :
             if proof['id'] == id and proof['verified'] :
                 proof_registered = True
-                logging.info('Proof already exists on TezID')
+                logging.info('The proof %s already exists for %s', id, address)
                 break
-    if not proof_registered :
-        return True if register_proof_type(address, id, network, mode) else False
+        if not proof_registered :
+            if register_proof_type(address, id, network, mode) :
+                logging.error("The proof %s is now registered for %s", id, address)
+                return True
+            else :
+                return # failed to register
+        else :
+            return True
 
 
 def register_proof_type(address, proof_type, network, mode) :
@@ -44,7 +54,6 @@ def register_proof_type(address, proof_type, network, mode) :
         logging.error("API call to TezID rejected %s", r.status_code)
         return False
     else :
-        logging.info('Address has been registered on TezID')
         return True
 
 

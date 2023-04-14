@@ -395,6 +395,7 @@ def sign_jsonld_vc(credential, key, did) :
   jwstoken.add_signature(issuer_key, None, json_encode({'alg': alg(key)}))
 
   sig = json.loads(jwstoken.serialize())['signature']
+  
   proof_jws =encodedHeader + b'..' + base64.urlsafe_b64encode(sig.encode())
 
   #TODO check that

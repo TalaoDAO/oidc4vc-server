@@ -8,7 +8,7 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante import credential_list, credential_list_for_guest, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list
+from op_constante import credential_list, credential_list_for_guest, protocol_list, model_one, model_any, model_DIDAuth, verifier_landing_page_style_list,tezid_network_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -193,6 +193,15 @@ def console(mode) :
             c_list = credential_list
         else :
             c_list = credential_list_for_guest
+        
+        # TezID network
+        tezid_network_select = str()
+        for key, value in tezid_network_list.items() :
+                if key ==   session['client_data'].get('tezid_network', 'none') :
+                    tezid_network_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    tezid_network_select +=  "<option value=" + key + ">" + value + "</option>"
+        
         vc_select_1 = str()
         for key, value in c_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -246,7 +255,9 @@ def console(mode) :
                 vc_select_1=vc_select_1,
                 vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
-                login_name=session['login_name']
+                login_name=session['login_name'],
+                tezid_proof_type = session['client_data'].get('tezid_proof_type', session['client_data']['client_id']),
+                tezid_network_select=tezid_network_select
                 )
     if request.method == 'POST' :
        
@@ -286,7 +297,9 @@ def console(mode) :
             session['client_data']['vc_2'] = request.form['vc_2']
             session['client_data']['user'] = request.form['user_name']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
-            session['client_data']['mobile_message'] = request.form['mobile_message']          
+            session['client_data']['mobile_message'] = request.form['mobile_message']     
+            session['client_data']['tezid_network'] = request.form['tezid_network']   
+            session['client_data']['tezid_proof_type'] = request.form['tezid_proof_type']       
             db_api.update_verifier(request.form['client_id'], json.dumps(session['client_data']))
             return redirect('/sandbox/op/console?client_id=' + request.form['client_id'])
 

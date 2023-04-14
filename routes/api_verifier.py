@@ -13,6 +13,8 @@ from db_api import read_verifier
 import op_constante
 import activity_db_api
 import pkce # https://github.com/xzava/pkce
+from altme_on_chain import register_tezid
+import message
 
 logging.basicConfig(level=logging.INFO)
 
@@ -40,9 +42,10 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/.well-known/openid-configuration', view_func=openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
+    
     # http://172.20.10.2:3000/sandbox/op/.well-known/openid-configuration
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_followup',  view_func=login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/login_presentation_stream',  view_func=login_presentation_stream, defaults={ 'red' : red})
     return
@@ -107,6 +110,8 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["over_18"] = True
             elif vc['credentialSubject']['type'] == "Over13" :
                 payload["over_13"] = True
+            elif vc['credentialSubject']['type'] == "Over15" :
+                payload["over_15"] = True
             elif vc['credentialSubject']['type'] ==  'PassportNumber':
                 payload["passport_number"] = vc['credentialSubject']['passportNumber'];
             elif vc['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
@@ -466,7 +471,7 @@ def login_qrcode(red, mode):
                             )
     
 
-async def login_presentation_endpoint(stream_id, red):
+async def login_presentation_endpoint(stream_id, red, mode):
     """
     Redis : stream_id_DIDAuth : data pushed to followup endpoint  
     
@@ -507,39 +512,45 @@ async def login_presentation_endpoint(stream_id, red):
                     return manage_error("holder does not match subject.id")
             if credential.get('expirationDate') and credential.get('expirationDate') <  datetime.now().replace(microsecond=0).isoformat() + "Z" :
                 return manage_error("credential expired")
-            """
             if credential['issuer'] not in TRUSTED_ISSUER :
                 logging.warning("issuer not in trusted list")
-                return manage_error("issuer not in trusted list")
-            """
             return
 
         presentation = request.form['presentation'] # string
-        #result_presentation = await didkit.verify_presentation(presentation,  '{}')
-        #if json.loads(result_presentation)['errors'] :
-        #    return manage_error("presentation signature check failed")
         logging.info("check presentation = %s", await didkit.verify_presentation(presentation,  '{}'))
 
-        credential = json.loads(presentation).get('verifiableCredential')
-        if not credential :
-            pass
-        elif isinstance(credential, dict) :
-            if credential["credentialSubject"]['type'] == "Pass" :
-                code = json.loads(red.get(stream_id).decode())['code']
-                client_id = json.loads(red.get(code).decode())['client_id']
-                verifier_data = json.loads(read_verifier(client_id))
+        # get verifier data
+        code = json.loads(red.get(stream_id).decode())['code']
+        client_id = json.loads(red.get(code).decode())['client_id']
+        verifier_data = json.loads(read_verifier(client_id))
+
+        # check credentials
+        address_list = list()
+        credential_list = json.loads(presentation).get('verifiableCredential')
+        if not isinstance(credential_list, list) :
+            credential_list = [credential_list]           
+        for credential in credential_list :
+            if credential["credentialSubject"]['type'] == 'Pass' :
                 if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
                     return manage_error("Pass issuer id does not match")
+            elif credential['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
+                address_list.append(credential['credentialSubject']['associatedAddress'])
             await check_credential(credential)
-        else :
-            for vc in credential :
-                await check_credential(vc)
-
+        
         value = json.dumps({
                     "access" : "ok",
                     "vp" : json.loads(presentation),
                     "user" : json.loads(presentation)['holder']
                     })
+        
+        # register Tezos address in a Tezid whitelist 
+        address_list = [ ad for ad in address_list if ad[:2] == 'tz']
+        if verifier_data.get('tezid_network') != 'none' and address_list :
+            for address in address_list :
+                if register_tezid(address, verifier_data['tezid_proof_type'], verifier_data.get('tezid_network'), mode) :
+                    logging.info('address whitelisted %s', address)
+            message.message('Address whitelisted for client_id = ' +  client_id, 'thierry@altme.io', " ".join(address_list), mode)
+        
         red.setex(stream_id + "_DIDAuth", 180, value)
         event_data = json.dumps({"stream_id" : stream_id})           
         red.publish('api_verifier', event_data)
@@ -573,6 +584,8 @@ def login_followup(red):
         red.setex(code +"_vp", 180, json.dumps(stream_id_DIDAuth['vp']))
         resp = {'code' : code}
     verifier_data = json.loads(read_verifier(client_id))
+    
+    # update activity data base
     activity = {"presented" : datetime.now().replace(microsecond=0).isoformat() + "Z",
                 "user" : stream_id_DIDAuth["user"],
                 "credential_1" : verifier_data['vc'],
@@ -580,6 +593,8 @@ def login_followup(red):
                 "status" : session['verified']
     }
     activity_db_api.create(client_id, activity) 
+    
+    #  clean
     try :
         red.delete(stream_id + '_DIDAuth')
         red.delete(stream_id)

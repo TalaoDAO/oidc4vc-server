@@ -290,7 +290,6 @@ async def beacon_verifier_console(mode) :
             session['client_data']['sbt_artifact_uri'] = request.form['sbt_display_uri']
             session['client_data']['sbt_thumbnail_uri'] = request.form['sbt_thumbnail_uri']
             session['client_data']['sbt_network'] = request.form['sbt_network']
-
             session['client_data']['beacon_payload_message'] = request.form['beacon_payload_message']
             session['client_data']['contact_name'] = request.form['contact_name']
             session['client_data']['user'] = request.form['user']
