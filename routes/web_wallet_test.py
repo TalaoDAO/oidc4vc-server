@@ -432,8 +432,10 @@ def test_presentationRequest_qrcode(red, mode):
         pattern['domain'] = mode.server
         red.set(stream_id,  json.dumps(pattern))
         url = mode.server + 'sandbox/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
+        deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
         return render_template('credential_presentation_qr.html',
 							url=url,
+                            deeplink_altme=deeplink_altme,
 							stream_id=stream_id, 
                             pattern=json.dumps(pattern, indent=4),
                             simulator='Verifier simulator with query types')
