@@ -37,7 +37,7 @@ from routes import api_issuer_ebsi, ebsi_issuer_console
 
 # Framework Flask and Session setup
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.9.5"
+app.jinja_env.globals['Version'] = "0.9.6"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
