@@ -1,7 +1,8 @@
 import os
 import time
 import markdown
-from flask import Flask, redirect, request, render_template_string
+import flask
+from flask import Flask, redirect, request, render_template_string, request, jsonify, render_template
 from flask_session import Session
 from datetime import timedelta
 from flask_qrcode import QRcode
@@ -9,6 +10,7 @@ import redis
 import sys
 import logging
 import environment
+
 
 logging.basicConfig(level=logging.INFO)
 logging.info("python version : %s", sys.version)
@@ -46,6 +48,7 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=360) # cookie lifet
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
+
 
 sess = Session()
 sess.init_app(app)
@@ -89,6 +92,8 @@ def md_file() :
     elif request.args['file'] == 'terms_and_conditions' :
         content = open('mobile_cgu_en.md', 'r').read()
     return render_template_string( markdown.markdown(content, extensions=["fenced_code"]))
+
+
 
 
 # MAIN entry point for test

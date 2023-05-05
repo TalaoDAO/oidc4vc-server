@@ -536,11 +536,14 @@ async def login_presentation_endpoint(stream_id, red, mode):
             elif credential['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
                 address_list.append(credential['credentialSubject']['associatedAddress'])
             await check_credential(credential)
-        
+        verifiable_credential =  json.loads(presentation)["verifiableCredential"]
+        if isinstance(verifiable_credential, dict) :
+            verifiable_credential = [verifiable_credential]
         value = json.dumps({
                     "access" : "ok",
                     "vp" : json.loads(presentation),
-                    "user" : json.loads(presentation)['holder']
+                    "user" : json.loads(presentation)['holder'],
+                    "issuer" : verifiable_credential[0]['issuer']
                     })
         
         # register Tezos address in a Tezid whitelist 
@@ -590,7 +593,8 @@ def login_followup(red):
                 "user" : stream_id_DIDAuth["user"],
                 "credential_1" : verifier_data['vc'],
                 "credential_2" : verifier_data.get('vc_2', "None"),
-                "status" : session['verified']
+                "status" : session['verified'],
+                "issuer": stream_id_DIDAuth.get('issuer', "Unknownn")
     }
     activity_db_api.create(client_id, activity) 
     

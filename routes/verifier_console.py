@@ -95,12 +95,15 @@ def activity() :
         for data in activities :
             data_dict = json.loads(data)
             status = "Approved" if data_dict['status'] else "Denied"
+            user = data_dict.get('user', "Unknown")
+            user = user[:15] + "..." + user[-15:]
             activity = """<tr>
                     <td>""" + data_dict['presented'] + """</td>
-                     <td>""" + data_dict.get('user', "Unknown") + """</td>
+                     <td>""" + user + """</td>
                     <td>""" + credential_list.get(data_dict['credential_1'], "None") + """</td>
                     <td>""" + credential_list.get(data_dict['credential_2'], "None") + """</td>
                     <td>""" + status + """</td>
+                    <td>""" + data_dict.get('issuer', "Unknown") + """</td>
                     </tr>"""
             activity_list += activity
         return render_template('verifier_activity.html', activity=activity_list) 
