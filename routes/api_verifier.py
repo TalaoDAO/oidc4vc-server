@@ -129,6 +129,13 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["group"] = vc['credentialSubject']['group']
             else :
                 pass
+    # exception
+    if vc['credentialSubject']['type'] == "Over18" :
+        payload["over_18"] = True
+    if vc['credentialSubject']['type'] == "Over13" :
+        payload["over_13"] = True
+    if vc['credentialSubject']['type'] == "Over15" :
+        payload["over_15"] = True
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
