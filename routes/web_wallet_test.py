@@ -107,10 +107,12 @@ def test_credentialOffer2_qrcode() :
     return redirect(url_for("test_credentialOffer_qrcode", path="context"))
 
 
-"""
-Direct access to one VC with filename passed as an argument
-"""
 def test_direct_offer(red, mode) :
+    """
+    Direct access to one VC with filename passed as an argument
+    app.add_url_rule('/sandbox/direct_offer',  view_func=test_direct_offer, methods = ['GET'], defaults={'red' :red, 'mode' : mode})
+
+    """
     global did_selected 
     try :
         VC_filename= request.args['VC']
@@ -140,7 +142,6 @@ def test_direct_offer(red, mode) :
     elif VC_filename == "Nationality.jsonld" :
         credential["credentialSubject"]["nationality"] = request.args['nationality']
        
-    
     credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
@@ -150,7 +151,7 @@ def test_direct_offer(red, mode) :
     if VC_filename == "TezLoyaltyCard_1.jsonld" :
         filename = "./credential_manifest/loyaltycard_credential_manifest.json"
     
-    # EBSI signer
+    # Add credential manifest for some VC
     elif VC_filename == "VerifiableDiploma.jsonld" :
         filename = "./credential_manifest/VerifiableDiploma_credential_manifest.json"
     
@@ -196,13 +197,11 @@ def test_direct_offer(red, mode) :
             credential_manifest = f.read()
     
     credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
     deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
-    red.set(id, json.dumps(credentialOffer))
-    mytype = credentialOffer['credentialPreview']['type'][1]
+    red.setex(id, 180, json.dumps(credentialOffer))
     return render_template('credential_offer_qr_2.html',
                                 url=url,
                                 deeplink=deeplink_talao,
@@ -213,6 +212,10 @@ def test_direct_offer(red, mode) :
 
 
 def test_credentialOffer_qrcode(red, mode) :
+    """
+    app.add_url_rule('/sandbox/credentialOffer',  view_func=test_credentialOffer_qrcode, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    
+    """
     global did_selected 
     if request.method == 'GET' :   
         # list all the files of github directory 
@@ -267,17 +270,18 @@ def test_credentialOffer_qrcode(red, mode) :
             return redirect ('/playground')
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
+        credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['issuer'] = did_issuer
         credentialOffer = {
             "type": "CredentialOffer",
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         }
-        url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
+        print('credential id = ', credential['id'])
+        url = mode.server + "sandbox/wallet_credential/" + credential['id'] #+ '?' + urlencode({'issuer' : did_issuer})
         deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
         deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
-        red.set(credential['id'], json.dumps(credentialOffer))
-        type = credentialOffer['credentialPreview']['type'][1]
+        red.setex(credential['id'], 180, json.dumps(credentialOffer))
         return render_template('credential_offer_qr.html',
                                 url=url,
                                 deeplink=deeplink_talao,
@@ -430,7 +434,7 @@ def test_presentationRequest_qrcode(red, mode):
                     pattern['query'][0]['credentialQuery'].append(MycredentialQuery)
         pattern['challenge'] = str(uuid.uuid1())
         pattern['domain'] = mode.server
-        red.set(stream_id,  json.dumps(pattern))
+        red.setex(stream_id,  180, json.dumps(pattern))
         url = mode.server + 'sandbox/wallet_presentation/' + stream_id +'?issuer=' + DID_TZ2
         deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
         return render_template('credential_presentation_qr.html',
@@ -451,7 +455,7 @@ async def test_presentationRequest_endpoint(stream_id, red):
         return jsonify(my_pattern)
     elif request.method == 'POST' :
         red.delete(stream_id)
-        red.set(stream_id,  request.form['presentation'])
+        red.setex(stream_id,  180, request.form['presentation'])
         event_data = json.dumps({"stream_id" : stream_id,
 			                    "message" : "ok"})           
         red.publish('wallet_presentation', event_data)
