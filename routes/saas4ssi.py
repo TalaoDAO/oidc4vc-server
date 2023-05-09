@@ -5,6 +5,7 @@ import db_user_api
 import op_constante
 import logging
 import message
+import requests
 
 logging.basicConfig(level=logging.INFO)
 
@@ -67,7 +68,9 @@ def saas_home():
         print('remote IP = ', request.environ['REMOTE_ADDR'])
     else:
         print('remote IP = ', request.environ['HTTP_X_FORWARDED_FOR']) # if behind a proxy
-    return render_template("verifier.html")
+    r = requests.get('https://issuer.talao.co/counter/get')
+    counter = r.json()['total']
+    return render_template("verifier.html", counter=counter)
 
 
 def credentials():
