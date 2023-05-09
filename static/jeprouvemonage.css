@@ -1,0 +1,210 @@
+@font-face {
+    font-family: Poppins;
+    src: url(Poppins-SemiBold.ttf);
+}
+
+@font-face {
+    font-family: Nunito;
+    src: url(Nunito-VariableFont_wght.ttf);
+}
+
+@font-face {
+    font-family: Barlow;
+    src: url(Barlow-Regular.ttf);
+}
+
+@font-face {
+    font-family: Montserrat;
+    src: url(Montserrat-SemiBold.ttf);
+}
+
+
+#JPMAp {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 26px;
+    line-height: 39px;
+
+    /* identical to box height */
+    letter-spacing: -0.01em;
+
+    color: #17238D;
+    margin-left: 2.8%;
+}
+
+#headerJPMA {
+    height: 89px;
+    border-bottom-width: 1px;
+    border-bottom-color: #BDBDBD;
+    border-bottom-style: solid;
+}
+
+#verifJPMA {
+    font-family: 'Poppins';
+    font-style: normal;
+    font-weight: normal;
+    font-size: 46px;
+    line-height: 130%;
+
+    /* identical to box height, or 60px */
+    text-align: center;
+    letter-spacing: -0.01em;
+
+    color: #000000;
+}
+
+#secondBoxJPMA {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+}
+
+#leftBoxJPMA {
+    width: 455px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 48px 56px;
+    gap: 40px;
+    background: #FBFBFB;
+    border: 1px solid #E8E8E8;
+    border-radius: 24px;
+}
+
+#rightBoxJPMA {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    padding: 85px;
+}
+
+#leftTextJPMA {
+    max-width: 23.8vw;
+    font-family: 'Nunito';
+    font-style: normal;
+    font-weight: 800;
+    font-size: 20px;
+    line-height: 27px;
+    text-align: center;
+
+    color: #0B0514;
+
+
+}
+
+#footerJPMA {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    gap: 31px;
+
+    width: 100%;
+    height: 84px;
+
+    /* Nuances/Gris/99% */
+    background: #FDFDFD;
+    border-top-color: #E0E0E0;
+    border-top-style: solid;
+    border-top-width: 1px;
+}
+
+.footerJPMAP {
+    font-family: 'Barlow';
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 140%;
+
+    /* identical to box height, or 20px */
+
+    /* Nuances/Gris/30% */
+    color: #4F4F4F;
+
+
+}
+
+.imgfooterJPMA {
+    height: 20px;
+}
+
+body {
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+}
+
+#mainBoxJPMA {
+    min-height: calc(100vh - 175px);
+}
+
+.ios {
+    width: 143.19px;
+}
+
+#rightBoxDivJPMA {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    gap: 20px;
+}
+
+#rightBoxP1JPMA {
+    font-family: 'Montserrat';
+    font-style: normal;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 130%;
+
+    /* identical to box height, or 26px */
+    letter-spacing: -0.01em;
+
+    /* Couleur Principal / Bleu Digital */
+    color: #0000FF;
+    margin: 0;
+
+
+}
+
+.rightBoxP2JPMA {
+    font-family: 'Barlow';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 140%;
+
+    /* or 22px */
+
+    /* Couleur Principal / Bleu Digital */
+    color: #0000FF;
+    margin: 0;
+
+}
+
+.rightBoxP2JPMA2 {
+    font-family: 'Barlow';
+    font-style: normal;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 140%;
+
+    /* or 22px */
+
+    /* Couleur Principal / Bleu Digital */
+    color: #4F4F4F;
+    margin: 0;
+}
+
+.rightBoxP2JPMAdiv {
+    display: flex;
+    flex-direction: row;
+    gap: 3px;
+}
+
+#rightBoxP3JPMAdiv {
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+}
