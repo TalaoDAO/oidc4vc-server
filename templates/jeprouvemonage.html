@@ -54,10 +54,11 @@
         var source = new EventSource('/sandbox/login_presentation_stream');
         source.onmessage = function (event) {
         const result = JSON.parse(event.data)
-        if (result.stream_id == '' ){
+        if (result.stream_id == '{{stream_id}}' ){
           window.location.href='/sandbox/login_followup?stream_id=' + result.stream_id;
           }
         };
       </script>
+    
 </body>
 </html>
