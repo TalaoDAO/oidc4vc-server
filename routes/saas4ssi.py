@@ -69,8 +69,12 @@ def saas_home():
     else:
         print('remote IP = ', request.environ['HTTP_X_FORWARDED_FOR']) # if behind a proxy
     r = requests.get('https://issuer.talao.co/counter/get')
-    counter = r.json()['total']
-    return render_template("verifier.html", counter=counter)
+    counter = r.json()
+    count = counter['total']
+    auth = int(counter['emailpass']) + int(counter['phonepass']) + int(counter['verifiableid'])
+    gaming = int(counter['tezotopia']) + int(counter['chainborn']) + int(counter['bloometa'])
+    age = int(counter['over15']) + int(counter['over13']) + int(counter['over18']) + int(counter['agerange'])
+    return render_template("verifier.html", counter=count, auth = str(auth), gaming = str(gaming), age= str(age))
 
 
 def credentials():
