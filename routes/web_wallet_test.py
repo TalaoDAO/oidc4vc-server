@@ -9,6 +9,7 @@ import didkit
 import logging
 from urllib.parse import urlencode
 import ebsi
+import requests
 
 
 logging.basicConfig(level=logging.INFO)
@@ -81,6 +82,9 @@ def init_app(app,red, mode) :
     # Playground screen
     app.add_url_rule('/sandbox',  view_func=sandbox, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/playground',  view_func=playground, methods = ['GET', 'POST'])
+    
+    # test NFT
+    app.add_url_rule('/sandbox/playground/nft',  view_func=nft, methods = ['GET', 'POST'], defaults={ 'mode' : mode})
 
     global registry_repo
     g = Github(mode.github)
@@ -99,6 +103,27 @@ def playground() :
     else :
         nationality = request.form['nationality']
         return redirect("/sandbox/direct_offer?VC=Nationality.jsonld&nationality=" + nationality)
+
+
+
+def nft(mode):
+    """
+    test du verifier qui mint des token de compliance
+    """
+    if mode.myenv == 'aws' :
+        url =  'https://issuer.talao.co/verifier/defi/get_link'
+    else :
+        url = 'http://192.168.0.187:5000/verifier/defi/get_link'
+    headers = {
+        'api-key' : '000',
+        'client_id' : "000",
+        'chain' : 'binance',
+        'test' : 'True'
+    }
+    r = requests.post(url, headers=headers)
+    if not r.json()['link'] :
+        return jsonify("Incorrect API call")
+    return render_template('verifier_mint_nft_qrcode.html', url=r.json()['link'])
 
 
 ######################### Credential Offer ###########
@@ -320,11 +345,14 @@ async def test_credentialOffer_endpoint(id, red):
         return jsonify('server error'), 500
     # wallet GET
     if request.method == 'GET':
+      
+        
         return Response(json.dumps(credentialOffer, separators=(':', ':')),
                         headers={ "Content-Type" : "application/json"},
                         status=200)
                         
     # wallet POST
+    
     else :
         credential =  json.loads(credentialOffer)['credentialPreview']
         red.delete(id)

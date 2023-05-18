@@ -101,6 +101,7 @@ def login_password(issuer_id) :
         session['login_password'] = True
         return redirect('/sandbox/op/issuer/' + issuer_id)
 
+
 # secret and TOTP case
 def secret(issuer_id) :
     try :
