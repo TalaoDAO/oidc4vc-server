@@ -13,7 +13,24 @@
                 {% include 'saas_nav_bar.html' %}
                 <div class="container-fluid my-5">
 
-  
+                    <div class="text-center">
+                        <h4>On-chain DeFI compliance with non transferable NFT and Decenraozied Identity (verifiable credentials)</h4>
+                    </div>
+
+                    <div class="row my-5">  
+                        <div class="col-4 offset-4">
+                            <form action="/sandbox/playground/nft" method="POST">
+                                <div id="id_qrcode" class="text-center">
+                                    <br><br>
+                                    <button class="btn btn-light shadow-none"  type="submit">
+                                        <img  src="/static/img/defi.jpeg"  style="width: 600px;">
+                                    </button>
+                                </div>
+                             </form>
+                        </div>
+                    </div>
+
+
                     <div class="text-center">
                         <h4>Verifiable Credentials for wallet Demo (fake data)</h4>
                     </div>
@@ -71,16 +88,7 @@
                              </form>        
                         </div>
                     </div>
-                    <div class="row my-5">  
-                        <div class="col-4 offset-4">
-                            <form action="/sandbox/playground/nft" method="POST">
-                                <div id="id_qrcode" class="text-center">
-                                    <img  src="/static/img/defi_card.png"  style="width: 350px;border-radius:0px;"><br><br>
-                                    <button  class="btn btn-primary btn-sm" style="background-color: #09060f;" value="activity" type="submit">Mint a NFT</button>
-                                </div>
-                             </form>
-                        </div>
-                    </div>
+                  
 
                     <div class="row my-5">
                         <div class="col mt-4">
