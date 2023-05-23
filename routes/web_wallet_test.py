@@ -110,10 +110,7 @@ def nft(mode):
     """
     test du verifier qui mint des token de compliance
     """
-    if mode.myenv == 'aws' :
-        url =  'https://issuer.talao.co/verifier/defi/get_link'
-    else :
-        url = 'http://192.168.0.187:5000/verifier/defi/get_link'
+    url =  'https://issuer.talao.co/verifier/defi/get_link'
     headers = {
         'api-key' : '000',
         'client_id' : "000",
@@ -123,7 +120,7 @@ def nft(mode):
     r = requests.post(url, headers=headers)
     if not r.json()['link'] :
         return jsonify("Incorrect API call")
-    return render_template('verifier_mint_nft_qrcode.html', url=r.json()['link'])
+    return render_template('mint_nft_qrcode.html', url=r.json()['link'])
 
 
 ######################### Credential Offer ###########
@@ -141,6 +138,7 @@ def test_direct_offer(red, mode) :
     global did_selected 
     try :
         VC_filename= request.args['VC']
+        print('VC = ', request.args['VC'])
     except :
         return jsonify("Request malformed"), 400
     try :
@@ -166,6 +164,12 @@ def test_direct_offer(red, mode) :
     
     elif VC_filename == "Nationality.jsonld" :
         credential["credentialSubject"]["nationality"] = request.args['nationality']
+    
+    elif VC_filename == "DefiCompliance.jsonld" :
+        credential["credentialSubject"]["sanctionListCheck"] = 'Succeeded'
+        credential["credentialSubject"]["ageCheck"] = 'Succeeded'
+        credential["credentialSubject"]["countryCheck"] = 'Succeeded'
+        credential["credentialSubject"]["amlComplianceCheck"] = 'Succeeded'
        
     credentialOffer = {
             "type": "CredentialOffer",
@@ -211,17 +215,21 @@ def test_direct_offer(red, mode) :
         filename = "./credential_manifest/MembershipCard_1_credential_manifest.json"
     
     elif VC_filename == "Nationality.jsonld" :
-     filename = "./credential_manifest/nationality_credential_manifest.json"
+        filename = "./credential_manifest/nationality_credential_manifest.json"
+    
+    elif VC_filename == "DefiCompliance.jsonld" :
+        filename = "./credential_manifest/defi_credential_manifest.json"
     
     else : 
         filename = None
         credential_manifest = "{}" 
-
+    print('filename = ', filename)
     if filename :
         with open(filename, "r") as f:
             credential_manifest = f.read()
     
     credentialOffer['credential_manifest'] = json.loads(credential_manifest)
+    print("credential manifest = ", json.loads(credential_manifest))
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
@@ -302,7 +310,6 @@ def test_credentialOffer_qrcode(red, mode) :
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         }
-        print('credential id = ', credential['id'])
         url = mode.server + "sandbox/wallet_credential/" + credential['id'] #+ '?' + urlencode({'issuer' : did_issuer})
         deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
         deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
