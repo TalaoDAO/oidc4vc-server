@@ -417,8 +417,10 @@ def wallet_userinfo(red) :
     try :
         data = json.loads(red.get(access_token).decode())
         verifier_data = json.loads(read_verifier(data['client_id']))
-        payload = {"sub" : data['sub']}
+        #payload = {"sub" : data['sub']}
+        payload = dict()
         if verifier_data.get('standalone') :
+            payload = {"sub" : data['sub']}
             payload['vp'] = data["vp_token"]
         headers = {
             "Cache-Control" : "no-store",
@@ -576,13 +578,16 @@ async def login_presentation_endpoint(stream_id, red, mode):
                     })
         
         # register Tezos address in a Tezid whitelist 
+        # TODO remove that part
+        """
         address_list = [ ad for ad in address_list if ad[:2] == 'tz']
         if verifier_data.get('tezid_network') != 'none' and address_list :
             for address in address_list :
                 if register_tezid(address, verifier_data['tezid_proof_type'], verifier_data.get('tezid_network'), mode) :
                     logging.info('address whitelisted %s', address)
             message.message('Address whitelisted for client_id = ' +  client_id, 'thierry@altme.io', " ".join(address_list), mode)
-        
+        """
+
         red.setex(stream_id + "_DIDAuth", 180, value)
         event_data = json.dumps({"stream_id" : stream_id})           
         red.publish('api_verifier', event_data)
