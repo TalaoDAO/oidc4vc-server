@@ -140,12 +140,12 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     # exception jeprouvemonage iss attribute must be randomized
     if vc['credentialSubject']['type'] in ["Over18", "AgeOver18"] :
         payload["over_18"] = True
-        #payload['sub'] = str(uuid.uuid1())
+        payload['sub'] = 'urn:uuid' + str(uuid.uuid1())
     if vc['credentialSubject']['type'] == "Over13" :
         payload["over_13"] = True
     if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
         payload["over_15"] = True
-        #payload['sub'] = str(uuid.uuid1())
+        payload['sub'] = 'urn:uuid' + str(uuid.uuid1())
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -410,6 +410,7 @@ def wallet_userinfo(red) :
     OIDC USERINFO ENDPOINT
 
     https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+    
     only access token is needed
     """
     logging.info("user info endpoint request")
