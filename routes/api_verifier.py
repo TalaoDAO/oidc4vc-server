@@ -140,12 +140,12 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     # exception jeprouvemonage iss attribute must be randomized
     if vc['credentialSubject']['type'] in ["Over18", "AgeOver18"] :
         payload["over_18"] = True
-        payload['sub'] = str(uuid.uuid1())
+        #payload['sub'] = str(uuid.uuid1())
     if vc['credentialSubject']['type'] == "Over13" :
         payload["over_13"] = True
     if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
         payload["over_15"] = True
-        payload['sub'] = str(uuid.uuid1())
+        #payload['sub'] = str(uuid.uuid1())
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -419,7 +419,6 @@ def wallet_userinfo(red) :
         verifier_data = json.loads(read_verifier(data['client_id']))
         payload = {"sub" : data['sub']}
         if verifier_data.get('standalone') :
-            #payload = {"sub" : data['sub']}
             payload['vp'] = data["vp_token"]
         headers = {
             "Cache-Control" : "no-store",
