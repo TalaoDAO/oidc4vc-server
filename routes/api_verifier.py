@@ -140,7 +140,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     # exception jeprouvemonage iss attribute must be randomized
     if vc['credentialSubject']['type'] in ["Over18", "AgeOver18"] :
         payload["over_18"] = True
-        payload['sub'] = 'urn:uuid' + str(uuid.uuid1())
+        payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())
     if vc['credentialSubject']['type'] == "Over13" :
         payload["over_13"] = True
     if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
