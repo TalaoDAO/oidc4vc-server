@@ -21,6 +21,7 @@ logging.basicConfig(level=logging.INFO)
 ACCESS_TOKEN_LIFE = 1800
 QRCODE_LIFE = 180
 CODE_LIFE = 180
+
 DID_VERIFIER = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
 TRUSTED_ISSUER = ["did:web:app.altme.io:issuer", "did:web:talao.co"]
 ASSOCIATED_ADDRESS = ["TezosAssociatedAddress", "EthereumAssociatedAddress", "PolygonAssociatedAddress", "BinanceAssociatedAddress", "FantomAssociatedAddress"]
@@ -35,6 +36,7 @@ public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
 
 def init_app(app,red, mode) :
+    # OIDC authorization server endpoints
     app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red, "mode" : mode})
     app.add_url_rule('/sandbox/op/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red, 'mode' : mode})
     app.add_url_rule('/sandbox/op/logout',  view_func=wallet_logout, methods = ['GET', 'POST'])
@@ -43,7 +45,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/op/jwks.json', view_func=jwks, methods=['GET'])
     app.add_url_rule('/sandbox/op/webflow.altme.js', view_func=webflow, methods=['GET'])
     
-    # http://172.20.10.2:3000/sandbox/op/.well-known/openid-configuration
+    # presentationRequest endpoints
     app.add_url_rule('/sandbox/login',  view_func=login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_presentation/<stream_id>',  view_func=login_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red, 'mode' : mode})
     app.add_url_rule('/sandbox/login_followup',  view_func=login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -52,6 +54,9 @@ def init_app(app,red, mode) :
 
 
 def webflow() :
+    """
+    for webflow upload of js code
+    """
     f = open('webflow_altme.js', 'r')
     payload = f.read()
     headers = {
@@ -62,6 +67,9 @@ def webflow() :
     
 
 def build_id_token(client_id, sub, nonce, vp, mode) :
+    """
+    Build the ID token client side
+    """
     verifier_key = jwk.JWK(**RSA_KEY_DICT) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
@@ -129,13 +137,15 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["group"] = vc['credentialSubject']['group']
             else :
                 pass
-    # exception
-    if vc['credentialSubject']['type'] == "Over18" :
+    # exception jeprouvemonage iss attribute must be randomized
+    if vc['credentialSubject']['type'] in ["Over18", "AgeOver18"] :
         payload["over_18"] = True
+        payload['sub'] = str(uuid.uuid1())
     if vc['credentialSubject']['type'] == "Over13" :
         payload["over_13"] = True
-    if vc['credentialSubject']['type'] == "Over15" :
+    if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
         payload["over_15"] = True
+        payload['sub'] = str(uuid.uuid1())
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
@@ -161,17 +171,19 @@ def openid_configuration(mode):
     return jsonify(oidc)
 
 
-# authorization server
-"""
-response_type supported = code or id_token or vp_token
-code -> authorization code flow
-id_token -> implicit flow
-id_token vp_token or vp_token -> oidc4vp
+
+def wallet_authorize(red, mode) :
+    """
+    OIDC AUTHORIZATION SERVER ENDPOINT
+
+    response_type supported = code or id_token or vp_token
+    code -> authorization code flow
+    id_token -> implicit flow
+    id_token vp_token or vp_token -> oidc4vp
 
     # https://openid.net/specs/openid-4-verifiable-presentations-1_0.html
 
-"""
-def wallet_authorize(red, mode) :
+    """
     logging.info("authorization endpoint request args = %s", request.args)
     # https://www.rfc-editor.org/rfc/rfc6749.html#section-4.1.2
 
@@ -188,7 +200,7 @@ def wallet_authorize(red, mode) :
                 resp = {'code' : code}
             return redirect(session['redirect_uri'] + '?' + urlencode(resp)) 
 
-        # implicit flow -> redirect with id_token in 
+        # implicit flow -> redirect with id_token
         elif session.get('response_type') == "id_token" :
             if session.get('response_mode') == "query" :
                 sep = "?"
@@ -278,7 +290,7 @@ def wallet_authorize(red, mode) :
     session['state'] = request.args.get('state')
     session['response_mode'] = request.args.get('response_mode')
 
-    # creation grant (code) and redirect to  wallet login
+    # creation grant (code) and redirect to  presentationRequest (wallet protocol)
     code = str(uuid.uuid1())
     red.setex(code, CODE_LIFE, json.dumps(data))
     resp = {'code' : code}
@@ -288,8 +300,10 @@ def wallet_authorize(red, mode) :
     
    
 
-# token endpoint
 async def wallet_token(red, mode) :
+    """
+    OIDC TOKEN ENDPOINT
+    """
     #https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
     logging.info("token endpoint request ")
 
@@ -371,9 +385,13 @@ async def wallet_token(red, mode) :
     return Response(response=json.dumps(endpoint_response), headers=headers)
  
 
-# logout endpoint
-#https://openid.net/specs/openid-connect-rpinitiated-1_0-02.html
+
 def wallet_logout() :
+    """
+    OIDC LOGOUT ENDPOINT
+    
+    https://openid.net/specs/openid-connect-rpinitiated-1_0-02.html
+    """
     if not session.get('verified') :
         return jsonify ('Forbidden'), 403
     if request.method == "GET" :
@@ -387,13 +405,13 @@ def wallet_logout() :
     return redirect(post_logout_redirect_uri)
 
 
-# userinfo endpoint
-"""
- https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
- only access token is needed
-
-"""
 def wallet_userinfo(red) :
+    """
+    OIDC USERINFO ENDPOINT
+
+    https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
+    only access token is needed
+    """
     logging.info("user info endpoint request")
     access_token = request.headers["Authorization"].split()[1]
     try :
@@ -401,6 +419,7 @@ def wallet_userinfo(red) :
         verifier_data = json.loads(read_verifier(data['client_id']))
         payload = {"sub" : data['sub']}
         if verifier_data.get('standalone') :
+            #payload = {"sub" : data['sub']}
             payload['vp'] = data["vp_token"]
         headers = {
             "Cache-Control" : "no-store",
@@ -408,16 +427,20 @@ def wallet_userinfo(red) :
             "Content-Type": "application/json"}
         return Response(response=json.dumps(payload), headers=headers)
     except :
-        logging.warning("access token expired")
-        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
+        logging.warning("Access token expired")
+        headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "Access token expired"'}
         return Response(status=401,headers=headers)
 
 
 
 """
-Protocol pour Presentation Request
+Presentation Request protocol , QueryByExample -> https://w3c-ccg.github.io/vp-request-spec/
 """
 def login_qrcode(red, mode):
+    """
+    Prepare and display QRCode
+    
+    """
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
@@ -615,6 +638,9 @@ def login_followup(red):
 
 
 def login_presentation_stream(red):
+    """
+    Push data to front -> event stream
+    """
     def login_event_stream(red):
         pubsub = red.pubsub()
         pubsub.subscribe('api_verifier')
