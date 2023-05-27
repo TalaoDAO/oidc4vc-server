@@ -145,7 +145,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
         payload["over_13"] = True
     if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
         payload["over_15"] = True
-        payload['sub'] = 'urn:uuid' + str(uuid.uuid1())
+        payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())
     logging.info("ID Token payload = %s", payload)
     token = jwt.JWT(header=header,claims=payload, algs=["RS256"])
     token.make_signed_token(verifier_key)
