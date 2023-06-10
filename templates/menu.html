@@ -2,7 +2,7 @@
 <!-- menu.html-->
 <html>
   <head>
-    {% include 'head.html' %}
+    {% include 'head.html'  %}
 
    
 
@@ -13,20 +13,22 @@
 
     <div class="text-center mt-5">
         <br><br><br>
-
-
-        <h1  style="color: rgb(54, 24, 88);"">Choose your Issuer or Verifier connector</h1>
+        {% if session['login_name'] == 'admin'  %}
+        <h1  style="color: rgb(54, 24, 88);"">Choose your Issuer or Verifier</h1>
+        {% else %}
+        <h1  style="color: rgb(54, 24, 88);"">Choose your Verifier</h1>
+        {% endif %}
         <br><br>
 
 
         <div class="row my-5">
 
-            <div class="col-4 mx-auto">
+            <div class="col-6 mx-auto">
               <div id="id_qrcode" class="text-center">
                  <a href="/sandbox/saas4ssi/verifier"> 
-                 <h3><strong>Verifier with OpenID for Altme Wallet and Talao Wallet</strong></h3>
+                 <h3><strong>Verifiers for Altme Wallet and Talao Wallet</strong></h3>
                  </a>
-                 This is a bridge between the Verifiable Presentation Request standard supported by Altme and a standard OpenID.<br>
+                 This is a OIDC bridge between the Verifiable Presentation Request standard supported by Altme and a standard OpenID.<br>
                  Web2 or Web3 applications with a backend. Standard OIDC authorization code flow or implicit flow.
                  More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...).
                  CMS as Webflow, Wordpress with OpenID pluggins.
@@ -34,7 +36,8 @@
               </div> 
           </div>
 
-          <div class="col-4 mx-auto">
+          {% if session['login_name'] == 'admin'  %}
+          <div class="col-6 mx-auto">
             <div id="id_qrcode" class="text-center">
                 <a href="/sandbox/saas4ssi/beacon/verifier">
                 <h3><strong>Verifier with Tezos Beacon for Altme Wallet</strong></h3>
@@ -45,36 +48,32 @@
                 <br> Support of TezID whitelist.
             </div> 
         </div>
+        {% endif %}
+
 
         </div>
         <div class="row my-5">
 
 
-        <div class="col-4 mx-auto">
+        <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/ebsi/verifier">
-              <h3><strong>EBSI Verifier for conformant mobile wallets</strong></h3>
+              <h3><strong>SIOPV2 Verifiers for mobile wallets (EBSI compliant)</strong></h3>
               </a>
-              This is a bridge between the SIOPv2 EBSI verifier flow and a standard OpenID authorization code flow and implicit flow.
+              This is a bridge between the SIOPv2 verifier flow and a standard OpenID authorization code flow and implicit flow.
               For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
             This verifier accepts EBSI compliant wallets with support for did:ebsi.
           </div> 
       </div>
 
-        <div class="col-4 mx-auto">
-          <div id="id_qrcode" class="text-center">
-              <a href="">
-              <h3><strong>Verifier with EVM WalletConnect for Altme Wallet</strong></h3>
-              </a>
-              Available soon
-          </div> 
-      </div>
+     
 
         </div>
-<hr>
+{% if session['login_name'] == 'admin'  %}
         <div class="row my-5">
 
-        <div class="col-4 mx-auto">
+         
+        <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/issuer">           
                 <h3><strong>Issuer with a Webhook for Altme Wallet and Talao Wallet</strong></h3>
@@ -85,7 +84,7 @@
           </div> 
       </div>
 
-        <div class="col-4 mx-auto">
+        <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/beacon">
               <h3><strong>Issuer with Tezos Beacon for Altme Wallet</strong></h3>
@@ -97,23 +96,18 @@
       </div>
 
     </div>
+  
+
     <div class="row my-5">
 
 
-      <div class="col-4 mx-auto">
-        <div id="id_qrcode" class="text-center">
-            <a href="">
-            <h3><strong>Issuer with EVM WalletConnect for Altme Wallet</strong></h3>
-            </a>
-           Available soon
-        </div> 
-    </div>
+     
 
 
     <div class="col-4 mx-auto">
       <div id="id_qrcode" class="text-center">
         <a href="/sandbox/saas4ssi/ebsi/issuer">
-          <h3><strong>EBSI issuer for conformant mobile wallets</strong></h3>
+          <h3><strong>OIDC4VCI (EBSI) issuer for mobile wallets</strong></h3>
           </a>
          Issuer for EBSI-V2 , OIDC4VC issuance<br>
          Support of authorization code flow and pre-authorized_code flow <br>
@@ -123,6 +117,8 @@
   </div>
    
         </div>
+
+        {% endif %}
        
    </div>
    {% include 'user_footer.html' %}

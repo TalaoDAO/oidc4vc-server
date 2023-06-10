@@ -95,10 +95,11 @@ def ebsi_verifier_console_activity() :
         activity_list = str()
         for data in activities :
             data_dict = json.loads(data)
-            status = "Approved" if data_dict['status'] else "Denied"
+            status = "Approved" if data_dict.get('status') else "Denied"
+            user = data_dict.get('user', "Unknown") if data_dict.get('user') else "Unknown"
             activity = """<tr>
-                    <td>""" + data_dict['presented'] + """</td>
-                     <td>""" + data_dict.get('user', "Unknown") + """</td>
+                    <td>""" + data_dict.get('presented', "unknown") + """</td>
+                    <td>""" + user + """</td>
                     <td>""" + ebsi_verifier_credential_list.get(data_dict['credential_1'], "None") + """</td>
                     <td>""" + ebsi_verifier_credential_list.get(data_dict['credential_2'], "None") + """</td>
                     <td>""" + status + """</td>

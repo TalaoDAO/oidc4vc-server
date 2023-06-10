@@ -9,257 +9,46 @@
     {% include 'saas_nav_bar.html' %} 
 
     <div class="container-fluid">
-        {% with messages = get_flashed_messages(with_categories=true) %}
-        {% if messages %}
-            {% for category, message in messages %}
-        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
-            <h6 style="background-color : rgb(245, 207, 207)">{{ message }}</h6>
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-            <span aria-hidden="true">&times;</span>
-            </button>
-        </div>
-            {% endfor %}
-        {% endif %}
-    {% endwith %}
-
-
-    
-
-    <div class="row">
-        <div class="col  text-center mt-5">
-            <h1 ><strong>Give an Identity to your Web3 applications</strong></h1>
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-            <h3>Altme is a next-generation platform to integrate Decentralized Identity solutions in an application.
-                To use Altme, you don't need to learn Verifiable Credentials standards, DIDs signature or how to work with a complex SDK.
-                <br><br>With Altme you can issue, verify and hold verifiable credentials in the format of Self Sovereign Identity for users of Crypto games, NFT Marketplaces, DeFi and Metaverse.
-               
-            </h3>
-        </div>
-    </div>
-
-   
-    <div class="row">
-        <div class="col text-center ">
-<!--            <img class="mt-5" src="/static/img/im1.png" style="width: 350px;border-radius:0px;"><img class="mt-5" src="/static/img/im2.png" style="width:300px;border-radius:0px;" >      -->  
-            <img class="mt-5" src="/static/img/wallet_nft.jpg" style="width: 300px;border-radius:0px;">
-            <img class="mt-5" src="/static/img/wallet_crypto.jpg" style="width: 300px;border-radius:0px;">
-            <img class="mt-5" src="/static/img/wallet_credentials.jpg" style="width: 300px;border-radius:0px;">
-
-        </div>
-
-    </div>
-
-
-    <div class="row mt-5">
-        <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
-            <div class="p-2">
-                <h1 ><strong>Web3 companies are entering a new world where their user data is now as decentralized as their crypto assets and where regulations are becoming more and more restrictive</h1>
-            </div> 
-       </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-            <div class="p-2">                
-                   <h3>To comply with regulations, secure their transactions and get to know their customers better, we offer Web3 companies credential Verifiers that can be configured in a few minutes and easily integrated into their development framework. 
-                    For this we use advanced decentralized technologies such as Beacon, WalletConnect or OpenID for SSI.</h3>
-            </div> 
-       </div>
-    </div>
-       
-    <div hidden class="row ">
-        <div class="col-qm-12 col-lg-2 offset-lg-3 mt-2">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/openid.jpeg"  style="width: 150px;border-radius:0px;">
-            </div>
-        </div>
-        <div class="col-sm-12 col-lg-2 mt-2">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/walletconnect.jpeg"  style="width: 150px;border-radius:0px;">
-            </div>
-        </div>
-        <div class="col-sm-12 col-lg-2 mt-2">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/beacon.jpeg"  style="width: 150px;border-radius:0px;">
-            </div>
-        </div>
-    </div>
-
-
-    <div class="row mt-5">
-        <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
-            <div class="p-2">
-                <h1 ><strong>An identity is now available for all crypto wallets and all blockchains</h1>
-            </div> 
-       </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-            <div class="p-2">                
-                   <h3>Our solutions make it possible to add identity and personal data to the most popular crypto wallets 
-                    as Temple and Kukai for Tezos or Trust, Metamask and Ledger Live for Ethereum.
-                     Users can therefore continue to use their favorite crypto wallet while benefiting from credentials even without sharing their private keys.</h3>
-            </div> 
-       </div>
-    </div>
-       
-    <div class="row ">
-        <div class="col-sm-12 col-lg-2 offset-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/tezos2.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-        <div class="col-sm-12 col-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/ethereum.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-        <div class="col-sm-12 col-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/metamask.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-        <div class="col-sm-12 col-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/temple.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-
-     </div>
-     <div class="row ">   
-        <div class="col-sm-12 col-lg-2 offset-lg-3 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/kukai.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-        <div  class="col-sm-12 col-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/trust.jpeg"  style="width: 100px;border-radius:0px;">
-            </div>
-        </div>
-        <div  class="col-sm-12 col-lg-2 mt-5">
-            <div id="id_qrcode" class="text-center">
-                <img  src="/static/img/ledger.jpeg"  style="width: 150px;border-radius:0px;">
-            </div>
-        </div>
-    </div>
-
-
-        <div class="row mt-5">
-            <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
-                <div class="p-2">
-                    <h1 ><strong>Decentralized identifiers and verifiable credentials are international standards</h1>
-                </div> 
-           </div>
-        </div>
-    
-        <div class="row">
-            <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-                <div class="p-2">                
-                       <h3>We implement W3C standards and protocols proposed by the Decentralized Foundation. 
-                        Our verifiable credentials are compatible with those of European projects such as EBSI and Gaia-X which have also adopted these same standards.
-                         Users have control and knowledge of the data they present to third parties thanks to the ownership of their private key.
-                        For full privacy, credentials are stored in the user non custodial wallet Altme.</h3>
-
-                </div> 
-           </div>
-        </div>
-           
-        <div hidden class="row ">
-            <div class="col-sm-12 col-lg-4 offset-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/dif.jpeg"  style="width: 100px;border-radius:0px;">
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/w3c.jpeg"  style="width: 100px;border-radius:0px;">
-                </div>
-            </div>
-            
-        </div>
-
-
-        <div class="row mt-5">
-            <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
-                <div class="p-2">
-                    <h1 ><strong>Businesses and their users can now share verified data for mutual benefit while ensuring the protection of personal data</h1>
-                </div> 
-           </div>
-        </div>
-    
-        <div class="row">
-            <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-                <div class="p-2">                
-                       <h3>We combine the best on-chain and off-chain data sources to enrich and enhance the wallets of users of web3 applications with awsome partners and companies as Passbase, Yoti, The Graph or Bakind Bad TzKT.
-                        All our credentials are signed with decentralized identifiers (DID) in publicly accessible W3C format.
-                         They are transferred to the user's wallet after verifying their cryptographic signature. We never transfer a credential to a company.
-                        </h3>
-                </div> 
-
-           </div>
-        </div>
-           
+        <br><br><br>
         <div class="row ">
-            <div class="col-sm-12 col-lg-2 offset-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/thegraph.jpeg"  style="width: 100px;border-radius:0px;">
-                </div>
+            <div class="col  text-center mt-5">
+                <h1 style="color:rgb(255,0,0);" >{{counter}} verifiable credentials issued for Web3 users <br>since January 1, 2023</h1>
+                <h3>of which :</h3>
+                <h3 > {{auth}} for authentication and identification</h3>
+                <h3 > {{gaming}} for crypto gaming loyalty cards</h3>
+                <h3 > {{defi}} for DeFi compliance</h3>
+                <h3 > {{age}} for proof of age</h3>
             </div>
-            <div class="col-sm-12 col-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/tzkt.jpeg"  style="width: 100px;border-radius:0px;">
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/yoti.jpeg"  style="width: 100px;border-radius:0px;">
-                </div>
-            </div>
-            <div class="col-sm-12 col-lg-2 mt-5">
-                <div id="id_qrcode" class="text-center">
-                    <img  src="/static/img/passbase.jpeg"  style="width: 150px;border-radius:0px;">
-                </div>
-            </div>
-
         </div>
 
-        <div class="row mt-5">
-            <div class="col text-center">
-        <a href="https://altme.io"><button type="button" class="btn btn-outline-dark mt-2">Download Altme wallet</button></a></h3>
-           </div>
-           </div>     
-
-
-
-    <div class="row mt-5">
-        <div class="col-lg-10 offset-lg-1 col-sm-12 text-center mt-5">
-            <div class="p-2">
-                <h1 ><strong>More than 20 user credentials specifically designed for Web3 applications</strong></h1>
-            </div> 
-       </div>
-    </div>
-
-    <div class="row">
-        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center">
-            <div class="p-2">                
-                   <h3>We apply the principle of data minimization and thus credentials always carry the minimum data required for user needs. 
-                    Credentials are issued for free.
-                    <br>
-                    <br><a href="/sandbox/saas4ssi/credential_supported"><button type="button" class="btn btn-outline-dark mt-2">Credential playbook</button></a></h3>
-            </div> 
-       </div>
-    </div>
+   
 
    
 
 
-    
+    <div class="row">
+        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center mt-5">
+            <div class="my-2 p-2">                
+                   <h2>Altme Saas is a <strong>next-generation platform</strong> to integrate SSI issuers and verifiers in Web2 and Web3 applications</h2>
+                    <br><br><br>
+                 
+                   
+
+                  
+            </div>
+       </div>
+    </div>
+
+
+
+
+
+
+        <div class="row mt-2 mb-5">
+            <div class="col text-center">
+        <a href="/sandbox/saas4ssi/signup"><button type="button" class="btn btn-outline-dark mt-2">Get started, it's free !</button></a></h3>
+           </div>
+           </div>         
    
 
 </div>

@@ -14,7 +14,6 @@ import op_constante
 import activity_db_api
 import pkce # https://github.com/xzava/pkce
 from altme_on_chain import register_tezid
-import message
 
 logging.basicConfig(level=logging.INFO)
 
@@ -22,8 +21,11 @@ ACCESS_TOKEN_LIFE = 1800
 QRCODE_LIFE = 180
 CODE_LIFE = 180
 
-DID_VERIFIER = 'did:tz:tz2NQkPq3FFA3zGAyG8kLcWatGbeXpHMu7yk'
-TRUSTED_ISSUER = ["did:web:app.altme.io:issuer", "did:web:talao.co"]
+TRUSTED_ISSUER = [
+    "did:web:app.altme.io:issuer",
+    "did:web:talao.co",
+    "did:web:site.ageproofpoc.dns.id360docaposte.com:certificates"
+]
 ASSOCIATED_ADDRESS = ["TezosAssociatedAddress", "EthereumAssociatedAddress", "PolygonAssociatedAddress", "BinanceAssociatedAddress", "FantomAssociatedAddress"]
 
 try :
@@ -562,9 +564,12 @@ async def login_presentation_endpoint(stream_id, red, mode):
         if not isinstance(credential_list, list) :
             credential_list = [credential_list]           
         for credential in credential_list :
-            if credential["credentialSubject"]['type'] == 'Pass' :
-                if credential["credentialSubject"]['issuedBy']['issuerId'] != verifier_data.get('vc_issuer_id') :
-                    return manage_error("Pass issuer id does not match")
+            if credential["credentialSubject"]['type'] == 'AgeOver18' and credential["credentialSubject"].get('ageOver') != 18 :
+                return manage_error("VC does not match")
+            elif credential["credentialSubject"]['type'] == 'AgeOver15' and credential["credentialSubject"].get('ageOver') != 15 :
+                return manage_error("VC does not match") 
+            elif credential["credentialSubject"]['type'] == 'Pass' and credential["credentialSubject"]['issuedBy'].get('issuerId') != verifier_data.get('vc_issuer_id') :
+                return manage_error("Pass issuer id does not match")
             elif credential['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
                 address_list.append(credential['credentialSubject']['associatedAddress'])
             await check_credential(credential)

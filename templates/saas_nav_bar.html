@@ -12,30 +12,25 @@
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/admin"></a>
         </li>
        
+        {% if not session['is_connected']  %}
         <li class="nav-item active d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
         </li>
-
+        {% else %}
         <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://talao.co/demo">Demo</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/menu">Menu</a>
         </li>
-       
 
-        {% if session['pricing']  %}
-        <li class="nav-item dropdown d-none d-md-block">
-          <a class="nav-link " style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown2" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-            Pricing
-          </a>
-          <div class="dropdown-menu" aria-labelledby="navbarDropdown2">
-            <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/gaming">Gaming and metaverses</a>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/marketplace">NFT marketplace and DAO</a>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/defi">DeFi</a>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/web2">Web2</a>
-           <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/pricing/issuer">Issuers</a>
-          </div>
-        </li> 
         {% endif %}
+
+
+
+        {% if not session['is_connected']  %}
+        <li class="nav-item active d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="/sandbox/saas4ssi/dids">DID</a>
+        </li>
+        {% endif %}
+
 
         <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -46,10 +41,6 @@
             <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration">Doc : OpenID bridge for Verifiers</a>
             <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/beacon-integration">Doc : Beacon integration for Verifiers</a>
             <hr>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/dids">Our DIDs</a>
-            
-            <hr>
-            <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">Beacon wallet testing</a>
             <a class="dropdown-item" href="/sandbox/playground">Get fake credentials for demo and tools</a>
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP content</a>
           </div>
@@ -73,9 +64,11 @@
           </li>
           {% endif %}
 
+          {% if not session['is_connected']  %}
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://altme.io">Download Altme</a>
           </li>
+          {% endif %}
 
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="background-color: rgb(54, 24, 88); margin-bottom: 0; color: #ffffff; " href="mailto:thierry@altme.io">Contact</a>
