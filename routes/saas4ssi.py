@@ -50,7 +50,7 @@ def saas_home():
     if request.environ.get('HTTP_X_FORWARDED_FOR') is None:
         logging.info('remote IP = %s', request.environ['REMOTE_ADDR'])
     else:
-        logging.i,fo('remote IP = %s', request.environ['HTTP_X_FORWARDED_FOR']) # if behind a proxy
+        logging.info('remote IP = %s', request.environ['HTTP_X_FORWARDED_FOR']) # if behind a proxy
     r = requests.get('https://issuer.talao.co/counter/get')
     counter = r.json()
     count = counter['total']
