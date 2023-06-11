@@ -1,8 +1,7 @@
 import os
 import time
 import markdown
-import flask
-from flask import Flask, redirect, request, render_template_string, request, jsonify, render_template
+from flask import Flask, redirect, request, render_template_string, request
 from flask_session import Session
 from datetime import timedelta
 from flask_qrcode import QRcode
@@ -39,7 +38,7 @@ from routes import api_issuer_ebsi, ebsi_issuer_console
 
 # Framework Flask and Session setup
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.9.6"
+app.jinja_env.globals['Version'] = "0.2.1"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -48,7 +47,6 @@ app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=30) # cookie lifeti
 app.config['SESSION_FILE_THRESHOLD'] = 100
 app.config['SECRET_KEY'] = "OCML3BRawWEUeaxcuKHLpw" + mode.password
 app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
-
 
 sess = Session()
 sess.init_app(app)
@@ -85,15 +83,12 @@ web_wallet_test.init_app(app, red, mode)
 
 @app.route('/sandbox/md_file', methods = ['GET'])
 def md_file() :
-	#Display markdown files for CGU and Privacy
 	#https://dev.to/mrprofessor/rendering-markdown-from-flask-1l41
     if request.args['file'] == 'privacy' :
         content = open('privacy_en.md', 'r').read()
     elif request.args['file'] == 'terms_and_conditions' :
         content = open('mobile_cgu_en.md', 'r').read()
     return render_template_string( markdown.markdown(content, extensions=["fenced_code"]))
-
-
 
 
 # MAIN entry point for test

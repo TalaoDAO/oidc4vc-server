@@ -27,7 +27,7 @@
 
         {% if not session['is_connected']  %}
         <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="/sandbox/saas4ssi/dids">DID</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="/sandbox/saas4ssi/dids">Our DIDs</a>
         </li>
         {% endif %}
 
@@ -37,11 +37,8 @@
             Developers
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-            <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/"">Doc : Full documentation</a>
-            <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration">Doc : OpenID bridge for Verifiers</a>
-            <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/beacon-integration">Doc : Beacon integration for Verifiers</a>
-            <hr>
-            <a class="dropdown-item" href="/sandbox/playground">Get fake credentials for demo and tools</a>
+            <a class="dropdown-item" style="color: rgb(54, 24, 88); margin-bottom: 0" href="#" onClick="window.open('https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration', '_blank')">Documentation</a>
+            <a class="dropdown-item" href="/sandbox/playground">Fake credentials and tools</a>
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP content</a>
           </div>
         </li>
@@ -81,7 +78,7 @@
               </a>
               <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
                 <a class="dropdown-item" href="https://talao.co">Home</a>
-                <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/">Documentation</a>
+                  <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="#" onClick="window.open('https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration', '_blank')">Documentation</a>
                   <a class="dropdown-item" role="presentation" href="/sandbox/saas4ssi/credential_supported">Credentials playbook</a>
                   <a class="dropdown-item" role="presentation" href="https://talao.co/wallet-link">Link your crypto wallet</a>
                   <a class="dropdown-item" role="presentation" href="https://altme.io">Altme wallet</a>

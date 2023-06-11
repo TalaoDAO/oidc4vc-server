@@ -34,9 +34,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/ebsi/issuer',  view_func=saas_ebsi_issuer, methods = ['GET', 'POST'])
 
     #app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/credentials',  view_func=credentials, methods = ['GET', 'POST'])
     #app.add_url_rule('/sandbox/saas4ssi/verifier_home',  view_func=verifier, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/credential_supported',  view_func=credential_supported, methods = ['GET', 'POST'])
 
     return
 
@@ -61,12 +59,6 @@ def saas_home():
     return render_template("home.html", counter=count, auth = str(auth), gaming = str(gaming), age= str(age), defi = defi)
 
 """
-def credentials():
-    return render_template("credentials.html")
-
-def credential_supported():
-    return render_template("credential_supported.html")
-
 def verifier():
     return render_template("home.html")
 """
@@ -122,7 +114,7 @@ def admin(mode) :
         return redirect ("/sandbox/saas4ssi")
 
 
-# sign up
+# Register
 def saas_callback(mode):
     if request.args.get("error") :
         logging.warning("access denied")
@@ -139,15 +131,13 @@ def saas_callback(mode):
         session['is_connected'] = True
         db_user_api.create(login_name, data)
         try :
-            message.message("New sign up on Altme", "thierry@altme.io", "New user = " + login_name, mode)
+            message.message("Registritation on Saas Altme of " + login_name , "thierry@altme.io", "New user = " + login_name, mode)
         except :
             pass
         return redirect ('/sandbox/saas4ssi/menu')
     else :
-        logging.warning('erreur, user exists')
-        #message.message("User tried to sign up 2 times", "thierry@altme.io", "user = " + login_name, mode)
-        #session.clear()
-        flash("You are already registered as a user !", "error")
+        logging.warning('user already exists')
+        flash("You are already registered, you can login !", "warning")
         return redirect ("/sandbox/saas4ssi")
 
 
@@ -204,6 +194,7 @@ def saas_ebsi_verifier() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     return redirect ('/sandbox/ebsi/verifier/console/select')
+
 
 def saas_ebsi_issuer() :
     if not session.get('is_connected') or not session.get('login_name') :

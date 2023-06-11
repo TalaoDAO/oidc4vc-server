@@ -19,7 +19,7 @@ sbt_network_list = {
 
 tezid_network_list = {
     'none' : 'None',
-    #'tezos' : 'Tezos Mainnet',
+    'tezos' : 'Tezos Mainnet',
     'ghostnet' : 'Tezos Ghostnet',
 }
 
@@ -35,19 +35,20 @@ method_list = {
 # for verifier admin
 credential_list = {
                     'Pass' : 'Pass',
-                    'EmailPass' : 'Proof of email',
-                    'PhoneProof' : 'Proof of phone',
-                    'AgeRange' : 'Age range',
+                    'EmailPass' : 'EmailPass',
+                    'PhoneProof' : 'PhoneProof',
+                    'AgeRange' : 'AgeRange',
                     'Nationality' : 'Nationality',
                     'Gender' : 'Gender',
-                    'IdCard' : 'Identity card',
-                    'VerifiableId' : 'EBSI Verifiable ID',
-                    'Over18' : 'Over 18',
-                    'Over13' : 'Over 13',
-                    'Over15' : 'Over 15',
+                    'VerifiableId' : 'VerifiableId',
+                    'Over18' : 'Over18',
+                    'Over13' : 'Over13',
+                    'Over15' : 'Over15',
                     'AgeOver15' : 'AgeOver15',
                     'AgeOver18' : 'AgeOver18',
-                    'PassportNumber' : 'Passport footprint',
+                    'PassportNumber' : 'PassportNumber',
+                    'Liveness' : 'Liveness',
+                    'DefiCompliance' : 'DefiCompliance',
                     'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
                     'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
                     'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
@@ -55,40 +56,35 @@ credential_list = {
                     "FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
                     "DeviceInfo" : "Device info",
                     'Tez_Voucher_1' : "Voucher Tezotopia",
-                    'VerifiableDiploma' : 'EBSI Verifiable Diploma',
+                    'VerifiableDiploma' : 'EBSI VerifiableDiploma',
                     'LearningAchievement' : 'Diploma',
-                    'StudentCard' : 'Student card',
-                    'AragoPass' : 'Arago Pass',
-                    'InfrachainPass' : 'Infrachain Pass',
-                    'TalaoCommunity' : 'Talao Community card',
+                    'StudentCard' : 'StudentCard',
+                    'AragoPass' : 'AragoPass',
+                    'InfrachainPass' : 'InfrachainPass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
 
 # for verifier  guest
 credential_list_for_guest = {
-                    'Pass' : 'Pass',
-                    'TezosAssociatedAddress' : 'Proof of Tezos blockchain account',
-                    'EthereumAssociatedAddress' : 'Proof of Ethereum blockchain account',
-                    'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
-                    "BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
-                    "FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
-                    'DeviceInfo' : 'Device info',
+                    'TezosAssociatedAddress' : 'Tezos Account ownership',
+                    'EthereumAssociatedAddress' : 'Ethereum Account ownership',
+                    'PolygonAssociatedAddress' : 'Polygon Account ownership',
+                    "BinanceAssociatedAddress" : 'Binance Account ownership',
+                    "FantomAssociatedAddress" : 'Fantom Account ownership',
+                    'DeviceInfo' : 'Wallet certificate',
                     'EmailPass' : 'Proof of email',
-                    'PassportNumber' : 'Passport footprint',
-                    'PhoneProof' : 'Proof of phone',
-                    'AgeRange' : 'Age range',
-                    'Nationality' : 'Nationality',
-                    'Gender' : 'Gender',
-                    'IdCard' : 'Identity card',
-                    'VerifiableId' : 'EBSI Verifiable ID',
-                    'Over18' : 'Age Over 18',
-                    'Over13' : 'Age Over 13',
-                    'Over15' : 'Over 15',
-                    'AgeOver15' : 'AgeOver15',
-                    'AgeOver18' : 'AgeOver18',
+                    'DeFiCompliance' : 'Defi compliance',
+                    'PhoneProof' : 'Proof of phone No.',
+                    'TwitterAccountProof' : 'Twitter Account',
+                    'AgeRange' : 'Proof of Age Range',
+                    'VerifiableId' : 'Verifiable ID',
+                    'Over18' : 'Proof of Over 18',
+                    'Over13' : 'Proof of Over 13',
+                    'Over15' : 'Proof  of Over 15',
+                    #'AgeOver15' : '15+ Docaposte',
+                    #'AgeOver18' : '18+ Docaposte',
                     'AragoPass' : 'Arago Pass',
-                    'InfrachainPass' : 'Infrachain Pass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
@@ -203,14 +199,14 @@ landing_page_style_list = {
 verifier_landing_page_style_list = {
                     "op_verifier_qrcode.html" : "Style 1",
                     "op_verifier_qrcode_2.html" : "Style 2",
-                    "op_ebsi_verifier_qrcode_2.html" : "Large QRcode (EBSI)",
+                    "op_ebsi_verifier_qrcode_2.html" : "Style 2 with large QRcode",
                     "op_verifier_qrcode_3.html" : "Style 3",
                     "op_verifier_qrcode_4.html" : "Altme landing page",
                     "op_verifier_qrcode_5.html" : "Style 2 with counter",
                     "op_verifier_qrcode_6.html" : "Style 2 with html",
                     "op_verifier_qrcode_7.html" : "Altme style with html",
                     "arago_verifier_qrcode.html" : "Arago landing page",
-                    "ebsi_test.html" : "EBSI test",
+                    "ebsi_test.html" : "Test",
                     "jeprouvemonage.html" :"Jeprouvemonage"
                 }
 
@@ -385,15 +381,15 @@ client_data_pattern = {
                 "card_text_color" : "#ffffff",
                 "credential_duration" : "365",
                 "qrcode_background_color" :"#ffffff",
-                "qrcode_message" : "Scan with your wallet",
-                "mobile_message" : "Open your wallet",
+                "qrcode_message" : "Qrcode text",
+                "mobile_message" : "Message for smartphone",
                 "contact_email" : "support@altme.io",
                 "contact_name" : "",
                 "secret" : "", # static or OTP
                 "landing_page_url" : "https://talao.io",
                 "privacy_url" : "https://altme.io/privacy",
                 "terms_url" : "https://altme.io/cgu", 
-                "title" : "Get it !" # QR code title
+                "title" : "Page subtitle for smartphone" # QR code title
                 }
 
 ebsi_verifier_claims = {

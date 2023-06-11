@@ -44,7 +44,7 @@
                         <div class="form-row">
                             <div class="col">
                             
-                              <div class="form-group"><label><strong>User Name (Login)</strong><br></label><input class="form-control" readonly type="text" value="{{user_name}}""  name="user_name" ></div>
+                              <div class="form-group"><label><strong>Login Name</strong><br></label><input class="form-control" readonly type="text" value="{{user_name}}""  name="user_name" ></div>
                              
                             </div>
                             <div class="col">
@@ -68,7 +68,7 @@
                         <div class="form-row">
                           <div class="col">
                           
-                            <div class="form-group"><label><strong>User Name (Login)</strong><br></label><input class="form-control" required type="text" value="{{user_name}}""  name="user_name" ></div>
+                            <div class="form-group"><label><strong>Login Name</strong><br></label><input class="form-control" required type="text" value="{{user_name}}""  name="user_name" ></div>
                            
                           </div>
                           <div class="col">
@@ -104,8 +104,18 @@
                         </div>
                       </div>
 
+                      <div class="form-row">                         
+                        <div class="col">
+                          <div class="form-group"><label><strong>Privacy URL</strong><br></label><input class="form-control" type ="text" value="{{privacy_url}}" name="privacy_url" ></div>
                         </div>
+                        <div class="col">
+                          <div class="form-group"><label><strong>Terms & conditions URL</strong><br></label><input class="form-control" type="text" value="{{terms_url}}" name="terms_url" ></div>
                         </div>
+                      </div>
+
+
+                </div>
+              </div>
 
 
    <div class="card shadow my-3">
@@ -114,7 +124,7 @@
                           <div class="card-header py-3">
                   
                          
-                              <p style="color:#09060f;" class="card-title m-0 font-weight-bold">Parameters to setup the client</p>
+                              <p style="color:#09060f;" class="card-title m-0 font-weight-bold">Parameters to setup the OIDC client</p>
                             
                           </div>
                           <div class="card-body">
@@ -123,7 +133,7 @@
                                 <div class="col">
                                   <div class="form-check">
                                     <input class="form-check-input" type="checkbox" {{pkce}} name="pkce" id="flexCheckDefault_1">
-                                    <label class="form-check-label" for="flexCheckDefault_1">PKCE : <strong>checked</strong> if application is a dApp and you do not use client secret in authorization code flow</label>
+                                    <label class="form-check-label" for="flexCheckDefault_1">PKCE : <strong>checked</strong> only if application is a dApp and you do not use client secret in authorization code flow</label>
                                   </div>
                                 </div> 
                                 </div>
@@ -132,18 +142,18 @@
                               <ul class="nav nav-tabs card-header-tabs pull-right mb-3"  id="myTab" role="tablist">
                                 
                                 <li class="nav-item">
-                                  <a class="nav-link active" id="home-tab" data-toggle="tab" href="#oidc" role="tab" aria-controls="oidc" aria-selected="true">OIDC Discovery</a>
+                                  <a class="nav-link active" id="home-tab" data-toggle="tab" href="#oidc" role="tab" aria-controls="oidc" aria-selected="true">OIDC</a>
                                 </li>
                                 
                                 <li class="nav-item">
-                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#dhcp" role="tab" aria-controls="standard" aria-selected="true">OIDC</a>
+                                    <a class="nav-link" id="home-tab" data-toggle="tab" href="#dhcp" role="tab" aria-controls="standard" aria-selected="true">OIDC endpoints</a>
                                 </li>
                                 <li class="nav-item">
-                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#static" role="tab" aria-controls="miniorange" aria-selected="false">miniOrange</a>
+                                    <a class="nav-link" id="profile-tab" data-toggle="tab" href="#static" role="tab" aria-controls="miniorange" aria-selected="false">miniOrange SSO platform</a>
                                 </li>
 
                                 <li class="nav-item">
-                                  <a class="nav-link" id="profile-tab" data-toggle="tab" href="#webflow" role="tab" aria-controls="webflow" aria-selected="false">Webflow</a>
+                                  <a class="nav-link" id="profile-tab" data-toggle="tab" href="#webflow" role="tab" aria-controls="webflow" aria-selected="false">Webflow CMS</a>
                               </li>
                                
                             </ul>
@@ -162,16 +172,14 @@
 
                   <div class="form-row">
                     
-                      <div class="col">
+                      <div class="col-4">
                         <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                       </div>
-                  </div>
-
-                  <div class="form-row">
-                  <div class="col">
+                 
+                  <div class="col-4">
                     <div class="form-group"><label><strong>Client ID</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
                   </div>
-                  <div class="col">
+                  <div class="col-4">
                     <div class="form-group"><label><strong>Client Secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                   </div> 
                 </div>
@@ -182,16 +190,14 @@
 
                         <div class="form-row">
                           
-                            <div class="col">
+                            <div class="col-4">
                               <div class="form-group"><label><strong>Issuer URL</strong></label><input readonly class="form-control" type="text" name="issuer"  value={{issuer}}></div>
                             </div>
-                        </div>
-
-                        <div class="form-row">
-                        <div class="col">
+                       
+                        <div class="col-4">
                           <div class="form-group"><label><strong>Client ID</strong></label><input readonly class="form-control" type="text" name="client_id"  value={{client_id}}></div>
                         </div>
-                        <div class="col">
+                        <div class="col-4">
                           <div class="form-group"><label><strong>Client Secret</strong><br></label><input readonly size="50" class="form-control" type="text"  name="client_secret" value={{client_secret}}></div>
                         </div> 
                       </div>
@@ -229,7 +235,7 @@
 
                             <div class="form-row">
                               <div class="col">
-                                <div class="form-group"><label><strong>Request for implicit flow </strong><br></label><input readonly class="form-control" type="text" name="implicit_request" value="{{implicit_request}}"></div>
+                                <div class="form-group"><label><strong>Request for implicit flow with fragment</strong><br></label><input readonly class="form-control" type="text" name="implicit_request" value="{{implicit_request}}"></div>
                               </div>
                             </div>
 
@@ -373,8 +379,12 @@
           </div>
            </div>
                           
-
+<!-- TEZID-->
+{% if session['login_name'] == 'admin'  %}
            <div class="card shadow my-3">
+{% else %}
+          <div hidden class="card shadow my-3">
+{% endif %}
             <div class="card-header py-3">
               <div class="d-flex justify-content-between">
                 <p style="color: #09060f;" class="m-0 font-weight-bold">Whitelist with TezID (Ghostnet contract KT1K2i7gcbM9YY4ih8urHBDbmYHLUXTWvDYj )</p>
@@ -400,12 +410,16 @@
                           <div class="card shadow mt-3">
                             <div class="card-header py-3">
                               <div class="d-flex justify-content-between">
-                                <p style="color:#09060f;"  class=" m-0 font-weight-bold">Select user requested credentials</p>
+                                <p style="color:#09060f;"  class=" m-0 font-weight-bold">Select user requested cards (W3C verifiable credentials)</p>
                               </div>
                             </div>
                             <div class="card-body">
-
+                              
+                              {% if session['login_name'] == 'admin'  %}
                               <div class="form-row mb-3">
+                               {% else %} 
+                               <div hidden class="form-row mb-3">
+                                {% endif %}
                               <div class="col">
                                 <div class="form-check">
                                   <input class="form-check-input" type="checkbox" {{standalone}} name="standalone" id="flexCheckDefault">
@@ -420,21 +434,26 @@
 
                           <div class="form-row">
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 1 type</strong></label><select name="vc_1" class="form-control">
+                                <div class="form-group"><label><strong>Card #1</strong></label><select name="vc_1" class="form-control">
                                   {{vc_select_1|safe}}  
                                   </select></div>
-
                           </div>  
-                          <div class="col">
+
+                          {% if session['login_name'] == 'admin'  %}
+                          <div class="col-6">
                             <div class="form-group"><label><strong>If credential 1 is a Pass : Issuer Id</strong><br></label><input class="form-control" type="text" name="vc_issuer_id" value="{{vc_issuer_id}}"></div>
                           </div>
-                         
-
                           </div>
                           <div class="form-row">
 
+                          {% else %}
+                          <div hidden class="col-6">
+                            <div class="form-group"><label><strong>If credential 1 is a Pass : Issuer Id</strong><br></label><input class="form-control" type="text" name="vc_issuer_id" value="{{vc_issuer_id}}"></div>
+                          </div>
+                          {% endif %}
+
                             <div class="col-6">
-                                <div class="form-group"><label><strong>Credential 2 type</strong></label><select name="vc_2" class="form-control">
+                                <div class="form-group"><label><strong>Card #2</strong></label><select name="vc_2" class="form-control">
                                   {{vc_select_2|safe}}  
                                   </select></div>
                             </div>      
@@ -454,34 +473,34 @@
 
                               <div class="form-row">
                                 <div class="col-2">
-                                  <div class="form-group"><label><strong>Landing page style</strong></label><select  name="verifier_landing_page_style" class="form-control">
+                                  <div class="form-group"><label><strong>Page style</strong></label><select  name="verifier_landing_page_style" class="form-control">
                                     <option value="">--Please choose an option--</option>
                                    {{verifier_landing_page_style_select|safe}}
                                     </select></div>
                               </div>
                                 <div class="col">
-                                  <div class="form-group"><label><strong>Landing page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
+                                  <div class="form-group"><label><strong>Page title</strong><br></label><input class="form-control" type="text" name="page_title" value="{{page_title}}"></div>
                                 </div>
     
                                 <div class="col">
-                                  <div class="form-group"><label><strong>Landing page subtitle</strong><br></label><input class="form-control" type="text" name="page_subtitle" value="{{page_subtitle}}"></div>
+                                  <div class="form-group"><label><strong>Page subtitle for desktop</strong><br></label><input class="form-control" type="text" name="page_subtitle" value="{{page_subtitle}}"></div>
                                 </div>
                               </div>
 
                               <div class="form-row">
                                 <div class="col">
-                                  <div class="form-group"><label><strong>Landing page description</strong><br></label><textarea class="form-control" rows="5" name="page_description" >{{page_description}}</textarea></div>
+                                  <div class="form-group"><label><strong>Page description for desktop</strong><br></label><textarea class="form-control" rows="5" name="page_description" >{{page_description}}</textarea></div>
                                 </div>
                               </div>
 
                          <div class="form-row">
                   
                             <div class="col">
-                              <div class="form-group"><label><strong>Title QR code page for desktop </strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
+                              <div class="form-group"><label><strong>Page subtitle for smartphone</strong><br></label><textarea required class="form-control" name="title" >{{title}}</textarea></div>
                             </div>
 
                             <div class="col">
-                              <div class="form-group"><label><strong>Subtitle QR code page for desktop</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
+                              <div class="form-group"><label><strong>QRcode text</strong><br></label><textarea class="form-control" name="qrcode_message" >{{qrcode_message}}</textarea></div>
                             </div>
                          </div>
 
@@ -507,30 +526,22 @@
                           
                      
                         <div class="col">
-                          <div class="form-group"><label><strong>Message for mobile</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
+                          <div class="form-group"><label><strong>Message for smartphone</strong><br></label><textarea class="form-control" name="mobile_message" >{{mobile_message}}</textarea></div>
                         </div>
                    
                          </div>
                         <div class="form-row">
                             <div class="col">
-                              <div class="form-group"><label><strong>In wallet message credential 1</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
+                              <div class="form-group"><label><strong>In wallet message card #1</strong><br></label><textarea class="form-control" name="reason" >{{reason}}</textarea></div>
                             </div>
 
                             <div class="col">
-                              <div class="form-group"><label><strong>In wallet message credential 2</strong><br></label><textarea class="form-control" name="reason_2" >{{reason_2}}</textarea></div>
+                              <div class="form-group"><label><strong>In wallet message card #2</strong><br></label><textarea class="form-control" name="reason_2" >{{reason_2}}</textarea></div>
                             </div>
                          </div>
 
 
-                        <div class="form-row">
-                         
-                          <div class="col">
-                            <div class="form-group"><label><strong>Privacy URL</strong><br></label><input class="form-control" type ="text" value="{{privacy_url}}" name="privacy_url" ></div>
-                          </div>
-                          <div class="col">
-                            <div class="form-group"><label><strong>Terms & conditions URL</strong><br></label><input class="form-control" type="text" value="{{terms_url}}" name="terms_url" ></div>
-                          </div>
-                      </div>
+                      
                       <div class="form-row text-center">
                         <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="preview" type="submit">Preview landing page</button></div>
                       </div>

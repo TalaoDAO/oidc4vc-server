@@ -38,7 +38,7 @@ public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
 
 def init_app(app,red, mode) :
-    # OIDC authorization server endpoints
+    # OIDC endpoints
     app.add_url_rule('/sandbox/op/authorize',  view_func=wallet_authorize, methods = ['GET', 'POST'], defaults={"red" : red, "mode" : mode})
     app.add_url_rule('/sandbox/op/token',  view_func=wallet_token, methods = ['GET', 'POST'], defaults={"red" : red, 'mode' : mode})
     app.add_url_rule('/sandbox/op/logout',  view_func=wallet_logout, methods = ['GET', 'POST'])
@@ -70,7 +70,7 @@ def webflow() :
 
 def build_id_token(client_id, sub, nonce, vp, mode) :
     """
-    Build the ID token client side
+    Build the ID token OIDC client side
     """
     verifier_key = jwk.JWK(**RSA_KEY_DICT) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
@@ -139,12 +139,10 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
                 payload["group"] = vc['credentialSubject']['group']
             else :
                 pass
-    # exception jeprouvemonage iss attribute must be randomized
+    # exception jeprouvemonage iss attribute must be randomized and ageover transfered
     if vc['credentialSubject']['type'] in ["Over18", "AgeOver18"] :
         payload["over_18"] = True
         payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())
-    if vc['credentialSubject']['type'] == "Over13" :
-        payload["over_13"] = True
     if vc['credentialSubject']['type'] in ["Over15", "AgeOver15"] :
         payload["over_15"] = True
         payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())

@@ -119,6 +119,8 @@ def create(db, user, mode, method) :
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['tezid_proof_type'] = "urn:uuid:" + str(uuid.uuid1())
     data['client_secret'] = str(uuid.uuid1())
+    if db == 'verifier.db' and user != 'admin' :
+        data['standalone'] = 'on'
     if db in ['ebsi_issuer.db', 'ebsi_verifier.db'] :
         data['issuer_landing_page'] = mode.server + 'sandbox/ebsi/issuer/' + data['client_id']
         data['protocol'] = 'siopv2'

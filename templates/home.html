@@ -9,44 +9,50 @@
     {% include 'saas_nav_bar.html' %} 
 
     <div class="container-fluid">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            {% for category, message in messages %}
+        <div class="alert alert-{{ category }} alert-dismissible fade show m-0" role="alert">
+            <h5 >{{ message }}</h5>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+            {% endfor %}
+        {% endif %}
+    {% endwith %}
+
+
         <br><br><br>
-        <div class="row ">
-            <div class="col  text-center mt-5">
-                <h1 style="color:rgb(255,0,0);" >{{counter}} verifiable credentials issued for Web3 users <br>since January 1, 2023</h1>
-                <h3>of which :</h3>
-                <h3 > {{auth}} for authentication and identification</h3>
-                <h3 > {{gaming}} for crypto gaming loyalty cards</h3>
-                <h3 > {{defi}} for DeFi compliance</h3>
-                <h3 > {{age}} for proof of age</h3>
-            </div>
+
+
+        <div class="row mt-5">
+            <div class="col-lg-8 col-sm-12  offset-lg-2 text-center mt-5">
+                <div class="my-2 p-2">                
+                       <h2 style="color: rgb(54, 24, 88); margin-bottom: 0" >This is the <strong>next-generation platform</strong> to integrate verifiable credentials and DIDs in Web2 and Web3 applications</h2>
+                        <br><br><br>    
+                        <h2 style="color: rgb(54, 24, 88); margin-bottom: 0" >W3C compliant, free AML-KYC credentials, open source</h2>
+         
+                </div>
+           </div>
         </div>
 
-   
-
-   
-
-
-    <div class="row">
-        <div class="col-lg-8 col-sm-12  offset-lg-2 text-center mt-5">
-            <div class="my-2 p-2">                
-                   <h2>Altme Saas is a <strong>next-generation platform</strong> to integrate SSI issuers and verifiers in Web2 and Web3 applications</h2>
-                    <br><br><br>
-                 
-                   
-
-                  
+<!--
+        <div class="row ">
+            <div class="col  text-center mt-5">
+                <h1 style="color:rgb(255,0,0);" >{{counter}} verifiable credentials issued</h1>
+                <h3 style="color: rgb(54, 24, 88); margin-bottom: 0" >of which :</h3>
+                <h3 style="color: rgb(54, 24, 88); margin-bottom: 0" > {{auth}} for authentication and identification</h3>
+                <h3 style="color: rgb(54, 24, 88); margin-bottom: 0" > {{gaming}} for crypto gaming</h3>
+                <h3 style="color: rgb(54, 24, 88); margin-bottom: 0"  > {{defi}} for DeFi</h3>
+                <h3 style="color: rgb(54, 24, 88); margin-bottom: 0" > {{age}} for proof of age</h3>
             </div>
-       </div>
-    </div>
-
-
-
-
-
-
+        </div>
+-->
+   
         <div class="row mt-2 mb-5">
             <div class="col text-center">
-        <a href="/sandbox/saas4ssi/signup"><button type="button" class="btn btn-outline-dark mt-2">Get started, it's free !</button></a></h3>
+        <a href="/sandbox/saas4ssi/signup"><button type="button"   class="btn btn-outline-dark mt-2">Get started</button></a></h3>
            </div>
            </div>         
    

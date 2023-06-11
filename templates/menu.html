@@ -15,8 +15,6 @@
         <br><br><br>
         {% if session['login_name'] == 'admin'  %}
         <h1  style="color: rgb(54, 24, 88);"">Choose your Issuer or Verifier</h1>
-        {% else %}
-        <h1  style="color: rgb(54, 24, 88);"">Choose your Verifier</h1>
         {% endif %}
         <br><br>
 
@@ -26,13 +24,15 @@
             <div class="col-6 mx-auto">
               <div id="id_qrcode" class="text-center">
                  <a href="/sandbox/saas4ssi/verifier"> 
-                 <h3><strong>Verifiers for Altme Wallet and Talao Wallet</strong></h3>
+                 <h2><strong>Verifier connector for the Altme wallet</strong></h2>
                  </a>
-                 This is a OIDC bridge between the Verifiable Presentation Request standard supported by Altme and a standard OpenID.<br>
-                 Web2 or Web3 applications with a backend. Standard OIDC authorization code flow or implicit flow.
-                 More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...).
-                 CMS as Webflow, Wordpress with OpenID pluggins.
-                 <a href="https://openid.net/specs/openid-connect-core-1_0.html#CodeFlowSteps">See OpenID standards</a>
+                 <h5>Connect Altme with any application thanks to a connector acting as an OpenID provider for your application.
+                 
+                 <br><br>The connector supports the OIDC authorization code flow and implicit flow.
+                 <br><br>All credentials available in Altme can be triggered.
+                  <br><br>More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...).
+                 CMS as Webflow, Wordpress with OpenID pluggins are available for the client application.
+                 <br><a href="https://openid.net/certified-open-id-developer-tools/">See OpenID client librairies</a></h5>
               </div> 
           </div>
 
@@ -54,7 +54,7 @@
         </div>
         <div class="row my-5">
 
-
+          {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/ebsi/verifier">
@@ -65,14 +65,14 @@
             This verifier accepts EBSI compliant wallets with support for did:ebsi.
           </div> 
       </div>
-
+      {% endif %}
+ 
      
 
         </div>
-{% if session['login_name'] == 'admin'  %}
         <div class="row my-5">
 
-         
+          {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/issuer">           
@@ -83,7 +83,11 @@
               Support of login/password pre authentication method with static password or TOTP.
           </div> 
       </div>
+      {% endif %}
 
+
+
+      {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/beacon">
@@ -94,9 +98,12 @@
               <br> Support of TezID whitelist.
           </div> 
       </div>
+      {% endif %}
 
     </div>
   
+
+    {% if session['login_name'] == 'admin'  %}
 
     <div class="row my-5">
 
@@ -119,11 +126,18 @@
         </div>
 
         {% endif %}
+
+
+        {% if session['login_name'] != 'admin'  %}
+        <div class="row mb-4">
+          <div class="col text-center">
+      <a href="/sandbox/saas4ssi/verifier"><button type="button"   class="btn btn-outline-dark mt-2">Select ou create a verifier connector</button></a></h3>
+         </div>
+         </div> 
+         {% endif %}     
        
    </div>
    {% include 'user_footer.html' %}
-
-
               <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
               <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
               <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
