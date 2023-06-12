@@ -24,14 +24,13 @@
         {% endif %}
 
 
-
         {% if not session['is_connected']  %}
         <li class="nav-item active d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="/sandbox/saas4ssi/dids">Our DIDs</a>
         </li>
         {% endif %}
 
-
+        {% if not session['is_connected']  %}
         <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Developers
@@ -42,10 +41,10 @@
             <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP content</a>
           </div>
         </li>
+        {% endif %}
 
       
           {% if session['is_connected']  %}
-          
           <li class="nav-item active d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/logout">Logout</a>
           </li>

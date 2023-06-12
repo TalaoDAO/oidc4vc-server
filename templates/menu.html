@@ -30,11 +30,18 @@
                  
                  <br><br>The connector supports the OIDC authorization code flow and implicit flow.
                  <br><br>All credentials available in Altme can be triggered.
-                  <br><br>More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...).
-                 CMS as Webflow, Wordpress with OpenID pluggins are available for the client application.
-                 <br><a href="https://openid.net/certified-open-id-developer-tools/">See OpenID client librairies</a></h5>
-              </div> 
-          </div>
+                  <br><br>More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...) and 
+                 pluggins for CMS as Webflow, Wordpress are available for the client application.
+                 <br><a href="#" onClick="window.open('https://openid.net/certified-open-id-developer-tools/', '_blank')">See OIDC Certified Relying Party librairies</a>
+                 
+                 <br><br><a href="#" onClick="window.open('https://www.miniorange.com/', '_blank')">MiniOrange</a> SSO platform support.</h5>  
+                           
+              </div>
+            </div>
+
+        
+
+
 
           {% if session['login_name'] == 'admin'  %}
           <div class="col-6 mx-auto">
@@ -49,9 +56,18 @@
             </div> 
         </div>
         {% endif %}
-
-
         </div>
+        
+
+        {% if session['login_name'] != 'admin'  %}
+        <div class="row mb-4">
+          <div class="col text-center">
+            <a href="/sandbox/saas4ssi/verifier"><button type="button"   class="btn btn-outline-dark ">Select ou create a verifier connector</button></a></h3>
+         </div>
+        </div> 
+        {% endif %}  
+
+
         <div class="row my-5">
 
           {% if session['login_name'] == 'admin'  %}
@@ -128,13 +144,7 @@
         {% endif %}
 
 
-        {% if session['login_name'] != 'admin'  %}
-        <div class="row mb-4">
-          <div class="col text-center">
-      <a href="/sandbox/saas4ssi/verifier"><button type="button"   class="btn btn-outline-dark mt-2">Select ou create a verifier connector</button></a></h3>
-         </div>
-         </div> 
-         {% endif %}     
+           
        
    </div>
    {% include 'user_footer.html' %}
