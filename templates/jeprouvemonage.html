@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -8,57 +9,104 @@
     <link rel="stylesheet" href="/static/jeprouvemonage.css">
 
 </head>
+
 <body>
     <div id="headerJPMA">
         <p id="JPMAp">Jeprouvemonage.fr</p>
     </div>
-    <div id="mainBoxJPMA">
-        <p id="verifJPMA">Vérification de l’âge</p>
-        <div id="secondBoxJPMA">
-            <div id="leftBoxJPMA">
-                <p id="leftTextJPMA">Scanner le QRcode 
-                    avec l’application   <span style="color: #4755D2">Jeprouvemonage</span>
-                    pour partager votre âge </p>
-                    <img id="qrcodeJPMA" src="{{ qrcode(url) }}">
+    <div id="mainBox">
 
+        <div id="mainBoxJPMA">
+            <p id="verifJPMA">Vérification de l’âge</p>
+            <div id="navBar">
+                <button onclick="switchButton()" id="topButton1" class="activeButton">Créer une preuve</button>
+                <button onclick="switchButton()" id="topButton2" class="inactiveButton">Utiliser ma preuve</button>
             </div>
-            <div id="rightBoxJPMA">
-                <p id="rightBoxP1JPMA">Comment faire ?</p>
-                <div class="rightBoxP2JPMAdiv"><p class="rightBoxP2JPMA">1 - Téléchargez l’application </p><p class="rightBoxP2JPMA2">Jeprouvemonage.</p></div>
-                <div id="rightBoxDivJPMA">
-                    <a  href="https://apps.apple.com/fr/app/altme/id1633216869"><img class="ios" src="/static/ios.png"></a>
-                    <a  href="https://play.google.com/store/apps/details?id=co.altme.alt.me.altme&gl=US"><img class="ios" src="/static/android.png"></a>
-                </div>
-                <div id="rightBoxP3JPMAdiv"><p class="rightBoxP2JPMA">2 - Ouvrez l’application et ajouter une preuve d’âge</p><p class="rightBoxP2JPMA2">en vérifiant votre identité avec un service tiers.</p></div>
-                <div class="rightBoxP2JPMAdiv"><p class="rightBoxP2JPMA">3 - Scannez le QRcode</p><p class="rightBoxP2JPMA2">afin de partager la preuve.</p></div>
+            <div id="leftBoxJPMA">
+                <p id="jpmaP1">Comment créer ma preuve ?</p>
+                <p id="jpmaP2">1 - Téléchargez l’application <span
+                        style="color:black; font-weight: 400;">Jeprouvemonage.</span< /p>
+                        <div id="links">
+                           <a href="https://jpmaios.fr"><img class="ios" src="/static/img/ios.png"></a> 
+                            <a href="https://jpmaandroid.fr"><img class="ios" src="/static/img/android.png"></a>
 
+                        </div>
+                        <p id="jpmaP3">2 - Ouvrez l’application et ajouter une preuve
+                            en vérifiant votre âge.</p>
+            </div>
+            <div id="utiliserBox">
+                <div id="leftUBox">
+                    <img id="appJpma" src="/static/img/appJpma.png">
+                    <p id="uP1">Jeprouvemonage</p>
+                    <p id="uP2">vous demande de partager :</p>
+                    <p id="uP3">Preuve de + de 18 ans</p>
+                </div>
+                <div id="rightUBox">
+                    <p id="scannerP">Scanner le QRcode avec
+                        l’application Jeprouvemonage</p>
+                    <img id="qrcodeJPMA" src="{{ qrcode(url) }}">
+                    <a id="partagerP" href="https://partagermapreuve.fr">Partager ma preuve</a>
+                </div>
+            </div>
+            <div id="lowsP">
+                <p id="jpmaLowP">Jeprouvemonage</p>
+                <p id="teleLowP">Télécharger l’application sur IOS ou Android</p>
             </div>
         </div>
     </div>
-
     <div id="footerJPMA">
         <p class="footerJPMAP">Besoin d’aide</p>
-        <img class="imgfooterJPMA" src="/static/line.png">
+        <img class="imgfooterJPMA" src="/static/img/line.png">
         <p class="footerJPMAP">Mentions légales</p>
-        <img class="imgfooterJPMA" src="/static/line.png">
+        <img class="imgfooterJPMA" src="/static/img/line.png">
         <p class="footerJPMAP">CGU</p>
-        <img class="imgfooterJPMA" src="/static/line.png">
+        <img class="imgfooterJPMA" src="/static/img/line.png">
         <p class="footerJPMAP">Charte informatique et liberté</p>
-        <img class="imgfooterJPMA" src="/static/line.png">
+        <img class="imgfooterJPMA" src="/static/img/line.png">
         <p class="footerJPMAP">Accessibilité</p>
-        <img class="imgfooterJPMA" src="/static/line.png">
+        <img class="imgfooterJPMA" src="/static/img/line.png">
         <p class="footerJPMAP">Gérer mes cookies</p>
 
     </div>
     <script>
+        var state = "creer"
+        var leftBoxJPMA = document.getElementById("leftBoxJPMA");
+        var utiliserBox = document.getElementById("utiliserBox");
+        document.getElementById("mainBoxJPMA").removeChild(utiliserBox)
+
+        function switchButton() {
+            if (state === "creer") {
+                state = "utiliser";
+                document.getElementById("topButton1").setAttribute("class", "inactiveButton")
+                document.getElementById("topButton2").setAttribute("class", "activeButton")
+                document.getElementById("mainBoxJPMA").removeChild(leftBoxJPMA)
+                document.getElementById("mainBoxJPMA").insertBefore(utiliserBox, document.getElementById("lowsP"))
+
+            }
+            else {
+                state = "creer"
+                document.getElementById("topButton2").setAttribute("class", "inactiveButton")
+                document.getElementById("topButton1").setAttribute("class", "activeButton")
+                document.getElementById("mainBoxJPMA").removeChild(utiliserBox)
+                document.getElementById("mainBoxJPMA").insertBefore(leftBoxJPMA, document.getElementById("lowsP"))
+
+            }
+            console.log(state)
+        }
+
+
+
+
+
         var source = new EventSource('/sandbox/login_presentation_stream');
         source.onmessage = function (event) {
-        const result = JSON.parse(event.data)
-        if (result.stream_id == '{{stream_id}}' ){
-          window.location.href='/sandbox/login_followup?stream_id=' + result.stream_id;
-          }
+            const result = JSON.parse(event.data)
+            if (result.stream_id == '{{stream_id}}') {
+                window.location.href = '/sandbox/login_followup?stream_id=' + result.stream_id;
+            }
         };
-      </script>
-    
+    </script>
+
 </body>
+
 </html>
