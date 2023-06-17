@@ -138,7 +138,6 @@ def test_direct_offer(red, mode) :
     global did_selected 
     try :
         VC_filename= request.args['VC']
-        print('VC = ', request.args['VC'])
     except :
         return jsonify("Request malformed"), 400
     try :
@@ -223,13 +222,12 @@ def test_direct_offer(red, mode) :
     else : 
         filename = None
         credential_manifest = "{}" 
-    print('filename = ', filename)
+    logging.info('filename = %s', filename)
     if filename :
         with open(filename, "r") as f:
             credential_manifest = f.read()
     
     credentialOffer['credential_manifest'] = json.loads(credential_manifest)
-    print("credential manifest = ", json.loads(credential_manifest))
     id =  str(uuid.uuid1())
     url = mode.server + "sandbox/wallet_credential/" + id + '?issuer=' + did_selected
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
@@ -275,7 +273,7 @@ def test_credentialOffer_qrcode(red, mode) :
                     </form>
                     <hr>"""
             except :
-                logging.info("credential mal formaté %s", filename)
+                logging.warning("credential mal formaté %s", filename)
                 pass
         html_string = """<html><head>{% include 'head.html' %}</head>
                         <body> {% include 'sandbox_nav_bar.html' %}
