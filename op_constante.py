@@ -325,6 +325,7 @@ model_any = {
 
 
 client_data_pattern = {
+                "oidc_issuer_domain_name" : "",
                 "sbt_name" : "",
                 "sbt_description" : "",
                 "sbt_display_uri" : "",

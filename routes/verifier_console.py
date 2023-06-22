@@ -138,7 +138,7 @@ def preview (red, mode) :
     else : 
         qrcode_page = verifier_data.get('verifier_landing_page_style')
     
-    url = mode.server + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
+    url = session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : did_selected})
     deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     return render_template(qrcode_page,
@@ -221,9 +221,10 @@ def console(mode) :
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
-        authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
-        implicit_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
+        authorization_request = session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
+        implicit_request = session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
         return render_template('verifier_console.html',
+                oidc_issuer_domain_name = session['client_data'].get('oidc_issuer_domain_name', mode.server),
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
                 title = session['client_data'].get('title'),
@@ -235,11 +236,11 @@ def console(mode) :
                 privacy_url = session['client_data'].get('privacy_url'),
                 landing_page_url = session['client_data'].get('landing_page_url'),
                 terms_url = session['client_data'].get('terms_url'),
-                issuer = mode.server + "sandbox/op",
+                issuer = session['client_data'].get('oidc_issuer_domain_name', mode.server) + "sandbox/op",
                 client_id= session['client_data']['client_id'],
                 client_secret= session['client_data']['client_secret'],
                 callback= session['client_data']['callback'],
-                token=mode.server + 'sandbox/op/token',
+                token=session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/token',
                 page_title = session['client_data']['page_title'],
                 note = session['client_data']['note'],
                 page_subtitle = session['client_data']['page_subtitle'],
@@ -247,9 +248,9 @@ def console(mode) :
                 page_background_color = session['client_data']['page_background_color'],
                 page_text_color = session['client_data']['page_text_color'],
                 qrcode_background_color = session['client_data']['qrcode_background_color'],
-                authorization=mode.server + 'sandbox/op/authorize',
-                logout=mode.server + 'sandbox/op/logout',
-                userinfo=mode.server + 'sandbox/op/userinfo',
+                authorization=session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/authorize',
+                logout=session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/logout',
+                userinfo=session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/userinfo',
                 company_name = session['client_data']['company_name'],
                 reason = session['client_data']['reason'],
                 reason_2 = session['client_data'].get('reason_2'),
@@ -275,6 +276,7 @@ def console(mode) :
       
         elif request.form['button'] == "update" :
             session['client_data']['note'] = request.form['note']
+            session['client_data']['oidc_issuer_domain_name'] = request.form['oidc_issuer_domain_name']
             session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['pkce'] = request.form.get('pkce') 
             session['client_data']['application_name'] = request.form['application_name']

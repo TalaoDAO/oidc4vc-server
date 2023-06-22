@@ -78,6 +78,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     """
     Build the ID token OIDC client side
     """
+    verifier_data = json.loads(read_verifier(client_id))
     verifier_key = jwk.JWK(**RSA_KEY_DICT) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
@@ -87,7 +88,7 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     }
     # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     payload = {
-        'iss' : mode.server +'sandbox/op',
+        'iss' : verifier_data.get('oidc_issuer_domain_name', mode.server) +'sandbox/op',
         'nonce' : nonce,
         'iat': datetime.timestamp(datetime.now()),
         'aud' : client_id,
@@ -102,7 +103,6 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     for vc in vc_list :
         vc_issuance_date = vc.get('issuanceDate')[:19]
         payload['updated_at'] = time.mktime(time.strptime(vc_issuance_date, '%Y-%m-%dT%H:%M:%S'))
-        verifier_data = json.loads(read_verifier(client_id))
         if verifier_data.get('standalone') :
             if vc['credentialSubject']['type'] == 'IdCard' :
                 payload['given_name'] = vc['credentialSubject']['givenName']
@@ -164,12 +164,12 @@ def jwks() :
 
 def openid_configuration(mode):
     oidc = {
-        'issuer': mode.server + 'sandbox/op',
-        'authorization_endpoint':  mode.server + 'sandbox/op/authorize',
-        'token_endpoint': mode.server + 'sandbox/op/token',
-        'userinfo_endpoint': mode.server + 'sandbox/op/userinfo',
-        'logout_endpoint': mode.server + 'sandbox/op/logout',
-        'jwks_uri': mode.server + 'sandbox/op/jwks.json',
+        'issuer': request.url_root + 'sandbox/op',
+        'authorization_endpoint':  request.url_root  + 'sandbox/op/authorize',
+        'token_endpoint': request.url_root + 'sandbox/op/token',
+        'userinfo_endpoint': request.url_root + 'sandbox/op/userinfo',
+        'logout_endpoint': request.url_root + 'sandbox/op/logout',
+        'jwks_uri': request.url_root + 'sandbox/op/jwks.json',
         'scopes_supported': ['openid'],
         'response_types_supported': ['code', 'id_token' ],
         'token_endpoint_auth_methods_supported': ['client_secret_basic']

@@ -102,6 +102,13 @@
                         <div class="col">
                           <div class="form-group"><label><strong>Callback URL (required)</strong><br></label><input class="form-control" required type="text" name="callback" value={{callback}}></div>
                         </div>
+                        {% if session['login_name'] == 'admin'  %}
+                        <div class="col">
+                        {% else %} 
+                        <div hidden class="col">
+                        {% endif %}
+                          <div class="form-group"><label><strong>OIDC issuer domain name</strong><br></label><input class="form-control" required type="text" name="oidc_issuer_domain_name" value={{oidc_issuer_domain_name}}></div>
+                        </div>
                       </div>
 
                       <div class="form-row">                         
