@@ -483,6 +483,10 @@ def login_qrcode(red, mode):
         qrcode_page = 'op_verifier_qrcode_2.html'
     else : 
         qrcode_page = verifier_data.get('verifier_landing_page_style')
+    
+    if qrcode_page == 'altme_connect.html' and request.MOBILE:
+        qrcode_page = 'altme_connect_mobile.html' 
+    
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
@@ -555,8 +559,12 @@ async def login_presentation_endpoint(stream_id, red, mode):
         logging.info('check presentation = %s', await didkit.verify_presentation(presentation,  '{}'))
 
         # get verifier data
-        code = json.loads(red.get(stream_id).decode())['code']
-        client_id = json.loads(red.get(code).decode())['client_id']
+        try :
+            code = json.loads(red.get(stream_id).decode())['code']
+            client_id = json.loads(red.get(code).decode())['client_id']
+        except :
+            logging.error("redis code expired")
+            return manage_error('credential expired')
         verifier_data = json.loads(read_verifier(client_id))
 
         # check credentials

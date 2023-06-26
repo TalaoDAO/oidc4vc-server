@@ -3,6 +3,8 @@ import time
 import markdown
 from flask import Flask, redirect, request, render_template_string, request
 from flask_session import Session
+from flask_mobility import Mobility
+
 from datetime import timedelta
 from flask_qrcode import QRcode
 import redis
@@ -51,6 +53,7 @@ app.config["ALLOWED_IMAGE_EXTENSIONS"] = ["jpeg", "jpg", "png", "gif"]
 sess = Session()
 sess.init_app(app)
 qrcode = QRcode(app)
+Mobility(app)
 
 @app.errorhandler(403)
 def page_abort(e):

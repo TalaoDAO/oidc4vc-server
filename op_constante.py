@@ -207,7 +207,8 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode_7.html" : "Altme style with html",
                     "arago_verifier_qrcode.html" : "Arago landing page",
                     "ebsi_test.html" : "Test",
-                    "jeprouvemonage.html" :"Jeprouvemonage"
+                    "jeprouvemonage.html" :"Jeprouvemonage",
+                    "altme_connect.html" : "Altme Connect"
                 }
 
 # verifier
