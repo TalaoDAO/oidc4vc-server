@@ -613,12 +613,20 @@ def login_followup(red):
     check if user is connected or not and redirect data to authorization server
     create activity record
     """
+    logging.info('login follow up')
     try :
         client_id = session['client_id']
         stream_id = request.args.get('stream_id')
     except :
+        logging.warning('forbidden')
         return jsonify('Forbidden'), 403 
-    code = json.loads(red.get(stream_id).decode())['code']
+    
+    try :
+        code = json.loads(red.get(stream_id).decode())['code']
+    except :
+        logging.warning('code expired')
+        return jsonify('Forbidden'), 403 
+
     try :
         stream_id_DIDAuth = json.loads(red.get(stream_id + '_DIDAuth').decode())
     except :
