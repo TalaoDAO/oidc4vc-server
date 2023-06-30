@@ -34,9 +34,16 @@ ebsi_verifier_credential_list = {
 
 
 # EBSI issuer
+"""
 ebsi_credential_to_issue_list = {
                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
                     'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
+                    'DID' : 'None'
+                } 
+"""
+ebsi_credential_to_issue_list = {
+                   'VerifiableId' : 'Verifiable Id EBSI',
+                    'VerifiableDiploma' : 'Verifiable Diploma EBSI',
                     'DID' : 'None'
                 } 
 

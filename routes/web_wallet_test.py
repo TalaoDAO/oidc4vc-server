@@ -97,13 +97,13 @@ def sandbox() :
     global status
     return redirect("/sandbox/saas4ssi")
 
+
 def playground() :
     if request.method == "GET" :
         return render_template("playground.html")
     else :
         nationality = request.form['nationality']
         return redirect("/sandbox/direct_offer?VC=Nationality.jsonld&nationality=" + nationality)
-
 
 
 def nft(mode):
@@ -308,7 +308,7 @@ def test_credentialOffer_qrcode(red, mode) :
             "credentialPreview": credential,
             "expires" : (datetime.now() + OFFER_DELAY).replace(microsecond=0).isoformat() + "Z",
         }
-        url = mode.server + "sandbox/wallet_credential/" + credential['id'] #+ '?' + urlencode({'issuer' : did_issuer})
+        url = mode.server + "sandbox/wallet_credential/" + credential['id'] + '?' + urlencode({'issuer' : did_issuer})
         deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url })
         deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url })
         red.setex(credential['id'], 180, json.dumps(credentialOffer))

@@ -61,7 +61,7 @@ def oidc(issuer_id, mode) :
     
     # credential manifest
     #https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-server-metadata
-    file_path = './credential_manifest/' + ebsi_credential_to_issue_list.get(issuer_data['credential_to_issue']) + '_credential_manifest.json'
+    file_path = './credential_manifest/' + issuer_data['credential_to_issue'] + '_credential_manifest.json'
     credential_manifest = [json.load(open(file_path))]
     credential_manifest[0]['issuer']['id'] = issuer_data['did_ebsi']
     credential_manifest[0]['issuer']['name'] = issuer_data['application_name']
@@ -99,6 +99,7 @@ def oidc(issuer_id, mode) :
 
 # Customer API
 def ebsi_issuer_api(issuer_id, red, mode) :
+    print(request)
     """
     headers = {
         'Content-Type': 'application/json',
@@ -120,11 +121,9 @@ def ebsi_issuer_api(issuer_id, red, mode) :
         vc =  request.json['vc']
     except :
         return Response(**manage_error("invalid_request", "Request format is incorrect"))
-    
     pre_authorized_code = request.json['pre-authorized_code']
     if client_secret != issuer_data['client_secret'] :
         return Response(**manage_error("Unauthorized", "Client secret is incorrect"))
-    
     stream_id = str(uuid.uuid1())
     user_data = {
         'vc' : vc,
@@ -163,28 +162,15 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     if issuer_data['credential_to_issue'] == 'DID' :
         logging.error('credetial to issue not set')
         return jsonify('Credential to issue not set correctly')
+   
+    try :
+        user_data = json.loads(red.get(stream_id).decode())
+        pre_authorized_code = user_data.get('pre-authorized_code')
+        vc = user_data['vc']
+    except :
+        logging.error('API not set correctly')
+        return jsonify('api not set correctly')
     
-    # TEST : for wallet test with pre authorized code
-    file_path = './verifiable_credentials/' + ebsi_credential_to_issue_list[issuer_data['credential_to_issue']] +'.jsonld'
-    print('file path = ', file_path)
-    credential_for_test = json.load(open(file_path))
-    print('credential for test = ', credential_for_test)
-    if stream_id == 'test' :
-        pre_authorized_code = str(uuid.uuid1())
-        vc = credential_for_test
-    # TEST : for wallet test with authorization code flow
-    elif stream_id == 'test_authorization_server' :
-        pre_authorized_code = None
-
-    # PrODUCTION
-    else :
-        try :
-            user_data = json.loads(red.get(stream_id).decode())
-            pre_authorized_code = user_data.get('pre-authorized_code')
-            vc = user_data['vc']
-        except :
-            logging.error('API not set correctly')
-            return jsonify('api not set correctly')
     qrcode_page = issuer_data.get('landing_page_style')
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     url_data  = { 
@@ -461,11 +447,12 @@ def ebsi_issuer_credential(issuer_id, red) :
         return Response(**manage_error("invalid_or_missing_proof", "The proof type is not supported")) 
 
     # Get holder pub key from holder wallet and verify proof
-    logging.info("proof of owbership = %s", proof)
+    logging.info("proof of ownership = %s", proof)
     try :
         ebsi.verif_token(proof, access_token_data['c_nonce'])
+        logging.info('proof of ownership is validated')
     except Exception as e :
-        logging.error("verif proof error = %s", str(e))
+        logging.error("proof of ownership error = %s", str(e))
         return Response(**manage_error("invalid_or_missing_proof", str(e))) 
     
      # Build JWT VC and sign VC
@@ -481,9 +468,9 @@ def ebsi_issuer_credential(issuer_id, red) :
     credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
-    logging.info('credential = %s', credential)
+    logging.info('credential before signing = %s', credential)
     credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, issuer_did, proof_payload['iss'], access_token_data['c_nonce'])
-
+    logging.info('credential signed as JWT  = %s', credential_signed)
     # send event to front to go forward callback and send credential to wallet
     data = json.dumps({'stream_id' : access_token_data['stream_id']})
     red.publish('issuer_ebsi', data)
