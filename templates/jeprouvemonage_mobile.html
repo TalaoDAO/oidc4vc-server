@@ -1,0 +1,34 @@
+<html>
+
+<head>
+  <link rel="stylesheet" href="/static/jeprouvemonage_mobile.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+<body>
+<div id="header">
+    <p id="headerP">Jeprouvemonage</p>
+</div>
+<div id="mainBox">
+    <p id="verifP">Vérification de votre âge</p>
+    <div id="box">
+        <div id="whiteBox">
+            <p id="partageP">Partage de la preuve : </p>
+            <img id="img18ans" src="/static/img/+18ans.png">
+        </div>
+        <div id="greyBox">
+            <p id="prouverP">Prouvez votre âge avec l’application Jeprouvemonage</p>
+            <a id="ouvrirApp" href="{{deeplink_jpma}}">Ouvrir l’application</a>
+        </div>
+    </div>
+</div>
+
+<script> var source = new EventSource('/sandbox/login_presentation_stream');
+    source.onmessage = function (event) {
+        const result = JSON.parse(event.data)
+        if (result.stream_id == '{{stream_id}}') {
+            window.location.href = '/sandbox/login_followup?stream_id=' + result.stream_id;
+        }
+    };
+</script>
+</body>

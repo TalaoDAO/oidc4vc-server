@@ -477,7 +477,7 @@ def login_qrcode(red, mode):
     url = mode.server + 'sandbox/login_presentation/' + stream_id #+ '?' + urlencode({'issuer' : DID_VERIFIER})
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
-
+    deeplink_jpma = "https://jeprouvemonage.fr/jpma" + urlencode({'uri' : url})
     if not verifier_data.get('verifier_landing_page_style') :
         qrcode_page = 'op_verifier_qrcode_2.html'
     else : 
@@ -485,19 +485,14 @@ def login_qrcode(red, mode):
     
     if qrcode_page == 'altme_connect.html' and request.MOBILE:
         qrcode_page = 'altme_connect_mobile.html' 
-
-    jpma_text = "Preuve de + de 15 ans"
-    # For jpma only
-    if verifier_data['vc'] == "AgeOver18" :
-        jpma_text = "Preuve de + de 18 ans"
-  
-    
+    elif qrcode_page == 'jeprouvemonage.html' and request.MOBILE:
+        qrcode_page = 'jeprouvemonage_mobile.html' 
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
-                            jpma_text = jpma_text,
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
+                            deeplink_jpma=deeplink_jpma,
 							stream_id=stream_id,
                             application_name=verifier_data.get('application_name'),
                             qrcode_message=verifier_data.get('qrcode_message'),
