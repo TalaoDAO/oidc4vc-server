@@ -300,6 +300,7 @@ def test_credentialOffer_qrcode(red, mode) :
         except :
             return redirect ('/playground')
         credential['issuanceDate'] = datetime.utcnow().replace(microsecond=0).isoformat() + "Z"
+        credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + "Z"
         credential['credentialSubject']['id'] = "did:..."
         credential['id'] = "urn:uuid:" + str(uuid.uuid1())
         credential['issuer'] = did_issuer

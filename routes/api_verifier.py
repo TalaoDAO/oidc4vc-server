@@ -487,7 +487,6 @@ def login_qrcode(red, mode):
         qrcode_page = 'altme_connect_mobile.html' 
     elif qrcode_page == 'jeprouvemonage.html' and request.MOBILE:
         qrcode_page = 'jeprouvemonage_mobile.html' 
-    print('qrcode page = ', qrcode_page)
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
@@ -593,17 +592,6 @@ async def login_presentation_endpoint(stream_id, red, mode):
                     'user' : json.loads(presentation)['holder'],
                     'issuer' : verifiable_credential[0]['issuer']
                     })
-        
-        # register Tezos address in a Tezid whitelist 
-        # TODO remove that part
-        """
-        address_list = [ ad for ad in address_list if ad[:2] == 'tz']
-        if verifier_data.get('tezid_network') != 'none' and address_list :
-            for address in address_list :
-                if register_tezid(address, verifier_data['tezid_proof_type'], verifier_data.get('tezid_network'), mode) :
-                    logging.info('address whitelisted %s', address)
-            message.message('Address whitelisted for client_id = ' +  client_id, 'thierry@altme.io', " ".join(address_list), mode)
-        """
 
         red.setex(stream_id + '_DIDAuth', 180, value)
         event_data = json.dumps({'stream_id' : stream_id})           
@@ -621,13 +609,13 @@ def login_followup(red):
         client_id = session['client_id']
         stream_id = request.args.get('stream_id')
     except :
-        logging.warning('forbidden')
+        logging.warning('forbidden 403')
         return jsonify('Forbidden'), 403 
     
     try :
         code = json.loads(red.get(stream_id).decode())['code']
     except :
-        logging.warning('code expired')
+        logging.warning('code expired 403')
         return jsonify('Forbidden'), 403 
 
     try :
