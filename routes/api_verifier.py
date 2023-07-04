@@ -487,6 +487,7 @@ def login_qrcode(red, mode):
         qrcode_page = 'altme_connect_mobile.html' 
     elif qrcode_page == 'jeprouvemonage.html' and request.MOBILE:
         qrcode_page = 'jeprouvemonage_mobile.html' 
+    print('qrcode page = ', qrcode_page)
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
