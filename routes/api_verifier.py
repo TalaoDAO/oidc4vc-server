@@ -490,8 +490,7 @@ def login_qrcode(red, mode):
     # For jpma only
     if verifier_data['vc'] == "AgeOver18" :
         jpma_text = "Preuve de + de 18 ans"
-    #if verifier_data['vc'] == "AgeOver15" :
-    #    jpma_text = "Preuve de + de 15 ans"
+  
     
     return render_template(qrcode_page,
                             back_button = False,

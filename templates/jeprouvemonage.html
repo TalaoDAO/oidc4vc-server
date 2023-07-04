@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="shortcut icon" href="/static/img/appJpma.png" >
+    <link rel="shortcut icon" href="/static/img/appJpma.png">
     <title>Je prouve mon âge</title>
     <link rel="stylesheet" href="/static/jeprouvemonage.css">
 
@@ -15,44 +15,30 @@
     <div id="headerJPMA">
         <p id="JPMAp">Jeprouvemonage.fr</p>
     </div>
-    <div id="mainBox">
 
-        <div id="mainBoxJPMA">
-            <p id="verifJPMA">Vérification de l’âge</p>
-            <div id="navBar">
-                <button onclick="switchButton()" id="topButton1" class="activeButton">Créer une preuve</button>
-                <button onclick="switchButton()" id="topButton2" class="inactiveButton">Utiliser ma preuve</button>
-            </div>
+    <div id="mainBoxJPMA">
+        <p id="verifJPMA">Vérification de votre âge</p>
+        <div id="secondBoxJPMA">
             <div id="leftBoxJPMA">
-                <p id="jpmaP1">Comment créer ma preuve ?</p>
-                <p id="jpmaP2">1 - Téléchargez l’application <span
-                        style="color:black; font-weight: 400;">Jeprouvemonage.</span< /p>
-                        <div id="links">
-                           <a href="https://jpmaios.fr"><img class="ios" src="/static/img/ios.png"></a> 
-                            <a href="https://jpmaandroid.fr"><img class="ios" src="/static/img/android.png"></a>
+                <p id="scannerP">Scannez le QR code avec
+                    l’application <span style="color:#2447F2">Jeprouvemonage</span></p>
+                <img id="qrcodeJPMA" src="{{ qrcode(url) }}">
 
-                        </div>
-                        <p id="jpmaP3">2 - Ouvrez l’application et ajouter une preuve
-                            en vérifiant votre âge.</p>
             </div>
-            <div id="utiliserBox">
-                <div id="leftUBox">
-                    <img id="appJpma" src="/static/img/appJpma.png">
-                    <p id="uP1">Jeprouvemonage</p>
-                    <p id="uP2">vous demande de partager :</p>
-                    <p id="uP3">{{jpma_text}}</p>
-                </div>
-                <div id="rightUBox">
-                    <p id="scannerP">Scanner le QRcode avec
-                        l’application Jeprouvemonage</p>
-                    <img id="qrcodeJPMA" src="{{ qrcode(url) }}">
-                    <a id="partagerP" href="https://partagermapreuve.fr">Partager ma preuve</a>
-                </div>
+            <div id="rightBoxJPMA">
+                <p id="jpmaP1">Partage de la preuve : </p>
+                <img id="img18ans" src="/static/img/+18ans.png">
+                <p class="jpmaP2">1. Ouvrez l’application <span style="color: #4F4F4F; font-family: PoppinsSemiBold;">Jeprouvemonage</span></p>
+
+                <p class="jpmaP2">2. Ajoutez la preuve d’âge <span style="color: #4F4F4F">si vous ne l’avez pas en vérifiant votre identité.</span></p>
+                <p class="jpmaP2">3. Scannez le QR code <span style="color: #4F4F4F">afin de partager la preuve préalablement ajoutée.</span></p>
+
             </div>
-            <div id="lowsP">
-                <p id="jpmaLowP">Jeprouvemonage</p>
-                <p id="teleLowP">Télécharger l’application sur IOS ou Android</p>
-            </div>
+        </div>
+
+        <div id="lowsP">
+            <div id="logoLine"><img id="logo" src="/static/img/jpma.png"><p id="jpmaLowP">Jeprouvemonage</p></div>
+            <p id="teleLowP">Télécharger l’application sur <span style="color: #0000FF">IOS</span> ou <span style="color: #0000FF">Android</span></p>
         </div>
     </div>
     <div id="footerJPMA">
@@ -69,44 +55,7 @@
         <p class="footerJPMAP">Gérer mes cookies</p>
 
     </div>
-    <script>
-        var state = "creer"
-        var leftBoxJPMA = document.getElementById("leftBoxJPMA");
-        var utiliserBox = document.getElementById("utiliserBox");
-        document.getElementById("mainBoxJPMA").removeChild(utiliserBox)
 
-        function switchButton() {
-            if (state === "creer") {
-                state = "utiliser";
-                document.getElementById("topButton1").setAttribute("class", "inactiveButton")
-                document.getElementById("topButton2").setAttribute("class", "activeButton")
-                document.getElementById("mainBoxJPMA").removeChild(leftBoxJPMA)
-                document.getElementById("mainBoxJPMA").insertBefore(utiliserBox, document.getElementById("lowsP"))
-
-            }
-            else {
-                state = "creer"
-                document.getElementById("topButton2").setAttribute("class", "inactiveButton")
-                document.getElementById("topButton1").setAttribute("class", "activeButton")
-                document.getElementById("mainBoxJPMA").removeChild(utiliserBox)
-                document.getElementById("mainBoxJPMA").insertBefore(leftBoxJPMA, document.getElementById("lowsP"))
-
-            }
-            console.log(state)
-        }
-
-
-
-
-
-        var source = new EventSource('/sandbox/login_presentation_stream');
-        source.onmessage = function (event) {
-            const result = JSON.parse(event.data)
-            if (result.stream_id == '{{stream_id}}') {
-                window.location.href = '/sandbox/login_followup?stream_id=' + result.stream_id;
-            }
-        };
-    </script>
 
 </body>
 
