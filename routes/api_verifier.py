@@ -488,9 +488,11 @@ def login_qrcode(red, mode):
         qrcode_page = 'altme_connect_mobile.html' 
     elif qrcode_page == 'jeprouvemonage.html' and request.MOBILE:
         qrcode_page = 'jeprouvemonage_mobile.html' 
+    age_image = "/static/img/+18ans.png" if  verifier_data['vc'] == "AgeOver18" else "/static/img/+15ans.png"
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
+                            age_image=age_image,
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
                             deeplink_jpma=deeplink_jpma,
