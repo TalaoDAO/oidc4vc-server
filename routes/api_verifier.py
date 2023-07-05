@@ -1,3 +1,4 @@
+from http.client import REQUEST_TIMEOUT
 from flask import jsonify, request, render_template, Response, redirect, session, jsonify
 from flask import session,Response, jsonify
 import json
@@ -525,7 +526,7 @@ async def login_presentation_endpoint(stream_id, red, mode):
             event_data = json.dumps({'stream_id' : stream_id})           
             red.publish('api_verifier', event_data)
             logging.error('QR code expired')
-            return jsonify('signature_error'), 403
+            return jsonify('REQUEST_TIMEOUT'), 408
         return jsonify(my_pattern)
 
     if request.method == 'POST' :
@@ -539,6 +540,8 @@ async def login_presentation_endpoint(stream_id, red, mode):
             event_data = json.dumps({'stream_id' : stream_id})           
             red.publish('api_verifier', event_data)
             logging.error(msg)
+            if msg == 'REQUEST_TIMEOUT' : # QRcode expired
+                return jsonify(msg), 408
             return jsonify(msg), 403
         
         async def check_credential(credential) :     
@@ -565,7 +568,7 @@ async def login_presentation_endpoint(stream_id, red, mode):
             client_id = json.loads(red.get(code).decode())['client_id']
         except :
             logging.error("redis code expired")
-            return manage_error('credential expired')
+            return manage_error('REQUEST_TIMEOUT')
         verifier_data = json.loads(read_verifier(client_id))
 
         # check credentials
