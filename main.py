@@ -11,7 +11,7 @@ import redis
 import sys
 import logging
 import environment
-from components import message
+#from components import message
 
 logging.basicConfig(level=logging.INFO)
 logging.info("python version : %s", sys.version)
