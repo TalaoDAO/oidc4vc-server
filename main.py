@@ -60,12 +60,12 @@ def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
 
-"""
+
 @app.errorhandler(500)
 def error_500(e):
     message.message("Error 500 on sandbox", 'thierry.thevenet@talao.io', str(e) , mode)
     return redirect(mode.server + '/sandbox')
-"""
+
 
 
 # BASIC wallet protocol
