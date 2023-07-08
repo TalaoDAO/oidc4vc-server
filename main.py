@@ -11,7 +11,7 @@ import redis
 import sys
 import logging
 import environment
-
+from components import message
 
 logging.basicConfig(level=logging.INFO)
 logging.info("python version : %s", sys.version)
@@ -40,7 +40,7 @@ from routes import api_issuer_ebsi, ebsi_issuer_console
 
 # Framework Flask and Session setup
 app = Flask(__name__)
-app.jinja_env.globals['Version'] = "0.2.1"
+app.jinja_env.globals['Version'] = "0.2.2"
 app.jinja_env.globals['Created'] = time.ctime(os.path.getctime('main.py'))
 app.config['SESSION_PERMANENT'] = True
 app.config['SESSION_COOKIE_NAME'] = 'talao'
@@ -59,6 +59,11 @@ Mobility(app)
 def page_abort(e):
     logging.warning('abort 403')
     return redirect(mode.server + 'login/')
+
+@app.errorhandler(500)
+def error_500(e):
+    message.message("Error 500", 'thierry.thevenet@talao.io', str(e) , mode)
+    return redirect(mode.server + '/sandbox')
 
 # BASIC wallet protocol
 api_verifier.init_app(app, red, mode)
@@ -98,4 +103,7 @@ def md_file() :
 if __name__ == '__main__':
     # info release
     logging.info('flask test serveur run with debug mode')
-    app.run(host = mode.flaskserver, port= mode.port, debug = mode.test, threaded=True)
+    app.run(host = mode.flaskserver,
+             port= mode.port,
+               debug = mode.test,
+                 threaded=True)
