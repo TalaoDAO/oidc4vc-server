@@ -44,8 +44,6 @@ credential_list = {
                     'Over18' : 'Over18',
                     'Over13' : 'Over13',
                     'Over15' : 'Over15',
-                    'AgeOver15' : 'AgeOver15',
-                    'AgeOver18' : 'AgeOver18',
                     'PassportNumber' : 'PassportNumber',
                     'Liveness' : 'Liveness',
                     'DefiCompliance' : 'DefiCompliance',
@@ -54,13 +52,12 @@ credential_list = {
                     'PolygonAssociatedAddress' : 'Proof of Polygon blockchain account',
                     "BinanceAssociatedAddress" : 'Proof of Binance blockchain account',
                     "FantomAssociatedAddress" : 'Proof of Fantom blockchain account',
-                    "DeviceInfo" : "Device info",
+                    "WalletCredential" : "Wallet credential",
                     'Tez_Voucher_1' : "Voucher Tezotopia",
                     'VerifiableDiploma' : 'EBSI VerifiableDiploma',
                     'LearningAchievement' : 'Diploma',
                     'StudentCard' : 'StudentCard',
                     'AragoPass' : 'AragoPass',
-                    'InfrachainPass' : 'InfrachainPass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
@@ -72,7 +69,7 @@ credential_list_for_guest = {
                     'PolygonAssociatedAddress' : 'Polygon Account ownership',
                     "BinanceAssociatedAddress" : 'Binance Account ownership',
                     "FantomAssociatedAddress" : 'Fantom Account ownership',
-                    'DeviceInfo' : 'Wallet certificate',
+                    'WalletCredential' : 'Wallet credential',
                     'EmailPass' : 'Proof of email',
                     'DeFiCompliance' : 'Defi compliance',
                     'PhoneProof' : 'Proof of phone No.',
@@ -82,14 +79,10 @@ credential_list_for_guest = {
                     'Over18' : 'Proof of Over 18',
                     'Over13' : 'Proof of Over 13',
                     'Over15' : 'Proof  of Over 15',
-                    #'AgeOver15' : '15+ Docaposte',
-                    #'AgeOver18' : '18+ Docaposte',
                     'AragoPass' : 'Arago Pass',
                     'DID' : "None",
                     'ANY' : 'Any'
                 }
-
-
 
 
 # for beacon verifier for guest
@@ -207,7 +200,6 @@ verifier_landing_page_style_list = {
                     "op_verifier_qrcode_7.html" : "Altme style with html",
                     "arago_verifier_qrcode.html" : "Arago landing page",
                     "ebsi_test.html" : "Test",
-                    "jeprouvemonage.html" :"Jeprouvemonage",
                     "altme_connect.html" : "Altme Connect"
                 }
 
@@ -235,22 +227,32 @@ pre_authorized_code_list = {'none' : "None",
                   'pac_pin' : 'Pre authorized code + PIN code'
                  }
 
+model = {
+            "type": "VerifiablePresentationRequest",
+            "query": [
+                {
+                    "type": "QueryByExample",
+                    "credentialQuery": []
+                }
+            ],
+            "challenge": "",
+            "domain" : ""
+}
+
+
 model_one = {
             "type": "VerifiablePresentationRequest",
             "query": [
                 {
                     "type": "QueryByExample",
-                    "credentialQuery": [{
-                    "example" : {
-                        "type" : "",
-                    },
-                    "reason": [
+                    "credentialQuery": [
                         {
-                            "@language": "en",
-                            "@value": ""
+                            "example" : {
+                                "type" : "",
+                            },
+                            "reason": ""
                         }
-                    ]
-                }]
+                    ]   
                 }
             ],
             "challenge": "",
@@ -265,11 +267,11 @@ model_two = {
                     "credentialQuery": [
                         {
                             "example" : {"type" : ""},
-                            "reason": [{"@language": "en","@value": ""}]
+                            "reason": ""
                         },
                         {
                             "example" : {"type" : ""},
-                            "reason": [{"@language": "en","@value": ""}]
+                            "reason": ""
                         }
                     ]
                 }
@@ -286,15 +288,15 @@ model_three = {
                     "credentialQuery": [
                         {
                             "example" : {"type" : ""},
-                            "reason": [{"@language": "en","@value": ""}]
+                            "reason": ""
                         },
                         {
                             "example" : {"type" : ""},
-                            "reason": [{"@language": "en","@value": ""}]
+                            "reason": ""
                         },
                         {
                             "example" : {"type" : ""},
-                            "reason": [{"@language": "en","@value": ""}]
+                            "reason": ""
                         }
                     ]
                 }
@@ -326,7 +328,6 @@ model_any = {
 
 
 client_data_pattern = {
-                "oidc_issuer_domain_name" : "",
                 "sbt_name" : "",
                 "sbt_description" : "",
                 "sbt_display_uri" : "",

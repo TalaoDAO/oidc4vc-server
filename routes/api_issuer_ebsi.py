@@ -101,6 +101,8 @@ def oidc(issuer_id, mode) :
 def ebsi_issuer_api(issuer_id, red, mode) :
     print(request)
     """
+    This API returns the QRcode content to be diplayed by teh website
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer <client_secret>'
@@ -131,26 +133,21 @@ def ebsi_issuer_api(issuer_id, red, mode) :
         'pre-authorized_code' : pre_authorized_code
     }
     red.setex(stream_id, API_LIFE, json.dumps(user_data))
-    response = {"initiate_qrcode" : mode.server+ '/sandbox/ebsi/issuer/' + issuer_id +'/' +stream_id}
-    logging.info('initiate qrcode = %s', mode.server+ '/sandbox/ebsi/issuer/' + issuer_id +'/' +stream_id)
+    response = {"initiate_qrcode" : mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' +stream_id}
+    logging.info('initiate qrcode = %s', mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' +stream_id)
     return jsonify( response)
+
 
 
 # initiate endpoint with QRcode
 def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
-    """
-    see EBSI specs as OpenID OIDC4VC issuance for issuance has changed
-
-    https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
-
-    openid://initiate_issuance
-    ?issuer=http%3A%2F%2F192.168.0.65%3A3000%2Fsandbox%2Febsi%2Fissuer%2Fhqplzbjrhg
-    &credential_type=Pass
-    &op_state=40fd65cf-98ba-11ed-957d-512a313adf23
-
-    pre_authorized_code
-
-    """
+    #see EBSI specs as OpenID OIDC4VC issuance for issuance has changed
+    #https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
+    #openid://initiate_issuance
+    #?issuer=http%3A%2F%2F192.168.0.65%3A3000%2Fsandbox%2Febsi%2Fissuer%2Fhqplzbjrhg
+    #&credential_type=Pass
+    #&op_state=40fd65cf-98ba-11ed-957d-512a313adf23
+    #pre_authorized_code
     #logging.info('Issuer openid-configuration = %s', mode.server + '/sandbox/ebsi/issuer/' + issuer_id + '/.well-known/openid-configuration' )
 
     try :
@@ -158,11 +155,11 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     except :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
-    
+    """
     if issuer_data['credential_to_issue'] == 'DID' :
         logging.error('credetial to issue not set')
         return jsonify('Credential to issue not set correctly')
-   
+    """
     try :
         user_data = json.loads(red.get(stream_id).decode())
         pre_authorized_code = user_data.get('pre-authorized_code')

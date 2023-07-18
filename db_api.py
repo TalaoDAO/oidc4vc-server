@@ -118,7 +118,6 @@ def create(db, user, mode, method) :
         data = client_data_pattern
     data['client_id'] = ''.join(random.choice(letters) for i in range(10))
     data['tezid_proof_type'] = "urn:uuid:" + str(uuid.uuid1())
-    data['oidc_issuer_domain_name'] = mode.server
     data['client_secret'] = str(uuid.uuid1())
     if db == 'verifier.db' and user != 'admin' :
         data['standalone'] = 'on'

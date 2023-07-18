@@ -221,10 +221,9 @@ def console(mode) :
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
-        authorization_request = session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
-        implicit_request = session['client_data'].get('oidc_issuer_domain_name', mode.server) + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
+        authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
+        implicit_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
         return render_template('verifier_console.html',
-                oidc_issuer_domain_name = session['client_data'].get('oidc_issuer_domain_name', mode.server),
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
                 title = session['client_data'].get('title'),
@@ -276,7 +275,6 @@ def console(mode) :
       
         elif request.form['button'] == "update" :
             session['client_data']['note'] = request.form['note']
-            session['client_data']['oidc_issuer_domain_name'] = request.form['oidc_issuer_domain_name']
             session['client_data']['standalone'] = request.form.get('standalone') 
             session['client_data']['pkce'] = request.form.get('pkce') 
             session['client_data']['application_name'] = request.form['application_name']

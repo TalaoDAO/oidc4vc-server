@@ -46,7 +46,7 @@
             
            
             <img id="qrcode" src="{{ qrcode(url) }}">
-            <p id="scanP">Scan the QR Code with your Altme wallet</p>
+            <p id="scanP">Scan the QR Code with your smartphone</p>
         </div>
     </div>
     {% include 'faq_altme_connect.html' %}
@@ -60,7 +60,7 @@
                         <p id="line1Footer">&copy; 2023&nbsp; TALAO - Altme All rights reserved, <a
                                 href="https://altme.io/cgu/" target="_blank">CGU</a>, <a
                                 href="https://altme.io/privacy/" target="_blank">Privacy</a></p>
-                        <p id="line2Footer" hidden><strong>Built with TzKT API, Spruce Didkit 0.4.0</strong>&nbsp;</p>
+                        <p id="line2Footer" hidden><strong></strong>&nbsp;</p>
                     </div>
                     <div class="social-buttons  ">
 
@@ -80,6 +80,18 @@
             </div>
         </footer>
     </div>
+    <script>
+      var source = new EventSource('/sandbox/login_presentation_stream');
+      source.onmessage = function (event) {
+      const result = JSON.parse(event.data)
+      if (result.stream_id == '{{stream_id}}' ){
+        window.location.href='/sandbox/login_followup?stream_id=' + result.stream_id;
+        }
+      };
+    </script>
+
+    
+
     <script>
             document.getElementById('buttonGeneral').addEventListener('click', () => {
       document.getElementById('divButtonGeneral').setAttribute("class", "activeButtonFAQ");

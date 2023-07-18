@@ -30,13 +30,17 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
 from routes import verifier_console, issuer_console, api_verifier, api_issuer
-from routes import  web_wallet_test
-from routes import web_display_VP
+
 from routes import saas4ssi
 from routes import beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
 from routes import api_verifier_ebsi, ebsi_verifier_console
 from routes import api_issuer_ebsi, ebsi_issuer_console
+
+# for testing purpose
+from routes import issuer_ebsi_diploma
+from routes import  web_wallet_test
+from routes import web_display_VP
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -67,7 +71,6 @@ def error_500(e):
     return redirect(mode.server + '/sandbox')
 
 
-
 # BASIC wallet protocol
 api_verifier.init_app(app, red, mode)
 api_issuer.init_app(app, red, mode)
@@ -90,7 +93,7 @@ beacon_issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
-
+issuer_ebsi_diploma.init_app(app, red, mode)
 
 @app.route('/sandbox/md_file', methods = ['GET'])
 def md_file() :
@@ -107,6 +110,6 @@ if __name__ == '__main__':
     # info release
     logging.info('flask test serveur run with debug mode')
     app.run(host = mode.flaskserver,
-             port= mode.port,
-               debug = mode.test,
-                 threaded=True)
+            port= mode.port,
+            debug = mode.test,
+            threaded=True)

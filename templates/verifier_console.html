@@ -102,13 +102,7 @@
                         <div class="col">
                           <div class="form-group"><label><strong>Callback URL (required)</strong><br></label><input class="form-control" required type="text" name="callback" value={{callback}}></div>
                         </div>
-                        {% if session['login_name'] == 'admin'  %}
-                        <div class="col">
-                        {% else %} 
-                        <div hidden class="col">
-                        {% endif %}
-                          <div class="form-group"><label><strong>OIDC issuer domain name</strong><br></label><input class="form-control" required type="text" name="oidc_issuer_domain_name" value={{oidc_issuer_domain_name}}></div>
-                        </div>
+                      
                       </div>
 
                       <div class="form-row">                         
@@ -431,8 +425,8 @@
                                 <div class="form-check">
                                   <input class="form-check-input" type="checkbox" {{standalone}} name="standalone" id="flexCheckDefault">
                                   <label class="form-check-label" for="flexCheckDefault">Data transfered to application.
-                                     <br>If <strong>checked</strong> application receives the main verifiable credential data as an attribute in the id token and the full verifiable presentation on the user_info endpoint.
-                                     <br>If <strong>unchecked</strong>, application receives an id token with DID as proof of a successful verification of the verifiable presentation.</label>
+                                     <br>If <strong>checked</strong> application receives an ID token with all verifiable presentations on the user_info endpoint.
+                                     <br>If <strong>unchecked</strong>, application only receives an ID token with user data as attributes.</label>
                                 </div>
                               </div> 
                               </div>

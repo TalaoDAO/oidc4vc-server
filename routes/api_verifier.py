@@ -1,3 +1,4 @@
+from distutils.command.clean import clean
 from http.client import REQUEST_TIMEOUT
 from flask import jsonify, request, render_template, Response, redirect, session, jsonify
 from flask import session,Response, jsonify
@@ -25,7 +26,6 @@ CODE_LIFE = 180
 TRUSTED_ISSUER = [
     'did:web:app.altme.io:issuer',
     'did:web:talao.co',
-    'did:web:site.ageproofpoc.dns.id360docaposte.com:certificates'
 ]
 ASSOCIATED_ADDRESS = [
     'TezosAssociatedAddress',
@@ -33,6 +33,22 @@ ASSOCIATED_ADDRESS = [
     'PolygonAssociatedAddress',
     'BinanceAssociatedAddress',
     'FantomAssociatedAddress'
+]
+
+SCOPE_SUPPORTED = [
+    'openid',
+    'email',
+    'defi',
+    'phone',
+    'over18', 'over_18', 'AgeOver18',
+    'over15', 'over_15', 'AgeOver15', 
+    'wallet',
+    'verifiableid', 'kyc', 'profile',
+    'tezos',
+    'binance',
+    'ethereum',
+    'polygon',
+    'fantom'
 ]
 
 try :
@@ -43,6 +59,28 @@ except :
 rsa_key = jwk.JWK(**RSA_KEY_DICT) 
 public_rsa_key =  rsa_key.export(private_key=False, as_dict=True)
 
+
+def scope_to_vc(scope: str) -> str:
+    if scope in ['emailpass', 'email'] :
+        vc = 'EmailPass'
+    elif scope == 'defi' :
+        vc = 'DefiCompliance'
+    elif scope in ['over_18', 'over18', 'AgeOver18'] :
+        vc = 'Over18'
+    elif scope in ['phone', 'phonepass'] :
+        vc = 'PhonePass'
+    elif scope in ['over15', 'over_15', 'AgeOver15'] :
+        vc = 'Over15'
+    elif scope in ['walletcredential' ,'wallet'] :
+        vc = 'WalletCredential'
+    elif scope in ['verifiableid', 'profile', 'kyc'] :
+        vc = 'VerifiableId'
+    elif scope in ['binance', 'ethereum', 'polygon', 'fantom', 'tezos'] :
+        vc = scope.capitalize() + 'AssociatedAddress'
+    else :
+        logging.warning('scope not supported %s', scope)
+        return
+    return vc
 
 def init_app(app,red, mode) :
     # OIDC endpoints
@@ -79,7 +117,6 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     """
     Build the ID token OIDC client side
     """
-    verifier_data = json.loads(read_verifier(client_id))
     verifier_key = jwk.JWK(**RSA_KEY_DICT) 
     # https://jwcrypto.readthedocs.io/en/latest/jwk.html
     header = {
@@ -89,12 +126,12 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     }
     # https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
     payload = {
-        'iss' : verifier_data.get('oidc_issuer_domain_name', mode.server) +'sandbox/op',
+        'iss' : mode.server + 'sandbox/op',
         'nonce' : nonce,
         'iat': datetime.timestamp(datetime.now()),
         'aud' : client_id,
         'exp': datetime.timestamp(datetime.now()) + 1000,
-        'sub' : sub,
+        'sub' : sub, # subject DID
     }  
     presentation = json.loads(vp)
     if isinstance(presentation['verifiableCredential'], dict) :
@@ -102,57 +139,45 @@ def build_id_token(client_id, sub, nonce, vp, mode) :
     else :
         vc_list = presentation['verifiableCredential']
     for vc in vc_list :
-        vc_issuance_date = vc.get('issuanceDate')[:19]
-        payload['updated_at'] = time.mktime(time.strptime(vc_issuance_date, '%Y-%m-%dT%H:%M:%S'))
-        if verifier_data.get('standalone') :
-            if vc['credentialSubject']['type'] == 'IdCard' :
-                payload['given_name'] = vc['credentialSubject']['givenName']
-                payload['family_name'] = vc['credentialSubject']['familyName']
-                payload['gender'] = vc['credentialSubject']['gender']
-                payload['birthdate'] = vc['credentialSubject']['birthDate']
-                payload['nationality'] = vc['credentialSubject']['nationality']
-            elif vc['credentialSubject']['type'] == 'VerifiableId' :
-                payload['firstName'] = vc['credentialSubject']['firstName']
-                payload['lastName'] = vc['credentialSubject']['familyName']
-                payload['gender'] = vc['credentialSubject']['gender']
-                payload['dateOfBirth'] = vc['credentialSubject'].get('dateOfBirth', 'Unknown')
-                payload['placeOfBirth'] = vc['credentialSubject'].get('placeOfBirth', 'Unknown')
-            elif vc['credentialSubject']['type'] == 'EmailPass' :
-                payload['email'] = vc['credentialSubject']['email']
-            elif vc['credentialSubject']['type'] == 'PhoneProof' :
-                payload['phone'] = vc['credentialSubject']['phone']
-            elif vc['credentialSubject']['type'] == 'AgeRange' :
-                payload['age_range'] = vc['credentialSubject']['ageRange']
-            elif vc['credentialSubject']['type'] == 'Over18' :
-                payload['over_18'] = True
-            elif vc['credentialSubject']['type'] == 'Over13' :
-                payload['over_13'] = True
-            elif vc['credentialSubject']['type'] == 'Over15' :
-                payload['over_15'] = True
-            elif vc['credentialSubject']['type'] ==  'PassportNumber':
-                payload['passport_number'] = vc['credentialSubject']['passportNumber'];
-            elif vc['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
-                if not payload.get('associatedAddress') :
-                    payload['associatedAddress'] =  [vc['credentialSubject']['associatedAddress']]
-                else :
-                    payload['associatedAddress'].append(vc['credentialSubject']['associatedAddress'])
-            elif vc['credentialSubject']['type'] == 'Gender' :
-                payload['gender'] = vc['credentialSubject']['gender']
-            elif vc['credentialSubject']['type'] == 'Nationality' :
-                payload['nationality'] = vc['credentialSubject']['nationality']
-            elif vc['credentialSubject']['type'] == 'AragoPass' :
-                payload['group'] = vc['credentialSubject']['group']
-            elif vc['credentialSubject']['type'] == 'InfrachainPass' :
-                payload['group'] = vc['credentialSubject']['group']
+        if vc['credentialSubject']['type'] == 'VerifiableId' :
+            payload['given_name'] = vc['credentialSubject']['firstName']
+            payload['family_name'] = vc['credentialSubject']['familyName']
+            payload['gender'] = vc['credentialSubject']['gender']
+            payload['birthdate'] = vc['credentialSubject'].get('dateOfBirth', 'Unknown')
+            payload['place_of_birth'] = vc['credentialSubject'].get('placeOfBirth', 'Unknown')
+        elif vc['credentialSubject']['type'] == 'EmailPass' :
+            payload['email'] = vc['credentialSubject']['email']
+            payload['email_verified'] = True
+        elif vc['credentialSubject']['type'] == 'PhoneProof' :
+            payload['phone_number'] = vc['credentialSubject']['phone']
+            payload['phone_number_verified'] = True
+        elif vc['credentialSubject']['type'] == 'AgeRange' :
+            payload['age_range'] = vc['credentialSubject']['ageRange']
+        elif vc['credentialSubject']['type'] == 'Over18' :
+            payload['over_18'] = True
+            payload['age_over'] = 18
+        elif vc['credentialSubject']['type'] == 'Over13' :
+            payload['over_13'] = True
+            payload['age_over'] = 13
+        elif vc['credentialSubject']['type'] == 'WalletCredential' :
+            payload['device_name'] = vc['credentialSubject']['deviceName']
+            payload['system_name'] = vc['credentialSubject']['systemName']
+        elif vc['credentialSubject']['type'] == 'Over15' :
+            payload['over_15'] = True
+            payload['age_over'] = 15
+        elif vc['credentialSubject']['type'] ==  'PassportNumber':
+            payload['passport_number'] = vc['credentialSubject']['passportNumber'];
+        elif vc['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
+            if not payload.get('associated_address') :
+                payload['associated_address'] =  [vc['credentialSubject']['associatedAddress']]
             else :
-                pass
-    # exception jeprouvemonage iss attribute must be randomized and ageover transfered
-    if vc['credentialSubject']['type'] in ['Over18', 'AgeOver18'] :
-        payload['over_18'] = True
-        payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())
-    if vc['credentialSubject']['type'] in ['Over15', 'AgeOver15'] :
-        payload['over_15'] = True
-        payload['sub'] = 'urn:uuid:' + str(uuid.uuid1())
+                payload['associated_address'].append(vc['credentialSubject']['associatedAddress'])
+        elif vc['credentialSubject']['type'] == 'Gender' :
+            payload['gender'] = vc['credentialSubject']['gender']
+        elif vc['credentialSubject']['type'] == 'Nationality' :
+            payload['nationality'] = vc['credentialSubject']['nationality']
+        elif vc['credentialSubject']['type'] == 'AragoPass' :
+            payload['group'] = vc['credentialSubject']['group']
     logging.info('ID Token payload = %s', payload)
     token = jwt.JWT(header=header,claims=payload, algs=['RS256'])
     token.make_signed_token(verifier_key)
@@ -165,12 +190,12 @@ def jwks() :
 
 def openid_configuration(mode):
     oidc = {
-        'issuer': request.url_root + 'sandbox/op',
-        'authorization_endpoint':  request.url_root  + 'sandbox/op/authorize',
-        'token_endpoint': request.url_root + 'sandbox/op/token',
-        'userinfo_endpoint': request.url_root + 'sandbox/op/userinfo',
-        'logout_endpoint': request.url_root + 'sandbox/op/logout',
-        'jwks_uri': request.url_root + 'sandbox/op/jwks.json',
+        'issuer': mode.server + 'sandbox/op',
+        'authorization_endpoint':  mode.server  + 'sandbox/op/authorize',
+        'token_endpoint': mode.server + 'sandbox/op/token',
+        'userinfo_endpoint': mode.server + 'sandbox/op/userinfo',
+        'logout_endpoint': mode.server + 'sandbox/op/logout',
+        'jwks_uri': mode.server + 'sandbox/op/jwks.json',
         'scopes_supported': ['openid'],
         'response_types_supported': ['code', 'id_token' ],
         'token_endpoint_auth_methods_supported': ['client_secret_basic']
@@ -245,22 +270,26 @@ def wallet_authorize(red, mode) :
         session.clear()
         return redirect(redirect_uri + '?' + urlencode(resp)) 
     
-    # User is not connected
+    # First call to the authorization server when user is not yet connected
+    logging.info('user is not connected in OP')
+    session['verified'] = False
+
     def manage_error_request(msg) :
+        """
+        local error management function
+        """
         session.clear()
         resp = {'error' : msg}
         return redirect(request.args['redirect_uri'] + '?' +urlencode(resp))
 
-    session['verified'] = False
-    logging.info('user is not connected in OP')
     # PKCE https://datatracker.ietf.org/doc/html/draft-ietf-oauth-spop-14
     try :
         data = {
-            'client_id' : request.args['client_id'],
-            'scope' : request.args.get('scope'),
+            'client_id' : request.args['client_id'], # required
+            'scope' : request.args['scope'].split(), # required
             'state' : request.args.get('state'),
-            'response_type' : request.args['response_type'],
-            'redirect_uri' : request.args['redirect_uri'],
+            'response_type' : request.args['response_type'], # required
+            'redirect_uri' : request.args['redirect_uri'], # required
             'nonce' : request.args.get('nonce'),
             'code_challenge' : request.args.get('code_challenge'),
             'code_challenge_method' : request.args.get('code_challenge_method'),
@@ -273,9 +302,18 @@ def wallet_authorize(red, mode) :
         except :
             session.clear()
             return jsonify('request malformed'), 400
+        
+    if 'openid' not in data['scope'] :
+        logging.warning('invalid request received in authorization server, openid scope is required')
+        return manage_error_request('invalid_request_object')
+    
+    for scope in data['scope'] :
+        if scope not in SCOPE_SUPPORTED :
+            logging.warning('scope not supported %s', scope)
+            return manage_error_request('request_not_supported')
 
     if not read_verifier(request.args['client_id']) :
-        logging.warning('client_id not found id data base')
+        logging.warning('client_id not found client database')
         return manage_error_request('unauthorized_client')
 
     session['client_id'] = request.args['client_id']
@@ -422,10 +460,10 @@ def wallet_userinfo(red) :
     try :
         data = json.loads(red.get(access_token).decode())
         verifier_data = json.loads(read_verifier(data['client_id']))
-        #payload = {'sub' : data['sub']}
-        payload = dict()
+        payload = {'sub' : data['sub']}
+        #payload = dict()
         if verifier_data.get('standalone') :
-            payload = {'sub' : data['sub']}
+            #payload = {'sub' : data['sub']}
             payload['vp'] = data['vp_token']
         headers = {
             'Cache-Control' : 'no-store',
@@ -442,34 +480,62 @@ def wallet_userinfo(red) :
 """
 Presentation Request protocol , QueryByExample -> https://w3c-ccg.github.io/vp-request-spec/
 """
+
+
+
+
 def login_qrcode(red, mode):
     """
     Prepare and display QRCode
+
+    if there are scopes in the client request they are used to request credentials types
     
     """
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
         nonce = json.loads(red.get(request.args['code']).decode())['nonce']
+        scope = json.loads(red.get(request.args['code']).decode())['scope']
     except :
         logging.error('session expired in login_qrcode')
         return render_template('session_expired.html')
-    verifier_data = json.loads(read_verifier(client_id))
-    if verifier_data['vc'] == 'ANY' :
-        pattern = op_constante.model_any
-    elif verifier_data['vc'] == 'DID' :
-        pattern = op_constante.model_DIDAuth
-    elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == 'DID' :
-        pattern = op_constante.model_one
-        pattern['query'][0]['credentialQuery'][0]['reason'] = verifier_data['reason']
-        pattern['query'][0]['credentialQuery'][0]['example']['type'] = verifier_data['vc']
-    else :
-        pattern = op_constante.model_two
-        pattern['query'][0]['credentialQuery'][0]['reason'] = verifier_data['reason']
-        pattern['query'][0]['credentialQuery'][0]['example']['type'] = verifier_data['vc']
-        pattern['query'][0]['credentialQuery'][1]['reason'] = verifier_data['reason_2']
-        pattern['query'][0]['credentialQuery'][1]['example']['type'] = verifier_data['vc_2']
     
+    clean_scope = [sc for sc in scope if sc != 'openid']
+    logging.info("clean scope = %s", clean_scope)
+    if len(clean_scope) > 0 : 
+        logging.info("VC request managed by scope")
+        pattern = {
+            "type": "VerifiablePresentationRequest",
+            "query": [{
+                    "type": "QueryByExample",
+                    "credentialQuery": []
+                }]
+        }
+        for sc in clean_scope :
+            pattern['query'][0]['credentialQuery'].append(
+                {
+                    "example" : {"type" : scope_to_vc(sc)},
+                    "reason": ""
+                }
+            )
+    else  : 
+        logging.info("VC request managed by Saas parameters")
+        verifier_data = json.loads(read_verifier(client_id))
+        if verifier_data['vc'] == 'ANY' :
+            pattern = op_constante.model_any
+        elif verifier_data['vc'] == 'DID' :
+            pattern = op_constante.model_DIDAuth
+        elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == 'DID' :
+            pattern = op_constante.model_one
+            pattern['query'][0]['credentialQuery'][0]['reason'] = verifier_data['reason']
+            pattern['query'][0]['credentialQuery'][0]['example']['type'] = verifier_data['vc']
+        else :
+            pattern = op_constante.model_two
+            pattern['query'][0]['credentialQuery'][0]['reason'] = verifier_data['reason']
+            pattern['query'][0]['credentialQuery'][0]['example']['type'] = verifier_data['vc']
+            pattern['query'][0]['credentialQuery'][1]['reason'] = verifier_data['reason_2']
+            pattern['query'][0]['credentialQuery'][1]['example']['type'] = verifier_data['vc_2']
+
     if nonce :
         pattern['challenge'] = nonce
     pattern['domain'] = mode.server
@@ -478,24 +544,19 @@ def login_qrcode(red, mode):
     url = mode.server + 'sandbox/login_presentation/' + stream_id #+ '?' + urlencode({'issuer' : DID_VERIFIER})
     deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
     deeplink_altme= mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
-    deeplink_jpma = "https://jeprouvemonage.fr/jpma?" + urlencode({'uri' : url})
-    if not verifier_data.get('verifier_landing_page_style') :
-        qrcode_page = 'op_verifier_qrcode_2.html'
-    else : 
-        qrcode_page = verifier_data.get('verifier_landing_page_style')
+    verifier_data = json.loads(read_verifier(client_id))
+    # page style
+    qrcode_page = 'op_verifier_qrcode_2.html' if not verifier_data.get('verifier_landing_page_style') else verifier_data.get('verifier_landing_page_style')
+    if qrcode_page == 'altme_connect.html' :
+        url = deeplink_altme
+        if request.MOBILE:
+            qrcode_page = 'altme_connect_mobile.html' 
     
-    if qrcode_page == 'altme_connect.html' and request.MOBILE:
-        qrcode_page = 'altme_connect_mobile.html' 
-    elif qrcode_page == 'jeprouvemonage.html' and request.MOBILE:
-        qrcode_page = 'jeprouvemonage_mobile.html' 
-    age_image = "/static/img/+18ans.png" if  verifier_data['vc'] == "AgeOver18" else "/static/img/+15ans.png"
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
-                            age_image=age_image,
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
-                            deeplink_jpma=deeplink_jpma,
 							stream_id=stream_id,
                             application_name=verifier_data.get('application_name'),
                             qrcode_message=verifier_data.get('qrcode_message'),
@@ -563,7 +624,6 @@ async def login_presentation_endpoint(stream_id, red, mode):
 
         presentation = request.form['presentation'] # string
         logging.info('check presentation with didkit.verify = %s', await didkit.verify_presentation(presentation,  '{}'))
-
         # get verifier data
         try :
             code = json.loads(red.get(stream_id).decode())['code']
@@ -579,11 +639,7 @@ async def login_presentation_endpoint(stream_id, red, mode):
         if not isinstance(credential_list, list) :
             credential_list = [credential_list]           
         for credential in credential_list :
-            if credential['credentialSubject']['type'] == 'AgeOver18' and credential['credentialSubject'].get('ageOver') != 18 :
-                return manage_error('VC does not match')
-            elif credential['credentialSubject']['type'] == 'AgeOver15' and credential['credentialSubject'].get('ageOver') != 15 :
-                return manage_error('VC does not match') 
-            elif credential['credentialSubject']['type'] == 'Pass' and credential['credentialSubject']['issuedBy'].get('issuerId') != verifier_data.get('vc_issuer_id') :
+            if credential['credentialSubject']['type'] == 'Pass' and credential['credentialSubject']['issuedBy'].get('issuerId') != verifier_data.get('vc_issuer_id') :
                 return manage_error('Pass issuer id does not match')
             elif credential['credentialSubject']['type'] in ASSOCIATED_ADDRESS :
                 address_list.append(credential['credentialSubject']['associatedAddress'])
