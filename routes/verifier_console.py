@@ -221,7 +221,7 @@ def console(mode) :
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
-        authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
+        authorization_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
         implicit_request = mode.server + 'sandbox/op/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
         return render_template('verifier_console.html',
                 authorization_request = authorization_request,

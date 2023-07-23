@@ -86,7 +86,7 @@
 
                         <div class="form-row">
                           <div class="col">
-                            <div class="form-group"><label><strong>API endpoint</strong></label><input readonly class="form-control" type="text" value="{{issuer_landing_page}}"></div>
+                            <div class="form-group"><label><strong>API endpoint</strong></label><input readonly class="form-control" type="text" value="{{issuer_api_endpoint}}"></div>
                           </div>
 
                           <div class="col">
@@ -101,40 +101,6 @@
                         </div>
                         </div>
                       </div>
-
-                        <div class="card shadow my-3">
-                          <div class="card-header py-3">
-                            <div class="d-flex justify-content-between">
-                              <p style="color:#09060f;" class=" m-0 font-weight-bold">Credential to issue</p>
-                            </div>
-                          </div>
-                          <div class="card-body">
-                        
-                          <div class="form-row">
-                            <div class="col-6">
-                                <div class="form-group"><label><strong>Credential to issue</strong></label>
-                                  <select  onchange="getResponse();" id="selectCredential" name="credential_to_issue" class="form-control">
-                                  <option value="">--Please choose an option--</option>
-                                 {{credential_to_issue_select|safe}}
-                                  </select></div>
-                            </div>  
-
-                            
-                         <!--
-                            <div class="col-6">
-                                <div class="form-group"><label><strong>Credential to issue 2</strong></label>
-                                  <select  onchange="getResponse();" id="selectCredential" name="credential_to_issue_2" class="form-control">
-                                  <option value="">--Please choose an option--</option>
-                                 {{credential_to_issue_select|safe}}
-                                  </select></div>
-                            </div>  -->
-                           
-                          </div> 
-
-
-
-                          </div>
-                          </div>
                      
                           <!--
 

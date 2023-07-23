@@ -108,7 +108,10 @@ async def test_VP_presentation_display(red):
             #red.delete(request.args['stream_id'])
         except :
             return jsonify('server problem')
-        presentation_result = await didkit.verify_presentation(presentation_json, '{}')
+        try :
+            presentation_result = await didkit.verify_presentation(presentation_json, '{}')
+        except :
+            return jsonify('This verifiable presentation does not fit the W3C standards. Contact us for more details at contact@talao.io')
         presentation = json.loads(presentation_json)
         holder = presentation['holder']
         credential_json = "No check done"

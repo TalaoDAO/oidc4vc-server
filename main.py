@@ -35,7 +35,7 @@ from routes import saas4ssi
 from routes import beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
 from routes import api_verifier_ebsi, ebsi_verifier_console
-from routes import api_issuer_ebsi, ebsi_issuer_console
+from routes import oidc4vci_api, oidc4vci_console
 
 # for testing purpose
 from routes import issuer_ebsi_diploma
@@ -80,8 +80,8 @@ issuer_console.init_app(app, red, mode)
 # EBSI wallet
 ebsi_verifier_console.init_app(app, red, mode)
 api_verifier_ebsi.init_app(app, red, mode)
-ebsi_issuer_console.init_app(app, red, mode)
-api_issuer_ebsi.init_app(app, red, mode)
+oidc4vci_console.init_app(app, red, mode)
+oidc4vci_api.init_app(app, red, mode)
 
 # BEACON integration
 api_issuer_beacon.init_app(app, red, mode)

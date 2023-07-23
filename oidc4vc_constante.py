@@ -1,4 +1,6 @@
 
+
+
 user = {
         "login_name" : "",
         "did" : "",
@@ -8,6 +10,15 @@ user = {
 ebsi_vc_type_list = {
     "jwt_vc" : "JWT-JSON",
     "ldp_vc" : "JSON-LD"
+}
+
+oidc4vc_profile_list = {
+    'EBSIV2' : 'EBSI V2',
+    'GAIAX-COMMUNITY' : 'Projet GAIA-X Community',
+    'DEFAULT' : 'Default profile',
+    'EBSIV3' : 'EBSI V3',
+    'JWTVC' : 'JWT VC presentation profile',
+    'ARF' : 'Achitecture reference framework'
 }
 
 ebsi_vp_type_list = {
@@ -33,19 +44,30 @@ ebsi_verifier_credential_list = {
 }
 
 
-# EBSI issuer
+type_2_schema = {
+    'VerifiableId' : 'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv',
+    'VerifiableDiploma'  : 'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' 
+} 
+
+
+
+# OIDC4VC issuer
+
 """
 ebsi_credential_to_issue_list = {
                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
                     'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
                     'DID' : 'None'
                 } 
-"""
-ebsi_credential_to_issue_list = {
+
+
+
+oidc4vci_credential_to_issue_list = {
                    'VerifiableId' : 'Verifiable Id EBSI',
                     'VerifiableDiploma' : 'Verifiable Diploma EBSI',
                     'DID' : 'None'
                 } 
+"""
 
 # EBSI issuer
 ebsi_credential_requested_list = {
@@ -79,9 +101,11 @@ pre_authorized_code_list = {'none' : "None",
                  }
 
 
+
+
+
 client_data_pattern_ebsi = {
-                "ebsi_vp_type" : "jwt_vp",
-                "ebsi_issuer_vc_type" : "jwt_vc",
+                "profile" : "EBSIV2",
                 "pkce" : None,
                 "request_uri" : None,
                 "vc" : "DID",
@@ -94,7 +118,8 @@ client_data_pattern_ebsi = {
                 "callback" : "https://altme.io",
                 "jwk" : "",
                 "method" : "",
-                "did_ebsi": "",
+                "did": "",
+                "verification_method" : "",
                 "issuer_landing_page" : "",     
                 "note" : "",
                 "company_name" : "New company",
@@ -107,8 +132,6 @@ client_data_pattern_ebsi = {
                 "credential_requested_2" : "DID",
                 "credential_requested_3" : "DID",
                 "credential_requested_4" : "DID",
-                "credential_to_issue" : "https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd",
-                "credential_to_issue_2" : "None",
                 'path_1' : "$.credentialSchema.id",
                 'path-2' : "$.credentialSchema.id",
                 "landing_page_style" : "./ebsi/ebsi_issuer_qrcode_test.html",

@@ -1,6 +1,7 @@
 import hashlib
 from pyld import jsonld
 import requests
+import requests
 from jwcrypto import jwk, jws, jwt
 import base64
 import base58
@@ -267,17 +268,12 @@ def did_resolve_lp(did) :
   API v3   Get DID document with EBSI API
   https://api-pilot.ebsi.eu/docs/apis/did-registry/latest#/operations/get-did-registry-v3-identifier
   """
-  if did.split(':')[1] not in ['ebsi', 'web'] :
-    logging.error('did method not supported')
-    return
-  if did.split(':')[1] == 'ebsi' :
-    try :
-      url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
-      r = requests.get(url) 
-    except :
-      logging.error('cannot access EBSI API')
-      return 
-  else : # example did:web:app.altme.io:issuer
+  if not did :
+    return "{'error' : 'No DID defined'}"
+  elif did.split(':')[1] == 'ebsi' :
+    url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
+  
+  elif did.split(':')[1] == 'web' :
     url = 'https://' + did.split(':')[2] 
     i = 3
     try :
@@ -286,10 +282,21 @@ def did_resolve_lp(did) :
         i+= 1
     except :
       pass
-    r =  requests.get(url + '/did.json')
-  if 399 < r.status_code < 500 :
-    logging.warning('return API code = %s', r.status_code)
-    return 
+    url = url + '/did.json'
+    r = requests.get(url)
+    if 399 < r.status_code < 500 :
+      logging.warning('return API code = %s', r.status_code)
+     
+    return r.json()
+    
+  else :
+    url = 'https://dev.uniresolver.io/1.0/identifiers/' + did
+  
+  try :
+    r = requests.get(url)
+  except :
+    logging.error('cannot access to Universal Resolver API')
+    return "{'error' : 'cannot access to Universal Resolver API'}"
   return r.json()             
 
 
@@ -336,6 +343,8 @@ def did_resolve(did, key) :
   for natural person
   https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
   """
+  if not did or not key :
+    return "{}" 
   key = json.loads(key) if isinstance(key, str) else key
   did_document = {
     "@context": "https://w3id.org/did/v1",

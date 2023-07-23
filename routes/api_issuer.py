@@ -208,20 +208,20 @@ def issuer_landing_page(issuer_id, red, mode) :
         elif issuer_data['credential_requested'] not in ["DID", "login", "secret", "totp"] :
             credential_manifest = update_credential_manifest(issuer_data['reason'], issuer_data['credential_requested'], credential_manifest)
         
-        if issuer_data['credential_requested_2'] == "AllAddress" :
+        if issuer_data.get('credential_requested_2', 'DID') == "AllAddress" :
             credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_2', 'DID') not in ["DID", "login", "secret", "totp"] : 
-            credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data['credential_requested_2'], credential_manifest)
+            credential_manifest = update_credential_manifest(issuer_data['reason_2'], issuer_data.get('credential_requested_2', 'DID'), credential_manifest)
 
-        if issuer_data['credential_requested_3'] == "AllAddress" :
+        if issuer_data.get('credential_requested_3', 'DID') == "AllAddress" :
             credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_3', 'DID') not in ["DID", "login", "secret", "totp"] :  
-            credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data['credential_requested_3'], credential_manifest)
+            credential_manifest = update_credential_manifest(issuer_data['reason_3'], issuer_data.get('credential_requested_3', 'DID'), credential_manifest)
 
-        if issuer_data['credential_requested_4'] == "AllAddress" :
+        if issuer_data.ge('credential_requested_4', 'DID') == "AllAddress" :
             credential_manifest = update_credential_manifest_all_address(issuer_data['reason'], credential_manifest)
         elif issuer_data.get('credential_requested_4', 'DID') not in ["DID", "login", "secret", "totp"] :  
-            credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data['credential_requested_4'], credential_manifest)
+            credential_manifest = update_credential_manifest(issuer_data['reason_4'], issuer_data.get('credential_requested_4', 'DID'), credential_manifest)
 
     if not request.args.get('id') :
         logging.warning("no id passed by application")

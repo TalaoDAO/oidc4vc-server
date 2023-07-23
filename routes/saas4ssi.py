@@ -33,9 +33,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/saas4ssi/ebsi/verifier',  view_func=saas_ebsi_verifier, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/saas4ssi/ebsi/issuer',  view_func=saas_ebsi_issuer, methods = ['GET', 'POST'])
 
-    #app.add_url_rule('/sandbox/saas4ssi/offers',  view_func=saas_home, methods = ['GET', 'POST'])
-    #app.add_url_rule('/sandbox/saas4ssi/verifier_home',  view_func=verifier, methods = ['GET', 'POST'])
-
+   
     return
 
 
@@ -74,13 +72,17 @@ def saas_logout():
 
 def saas_login(mode):
     session.clear()
+    print('mode server = ', mode.server)
     if mode.myenv == 'aws':
         client_id = "cbtzxuotun"
     elif mode.server == "http://192.168.0.65:3000/" :
         client_id = "zpfzzwfstl"
+    elif mode.server == "http://192.168.1.54:3000/" : # biscarosse
+        client_id = "risgqghrrq"
     else :
         client_id = "grtqvinups"
-    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&scope=openid&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback_2"
+    print('url =', url)
     return redirect (url)
        
 
@@ -91,7 +93,7 @@ def saas_signup(mode):
         client_id = "evqozlvnsm"
     else :
         client_id = "tjxhcdbxei"  # paris
-    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
+    url = mode.server + "sandbox/op/authorize?client_id=" + client_id +"&scope=openid&response_type=id_token&response_mode=query&redirect_uri=" + mode.server + "sandbox/saas4ssi/callback"
     return redirect (url)
 
 

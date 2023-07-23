@@ -185,6 +185,9 @@ def test_direct_offer(red, mode) :
     
     elif VC_filename == "VerifiableId.jsonld" :
         filename = "./credential_manifest/VerifiableId_credential_manifest.json"
+    
+    elif VC_filename == "EmployeeCredential.jsonld" :
+        filename = "./credential_manifest/EmployeeCredential_credential_manifest.json"
 
     elif VC_filename == "TezVoucher_1.jsonld" :
         filename = "./credential_manifest/voucher_credential_manifest.json"

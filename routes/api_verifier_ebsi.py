@@ -16,7 +16,7 @@ import base64
 from datetime import datetime
 from jwcrypto import jwk, jwt
 from db_api import read_ebsi_verifier
-import op_constante_ebsi
+from oidc4vc_constante import ebsi_verifier_claims
 import activity_db_api
 import pkce # https://github.com/xzava/pkce
 from copy import deepcopy
@@ -371,7 +371,7 @@ def ebsi_login_qrcode(red, mode):
         logging.error("session expired in login_qrcode")
         return render_template("ebsi/verifier_session_problem.html", message='Session expired')
     
-    claims = deepcopy(op_constante_ebsi.ebsi_verifier_claims)
+    claims = deepcopy(ebsi_verifier_claims)
     claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
     claims['vp_token']['presentation_definition']['format'] = {
         "jwt_vp" : {

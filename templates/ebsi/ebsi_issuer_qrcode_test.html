@@ -42,10 +42,15 @@
           </div>  
 
           <div class="text-center mt-5">
-            <h2>QR code</h2><br>
+            <h2>QR code url encoded</h2><br>
           <textarea rows="3" cols="150">{{url|safe}}</textarea>
           </div>
 
+          <div class="text-center mt-5">
+            <h2>QR code json</h2><br>
+          <textarea rows="10" cols="150">{{url_data|safe}}</textarea>
+          </div>
+          
           <div class="text-center mt-5">
             <h2>Altme deeplink </h2><br>
             <textarea rows="3" cols="150">{{deeplink_altme}}</textarea>
@@ -56,10 +61,7 @@
             <textarea rows="3" cols="150">{{deeplink_talao}}</textarea>
           </div>
 
-          <div class="text-center mt-5">
-            <h2>QR code json</h2><br>
-          <textarea rows="10" cols="150">{{url_data|safe}}</textarea>
-          </div>
+
 
           <div class="text-center mt-5">
             <h2>OpenID issuer configuration</h2><br>

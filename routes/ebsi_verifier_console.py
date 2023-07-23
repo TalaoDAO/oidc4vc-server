@@ -8,8 +8,8 @@ import activity_db_api
 
 from urllib.parse import urlencode
 import uuid
-from op_constante_ebsi import ebsi_verifier_credential_list, ebsi_path_list
-from op_constante_ebsi import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
+from oidc4vc_constante import ebsi_verifier_credential_list, ebsi_path_list
+from oidc4vc_constante import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -211,8 +211,8 @@ def ebsi_verifier_console(mode) :
                 else :
                     path_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
-        authorization_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
-        implicit_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
+        authorization_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
+        implicit_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
         return render_template('ebsi/ebsi_verifier_console.html',
                 authorization_request = authorization_request,
                 implicit_request = implicit_request,
