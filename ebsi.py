@@ -78,10 +78,9 @@ def pub_key(key) :
     return Key.export_public(as_dict=True)
     
 
-def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
+def sign_jwt_vc(vc, issuer_vm , issuer_key, nonce) :
     """
     For issuer
-
     https://jwcrypto.readthedocs.io/en/latest/jwk.html
     https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims
 
@@ -94,16 +93,26 @@ def sign_jwt_vc(vc, issuer_vm , issuer_key, issuer_did, wallet_did, nonce) :
       'kid': issuer_vm,
       'alg': alg(issuer_key)
     }
-    payload = {
-      'iss' : issuer_did,
-      'nonce' : nonce,
-      'iat': datetime.timestamp(datetime.now()),
-      'nbf' : datetime.timestamp(datetime.now()),
-      'jti' : vc['id'],
-      'exp': datetime.timestamp(datetime.now()) + 1000,
-      'sub' : wallet_did,
-      'vc' : vc
-    }  
+    try :
+      payload = {
+        'iss' : vc['issuer'],
+        'nonce' : nonce,
+        'iat': datetime.timestamp(datetime.now()),
+        'jti' : vc['id'],
+        'sub' : vc['credentialSubject']['id']
+      }
+    except :
+      return  
+    #del vc['id']
+    #del vc['issuer']
+    #del vc['credentialSubject']['id']
+    expiration_date = datetime.fromisoformat(vc['expirationDate'][:-1])
+    payload['exp'] = datetime.timestamp(expiration_date)
+    #del vc['expirationDate']
+    issuance_date = datetime.fromisoformat(vc['issuanceDate'][:-1])
+    payload['nbf'] = datetime.timestamp(issuance_date)
+    #del vc['issuanceDate']
+    payload['vc'] = vc
     token = jwt.JWT(header=header,claims=payload, algs=[alg(issuer_key)])
     token.make_signed_token(signer_key)
     return token.serialize()

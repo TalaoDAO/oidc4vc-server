@@ -474,15 +474,13 @@ async def ebsi_issuer_credential(issuer_id, red) :
     print('issuer key = ', issuer_key)
     
     if proof_format == 'jwt_vc' :        
-        logging.info('credential before signing = %s', credential)
-        credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, issuer_did, proof_payload['iss'], access_token_data['c_nonce'])
+        credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 
     elif proof_format == 'ldp_vc' :
         didkit_options = {
                 "proofPurpose": "assertionMethod",
                 "verificationMethod": issuer_vm
         }
-
         credential_signed =  await didkit.issue_credential(
                 json.dumps(credential),
                 didkit_options.__str__().replace("'", '"'),
