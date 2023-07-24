@@ -471,7 +471,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
     issuer_key =  issuer_data['jwk'] 
     issuer_did = issuer_data.get('did', 'Unknown') 
     issuer_vm = issuer_data.get('verification_method', 'Unknown') 
-    print('issuer key = ', issuer_key)
     
     if proof_format == 'jwt_vc' :        
         credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
