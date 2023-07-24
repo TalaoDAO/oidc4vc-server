@@ -26,8 +26,8 @@ def init_app(app,red, mode) :
 
 def issuer_diploma(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/kgivldcsuz"
-        client_secret = "c99fa8c0-c330-11ed-b3af-0a1628958560"
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/zxhaokccsi"
+        client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/" : # Paris
         api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/kofuoqhfyd"
         client_secret = 'e6e78946-9a7d-11ed-9ab1-a3c488752cd7'
@@ -55,15 +55,18 @@ def issuer_diploma(mode):
         "credential_type" : 'VerifiableDiploma'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    qrcode =  resp.json()['initiate_qrcode']
+    try :
+        qrcode =  resp.json()['initiate_qrcode']
+    except :
+        return jsonify("No qr code")
     return redirect(qrcode) 
 
 
 
 def issuer_employee(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/kgivldcsuz"
-        client_secret = "c99fa8c0-c330-11ed-b3af-0a1628958560"
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/wgfbfgpsnq"
+        client_secret = "8fcaf313-295e-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/" : # Paris
         api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/kofuoqhfyd"
         client_secret = 'e6e78946-9a7d-11ed-9ab1-a3c488752cd7'
@@ -93,7 +96,10 @@ def issuer_employee(mode):
         "credential_type" : 'EmployeeCredential'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    qrcode =  resp.json()['initiate_qrcode']
+    try :
+        qrcode =  resp.json()['initiate_qrcode']
+    except :
+        return jsonify("No qr code")
     return redirect(qrcode) 
 
 # Python Flask http server loop
