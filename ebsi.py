@@ -317,10 +317,13 @@ def get_lp_public_jwk(did, kid) :
   if not did_document :
     logging.warning('DID Document not found for %s', did)
     return
-  for key in did_document['verificationMethod'] :
-    if key['id'] == kid :
-      return key['publicKeyJwk']
-  logging.warning('public key not found')
+  try :
+    for key in did_document['verificationMethod'] :
+      if key['id'] == kid :
+        return key['publicKeyJwk']
+    logging.warning('public key not found')
+  except :
+    logging.warning('DID document not founds')
   return  
   
 

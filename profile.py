@@ -5,7 +5,7 @@ profile = {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
             "offer_prefix" : "openid://initiate_issuance",
-            "presentation_prefix" : 'openid-vc://',
+            "presentation_prefix" : 'openid://',
             'cryptographic_binding_methods_supported' : ['DID'],
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:ebsi'],
@@ -37,7 +37,7 @@ profile = {
             'subject_syntax_types_supported' : ['did:key'],
             'schema_for_type' : False,
             'oidc4vci_draft' : 'https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html',
-            'service_documentation' : ''
+            'service_documentation' : 'New environment for V3 compliance test'
 
         },
      "GAIAX-COMMUNITY" :
@@ -90,7 +90,8 @@ profile = {
             ],
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:ebsi', 'did:key', 'did:ethr', 'did:tz'],
-            'schema_for_type' : False
+            'schema_for_type' : False,
+            'service_documentation' : 'EUDI wallet profile -> JWT format with x509 certificates for keys'
         },
     "JWTVC" :
         {
@@ -100,7 +101,9 @@ profile = {
             'cryptographic_binding_methods_supported' : ('DID'),
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:ion'],
-            'schema_for_type' : False
+            'schema_for_type' : False,
+            'service_documentation' : 'https://identity.foundation/jwt-vc-presentation-profile/'
+
         },
 
 }

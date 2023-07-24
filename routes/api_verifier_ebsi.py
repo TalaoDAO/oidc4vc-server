@@ -104,7 +104,7 @@ def ebsi_openid_configuration(mode):
         "userinfo_endpoint": mode.server + 'sandbox/ebsi/userinfo',
         "logout_endpoint": mode.server + 'sandbox/ebsi/logout',
         "jwks_uri": mode.server + 'sandbox/ebsi/jwks.json',
-        "scopes_supported": ["openid"],
+        "scopes_supported": ["openid diploma verifiableid"],
         "response_types_supported": ["code", "id_token"],
         "token_endpoint_auth_methods_supported": ["client_secret_basic"]
     }
@@ -187,7 +187,7 @@ def ebsi_authorize(red, mode) :
     try :
         data = {
             'client_id' : request.args['client_id'],
-            'scope' : request.args.get('scope'),
+            'scope' : request.args.get('scope').split(),
             'state' : request.args.get('state'),
             'response_type' : request.args['response_type'],
             'redirect_uri' : request.args['redirect_uri'],
@@ -416,7 +416,7 @@ def ebsi_login_qrcode(red, mode):
 
     authorization_request = { 
         "scope" : "openid",
-        "response_type" : "id_token",
+        "response_type" : "id_token vp_token",
         "claims" : claims,
         "client_id" : verifier_data['did_ebsi'],
         "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
@@ -515,7 +515,6 @@ def ebsi_login_endpoint(stream_id, red):
         qrcode_status = "ok"
         data = json.loads(red.get(stream_id).decode())
 
-    print("request = ", request)
     # get nonce and token
     if access == "ok" :
         nonce = data['pattern']['nonce']
