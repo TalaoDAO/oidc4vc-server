@@ -67,11 +67,11 @@ def issuer_ebsiv2(mode):
 
 def issuer_gaiax(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/wgfbfgpsnq"
-        client_secret = "8fcaf313-295e-11ee-825b-9db9eb02bfb8"
+        api_endpoint = ""
+        client_secret = ""
     elif  mode.server == "http://192.168.0.65:3000/" : # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/kofuoqhfyd"
-        client_secret = 'e6e78946-9a7d-11ed-9ab1-a3c488752cd7'
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/npwsshblrm"
+        client_secret = '731dc86d-2abb-11ee-825b-9db9eb02bfb8'
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
         api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/zkreuxqsjl"
         client_secret = "3a3c8567-1642-11ee-a2c2-dda61b79189f"
@@ -106,14 +106,14 @@ def issuer_gaiax(mode):
 
 def issuer_default(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/wgfbfgpsnq"
-        client_secret = "8fcaf313-295e-11ee-825b-9db9eb02bfb8"
+        api_endpoint = 'https://talao.co/sandbox/ebsi/issuer/api/xjcqarovuv'
+        client_secret = '9130b204-89eb-11ed-8d59-838cdcf07a4a'
     elif  mode.server == "http://192.168.0.65:3000/" : # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/kofuoqhfyd"
-        client_secret = 'e6e78946-9a7d-11ed-9ab1-a3c488752cd7'
+        api_endpoint = ''
+        client_secret = ''
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/zkreuxqsjl"
-        client_secret = "3a3c8567-1642-11ee-a2c2-dda61b79189f"
+        api_endpoint = ''
+        client_secret = ''
     elif  mode.server == "http://192.168.1.54:3000/"  :        # Biscarosse
         api_endpoint = "http://192.168.1.54:3000/sandbox/ebsi/issuer/api/xjcqarovuv"
         client_secret = "9130b204-89eb-11ed-8d59-838cdcf07a4a"
@@ -145,14 +145,14 @@ def issuer_default(mode):
 
 def issuer_custom(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/wgfbfgpsnq"
-        client_secret = "8fcaf313-295e-11ee-825b-9db9eb02bfb8"
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/dcizhznqih"
+        client_secret = "4aa305b1-2aec-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/" : # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/kofuoqhfyd"
-        client_secret = 'e6e78946-9a7d-11ed-9ab1-a3c488752cd7'
+        api_endpoint = ""
+        client_secret = ''
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/zkreuxqsjl"
-        client_secret = "3a3c8567-1642-11ee-a2c2-dda61b79189f"
+        api_endpoint = ""
+        client_secret = ""
     elif  mode.server == "http://192.168.1.54:3000/"  :        # Biscarosse
         api_endpoint = "http://192.168.1.54:3000/sandbox/ebsi/issuer/api/dcizhznqih"
         client_secret = "4aa305b1-2aec-11ee-825b-9db9eb02bfb8"
