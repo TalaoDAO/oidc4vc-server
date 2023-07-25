@@ -16,17 +16,17 @@ import base64
 from datetime import datetime
 from jwcrypto import jwk, jwt
 from db_api import read_ebsi_verifier
-from oidc4vc_constante import ebsi_verifier_claims
 import activity_db_api
 import pkce # https://github.com/xzava/pkce
-from copy import deepcopy
-import ebsi
+import oidc4vc
+from profile import profile
+from oidc4vc_constante import type_2_schema
 
 logging.basicConfig(level=logging.INFO)
 
 # customer application 
-ACCESS_TOKEN_LIFE = 1000
-CODE_LIFE = 1000
+ACCESS_TOKEN_LIFE = 2000
+CODE_LIFE = 2000
 
 # wallet
 QRCODE_LIFE = 2000
@@ -54,8 +54,9 @@ def init_app(app,red, mode) :
     
     # endpoints for siopv2/EBSI wallet
     app.add_url_rule('/sandbox/ebsi/login',  view_func=ebsi_login_qrcode, methods = ['GET', 'POST'], defaults={'red' : red, 'mode' : mode})
-    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red})
+    app.add_url_rule('/sandbox/ebsi/login/endpoint/<stream_id>',  view_func=ebsi_login_endpoint, methods = ['POST'],  defaults={'red' : red}) # redirect_uri for PODST
     app.add_url_rule('/sandbox/ebsi/login/request_uri/<stream_id>',  view_func=ebsi_request_uri, methods = ['GET'], defaults={'red' : red})
+    app.add_url_rule('/sandbox/ebsi/login/client_metadata_uri/<stream_id>',  view_func=client_metadata_uri, methods = ['GET'], defaults={'red' : red})
     app.add_url_rule('/sandbox/ebsi/login/followup',  view_func=ebsi_login_followup, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/login/stream',  view_func=ebsi_login_stream, defaults={ 'red' : red})
     return
@@ -345,7 +346,7 @@ def ebsi_userinfo(red) :
         headers = {'WWW-Authenticate' : 'Bearer realm="userinfo", error="invalid_token", error_description = "The access token expired"'}
         return Response(status=401,headers=headers)
     
-################################# wallet siopv2 ###########################################
+################################# SIOPV2 OIDC4VP ###########################################
 
 """
 https://openid.net/specs/openid-connect-self-issued-v2-1_0.html#section-10
@@ -362,71 +363,140 @@ qrcode ="openid://
 
 """
 
+def client_metadata_uri(stream_id, red):
+    #https://openid.net/specs/openid-connect-registration-1_0.html
+    return jsonify(client_metadata(stream_id, red))
+
+def client_metadata(stream_id, red) :
+    client_id = json.loads(red.get(stream_id).decode())['client_id']
+    verifier_data = json.loads(read_ebsi_verifier(client_id))
+    verifier_profile = profile[verifier_data['profile']]
+    client_metadata = {
+        'subject_syntax_types_supported': verifier_profile['subject_syntax_types_supported'], 
+        'cryptographic_suites_supported' : verifier_profile['cryptographic_suites_supported'],
+        'client_name': 'Talao-Altme Verifier',
+        'Profile' : verifier_data['profile'],
+        "logo_uri": "https://altme.io/",
+        "contacts": ["contact@talao.io"]
+    }
+    return client_metadata
+
 def ebsi_login_qrcode(red, mode):
     stream_id = str(uuid.uuid1())
     try :
         client_id = json.loads(red.get(request.args['code']).decode())['client_id']
         verifier_data = json.loads(read_ebsi_verifier(client_id))
+        verifier_profile = profile[verifier_data['profile']]
     except :
         logging.error("session expired in login_qrcode")
         return render_template("ebsi/verifier_session_problem.html", message='Session expired')
-    
-    claims = deepcopy(ebsi_verifier_claims)
-    claims['vp_token']['presentation_definition']['id'] = str(uuid.uuid1())
-    claims['vp_token']['presentation_definition']['format'] = {
-        "jwt_vp" : {
-            "alg" : SUPPORTED_ALG
-        }
+       
+    presentation_definition = {
+                "id":"",
+                "input_descriptors":[],
+                "format":""
+    }
+    presentation_definition['id'] = str(uuid.uuid1())
+    presentation_definition['format'] = {
+        verifier_profile['verifier_vp_type'] : {
+            "alg" : verifier_profile["cryptographic_suites_supported"]}
     } 
+
     if verifier_data['vc'] == "DID" :
-        logging.error("credential not defined")
-        return render_template("ebsi/verifier_session_problem.html", message='Verifier expected credential not defined')
+        logging.info("SIOPV2 mode")
+        response_type = "id_token"
+    
     elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+        response_type = "id_token vp_token"
+        logging.info("OIDC4VP mode")
         logging.info("1 credential requested")
         filter = {"type": "string"}  
         input_descriptor = {"constraints":{"fields":[{"path":[]}]}}
-        input_descriptor["constraints"]["fields"][0]['path'].append(verifier_data.get("path_1", "$.credentialSchema.id"))
+        if verifier_data['profile'] == "EBSIV2" :
+            input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
+        else :
+            input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor["id"] = str(uuid.uuid1())
         input_descriptor["name"] = "Input descriptor 1"
-        input_descriptor["purpose"] = verifier_data['reason'] 
-        filter["pattern"] =  verifier_data['vc']
+        input_descriptor["purpose"] = verifier_data['reason']
+        if verifier_data['profile'] == "EBSIV2" :
+            filter["pattern"] =  type_2_schema[verifier_data['vc']]
+        else :
+            filter["pattern"] =  verifier_data['vc']
         input_descriptor["constraints"]["fields"][0]["filter"] = filter
-        claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor)
+        presentation_definition["input_descriptors"].append(input_descriptor)
     else :
+        response_type = "id_token vp_token"
+        logging.info("OIDC4VP mode")
         logging.info("2 credentials requested")
         filter_1 = {"type": "string"} 
         input_descriptor_1 = {"constraints":{"fields":[{"path":[]}]}}
-        input_descriptor_1["constraints"]["fields"][0]['path'].append(verifier_data.get("path_1", "$.credentialSchema.id"))
+        if verifier_data['profile'] == "EBSIV2" :
+            input_descriptor_1["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
+        else :
+            input_descriptor_1["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor_1["id"] = str(uuid.uuid1())
         input_descriptor_1["name"] = "Input descriptor 1"
         input_descriptor_1["purpose"] = verifier_data['reason'] 
-        filter_1["pattern"] = verifier_data['vc'] 
+        if verifier_data['profile'] == "EBSIV2" :
+            filter_1["pattern"] =  type_2_schema[verifier_data['vc']]
+        else :
+            filter_1["pattern"] =  verifier_data['vc']
         input_descriptor_1["constraints"]["fields"][0]["filter"] = filter_1
-        claims["vp_token"]["presentation_definition"]["input_descriptors"].append(input_descriptor_1)
+        presentation_definition["input_descriptors"].append(input_descriptor_1)
         
         filter_2 = {"type": "string"} 
         input_descriptor_2 = {"constraints":{"fields":[{"path":[]}]}}
-        input_descriptor_2["constraints"]["fields"][0]['path'].append(verifier_data.get("path_2", "$.credentialSchema.id"))
+        if verifier_data['profile'] == "EBSIV2" :
+            input_descriptor_2["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
+        else :
+            input_descriptor_2["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor_2["id"] = str(uuid.uuid1())
         input_descriptor_2["name"] = "input descriptor 2"
         input_descriptor_2["purpose"] = verifier_data["reason_2"] 
-        filter_2["pattern"] = verifier_data['vc_2'] 
+        if verifier_data['profile'] == "EBSIV2" :
+            filter_2["pattern"] =  type_2_schema[verifier_data['vc_2']]
+        else :
+            filter_2["pattern"] =  verifier_data['vc_2']
         input_descriptor_2["constraints"]["fields"][0]["filter"] = filter_2
-        claims['vp_token']["presentation_definition"]["input_descriptors"].append(input_descriptor_2)
+        presentation_definition["input_descriptors"].append(input_descriptor_2)
 
     authorization_request = { 
-        "scope" : "openid",
-        "response_type" : "id_token vp_token",
-        "claims" : claims,
-        "client_id" : verifier_data['did_ebsi'],
+        "response_type" : response_type,
+        "client_id" : verifier_data['did'],
         "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
-        "nonce" : str(uuid.uuid1()),
+        "nonce" : str(uuid.uuid1())
     }
-    if not verifier_data.get('request_uri') :
+    if verifier_data['profile'] == "EBSIV2" :
+        # previoous release of the OIDC4VC specifications
+        # OIDC claims parameter https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter
+        authorization_request['scope'] = 'openid'
+        authorization_request['claims'] = {"vp_token":{"presentation_definition": presentation_definition}}
+        prefix = verifier_profile["oidc4vp_prefix"]
+    
+    else :
+        authorization_request['response_mode'] = 'post'
+        authorization_request['aud'] = 'https://self-issued.me/v2'
+        authorization_request['client_metadata_uri'] = mode.server + "sandbox/ebsi/login/client_metadata_uri/" + stream_id
+        # OIDC4VP
+        if response_type == "id_token vp_token" :
+            authorization_request['scope'] = 'openid'
+            authorization_request['presentation_definition'] = presentation_definition
+            prefix = verifier_profile["oidc4vp_prefix"]
+        elif response_type == "vp_token" :
+            authorization_request['presentation_definition'] = presentation_definition
+            prefix = verifier_profile["oidc4vp_prefix"]
+        # SIOPV2
+        elif response_type == "id_token" :
+            authorization_request['scope'] = 'openid'
+            prefix = verifier_profile["siopv2_prefix"]
+            #authorization_request['claims'] = 'not supported'
+
+    if not verifier_data.get('request_uri') and verifier_data['profile'] in ["EBSIV2" ] :
         authorization_request_displayed = authorization_request
     else :
         authorization_request_displayed = { 
-            "client_id" : verifier_data['did_ebsi'],
+            "client_id" : verifier_data['did'],
             "request_uri" : mode.server + "sandbox/ebsi/login/request_uri/" + stream_id 
         }
     data = { 
@@ -434,14 +504,16 @@ def ebsi_login_qrcode(red, mode):
         "code" : request.args['code'],
         "client_id" : client_id }
     red.setex(stream_id, QRCODE_LIFE, json.dumps(data))
-    url = 'openid://' + '?' + urlencode(authorization_request_displayed)
+    url = prefix + '?' + urlencode(authorization_request_displayed)
     deeplink_talao = mode.deeplink_talao + 'app/download/ebsi?' + urlencode({'uri' : url})
     deeplink_altme= mode.deeplink_altme + 'app/download/ebsi?' + urlencode({'uri' : url})
     qrcode_page = verifier_data.get('verifier_landing_page_style')
     return render_template(qrcode_page,
                             back_button = False,
 							url=url,
+                            authorization_request=json.dumps(authorization_request, indent=4),
                             url_json=json.dumps(authorization_request_displayed, indent=4),
+                            client_metadata=json.dumps(client_metadata(stream_id, red), indent=4),
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
@@ -475,10 +547,10 @@ def ebsi_request_uri(stream_id, red) :
     signer_key = jwk.JWK(**verifier_key) 
     header = {
       'typ' :'JWT',
-      'kid': ebsi.verification_method(verifier_data['did_ebsi'], verifier_key),
-      'alg': ebsi.alg(verifier_key)
+      'kid': oidc4vc.verification_method(verifier_data['did_ebsi'], verifier_key),
+      'alg': oidc4vc.alg(verifier_key)
     }
-    token = jwt.JWT(header=header,claims=payload, algs=[ebsi.alg(verifier_key)])
+    token = jwt.JWT(header=header,claims=payload, algs=[oidc4vc.alg(verifier_key)])
     token.make_signed_token(signer_key)
     # https://tedboy.github.io/flask/generated/generated/flask.Response.html
     headers = { "Content-Type" : "application/oauth-authz-req+jwt",
@@ -532,27 +604,27 @@ def ebsi_login_endpoint(stream_id, red):
     # check signature of id_token and vp_token
     if access == "ok"  :
         try :
-            ebsi.verif_token(id_token, nonce)
-            id_token_payload = ebsi.get_payload_from_token(id_token)
+            oidc4vc.verif_token(id_token, nonce)
+            id_token_payload = oidc4vc.get_payload_from_token(id_token)
             id_token_status = "ok"
         except :
             id_token_status = "signature check failed"
             status_code = 400
             access = "access_denied" 
         try :
-            ebsi.verif_token(id_token, nonce)
+            oidc4vc.verif_token(id_token, nonce)
             vp_token_status = "ok"
-            vp_token_payload = ebsi.get_payload_from_token(vp_token)
+            vp_token_payload = oidc4vc.get_payload_from_token(vp_token)
         except :
             vp_token_status = "signature check failed"
             status_code = 400
             access = "access_denied"
     # check wallet DID
     if access == "ok" :
-        id_token_header = ebsi.get_header_from_token(id_token)
+        id_token_header = oidc4vc.get_header_from_token(id_token)
         jwk = id_token_header['jwk']
         kid = id_token_header['kid']
-        did_wallet = ebsi.generate_np_ebsi_did(jwk)
+        did_wallet = oidc4vc.generate_np_ebsi_did(jwk)
         if did_wallet != kid.split('#')[0] :
             holder_did_status = "DID incorrect"
             status_code = 400
@@ -577,11 +649,11 @@ def ebsi_login_endpoint(stream_id, red):
         test = True
         for credential in credential_list :
             # Check credential signature with Issuers public key received from EBSI
-            header = ebsi.get_header_from_token(credential)
+            header = oidc4vc.get_header_from_token(credential)
             issuer_vm = header['kid']
             issuer_did = issuer_vm.split('#')[0]
             logging.info('issuer did = %s', issuer_did)
-            pub_key = ebsi.get_lp_public_jwk(issuer_did,issuer_vm)
+            pub_key = oidc4vc.get_lp_public_jwk(issuer_did,issuer_vm)
             if not pub_key :
                 #test =  False
                 logging.warning('Issuer not registered')
@@ -589,7 +661,7 @@ def ebsi_login_endpoint(stream_id, red):
                 break
             logging.info('EBSI issuer pub key = %s', pub_key)
             try :
-                ebsi.verify_jwt_credential(credential, pub_key)
+                oidc4vc.verify_jwt_credential(credential, pub_key)
                 issuer_status = 'Issuer is registered and signature ok'
             except :
                 #test = False

@@ -40,19 +40,27 @@
             </div>
               </div>
           </div>
-           
+              <div class="text-center mt-5">
+              <h2>URL</h2><br>
+              <textarea rows="10" cols="150">{{url}}</textarea>
+              </div>
 
-              <div class="row  mb-5">
-                <div class="col-6 mx-auto">  
-                <textarea class="mt-5" cols="100" rows="15"> {{url}}</textarea>
+              <div class="text-center mt-5">
+                <h2>URL JSON</h2><br>
+                <textarea rows="15" cols="150">{{url_json|safe}}</textarea>
                 </div>
-              </div>
 
-              <div class="row  mb-5">
-                <div class="col-6 mx-auto">  
-                <textarea class="mt-5" cols="100" rows="20"> {{url_json|safe}}</textarea>
-              </div>
-              </div>
+                <div class="text-center mt-5">
+                  <h2>Authorization request</h2><br>
+                  <textarea rows="20" cols="150">{{authorization_request|safe}}</textarea>
+                  </div>
+
+                <div class="text-center mt-5">
+                <h2>Client metadata</h2><br>
+                <textarea rows="10" cols="150">{{client_metadata|safe}}</textarea>
+                </div>
+
+            
 
 
               {% if back_button  %}

@@ -39,9 +39,9 @@
               </div>
             </div>
 
-        
+        </div>
 
-
+            <div class="row my-5">
 
           {% if session['login_name'] == 'admin'  %}
           <div class="col-6 mx-auto">
@@ -68,24 +68,9 @@
         {% endif %}  
 
 
-        <div class="row my-5">
-
-          {% if session['login_name'] == 'admin'  %}
-        <div class="col-6 mx-auto">
-          <div id="id_qrcode" class="text-center">
-              <a href="/sandbox/saas4ssi/ebsi/verifier">
-              <h3><strong>SIOPV2 Verifiers for mobile wallets (EBSI compliant)</strong></h3>
-              </a>
-              This is a bridge between the SIOPv2 verifier flow and a standard OpenID authorization code flow and implicit flow.
-              For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
-            This verifier accepts EBSI compliant wallets with support for did:ebsi.
-          </div> 
-      </div>
-      {% endif %}
  
-     
 
-        </div>
+
         <div class="row my-5">
 
           {% if session['login_name'] == 'admin'  %}
@@ -101,8 +86,8 @@
       </div>
       {% endif %}
 
-
-
+</div>
+      <div class="row my-5">
       {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
@@ -120,19 +105,33 @@
   
 
     {% if session['login_name'] == 'admin'  %}
+    <div class="row my-5">
+    <div class="col-6 mx-auto">
+      <div id="id_qrcode" class="text-center">
+          <a href="/sandbox/saas4ssi/ebsi/verifier">
+          <h3><strong>SIOPV2-OIDC4VP verifiers for mobile wallets</strong></h3>
+          </a>
+          This is a bridge between the SIOPv2/OIDC4VP verifier flow and a standard OpenID authorization code flow and implicit flow.
+          For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
+          This verifier supports different profiles as EBSIV2, GAIAX, ARF....(In progress)
+        This verifier accepts EBSI compliant wallets with support for did:ebsi.
+      </div> 
+  </div>
+    </div>
+    {% endif %}
+
+
+    {% if session['login_name'] == 'admin'  %}
 
     <div class="row my-5">
-
-
-     
-
 
     <div class="col-4 mx-auto">
       <div id="id_qrcode" class="text-center">
         <a href="/sandbox/saas4ssi/ebsi/issuer">
-          <h3><strong>OIDC4VCI (EBSI) issuer for mobile wallets</strong></h3>
+          <h3><strong>OIDC4VCI issuers for mobile wallets</strong></h3>
           </a>
          Issuer for EBSI-V2 , OIDC4VC issuance<br>
+         This verifier supports different profiles as EBSIV2, GAIAX, ARF....(In progress)<br>
          Support of authorization code flow and pre-authorized_code flow <br>
          <a href="https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
          ">See OIDC4VCI standards</a>

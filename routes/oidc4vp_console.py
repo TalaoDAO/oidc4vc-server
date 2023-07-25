@@ -1,15 +1,15 @@
-from flask import  request, render_template, redirect, session, jsonify
+from flask import  request, render_template, redirect, session, jsonify, flash
 import json
 import copy
 import logging
 import db_api 
 import activity_db_api
-
-
+from profile import profile
+import oidc4vc
 from urllib.parse import urlencode
 import uuid
-from oidc4vc_constante import ebsi_verifier_credential_list, ebsi_path_list
-from oidc4vc_constante import ebsi_vp_type_list, ebsi_verifier_landing_page_style_list
+from oidc4vc_constante import ebsi_verifier_credential_list
+from oidc4vc_constante import ebsi_verifier_landing_page_style_list, oidc4vc_profile_list
 
 logging.basicConfig(level=logging.INFO)
 
@@ -21,6 +21,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/ebsi/verifier/console/select',  view_func=ebsi_verifier_console_select, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/verifier/console/preview',  view_func=ebsi_verifier_console_preview, methods = ['GET', 'POST'], defaults={'mode' : mode, "red" : red})
     app.add_url_rule('/sandbox/ebsi/verifier/console/activity',  view_func=ebsi_verifier_console_activity, methods = ['GET', 'POST'])
+    app.add_url_rule('/sandbox/ebsi/verifier/console/advanced',  view_func=ebsi_verifier_advanced, methods = ['GET', 'POST'])
 
     #app.add_url_rule('/sandbox/ebsi/verifier/preview_presentation/<stream_id>',  view_func=ebsi_verifier_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
 
@@ -176,13 +177,6 @@ def ebsi_verifier_console(mode) :
                 else :
                     verifier_landing_page_style_select +=  "<option value=" + key + ">" + value + "</option>"
 
-        ebsi_vp_type_select = str()
-        for key, value in ebsi_vp_type_list.items() :
-                if key ==   session['client_data'].get('ebsi_vp_type', "jwt_vp") :
-                    ebsi_vp_type_select +=  "<option selected value=" + key + ">" + value + "</option>"
-                else :
-                    ebsi_vp_type_select +=  "<option value=" + key + ">" + value + "</option>"
-
         vc_select_1 = str()
         for key, value in ebsi_verifier_credential_list.items() :
                 if key ==   session['client_data']['vc'] :
@@ -197,19 +191,7 @@ def ebsi_verifier_console(mode) :
                 else :
                     vc_select_2 +=  "<option value=" + key + ">" + value + "</option>"
 
-        path_select_1 = str()
-        for key, value in ebsi_path_list.items() :
-                if key ==   session['client_data'].get('path_1', "$.credentialSchema.id") :
-                    path_select_1 +=  "<option selected value=" + key + ">" + value + "</option>"
-                else :
-                    path_select_1 +=  "<option value=" + key + ">" + value + "</option>"
         
-        path_select_2 = str()
-        for key, value in ebsi_path_list.items() :
-                if key ==   session['client_data'].get('path_2', "$.credentialSchema.id") :
-                    path_select_2 +=  "<option selected value=" + key + ">" + value + "</option>"
-                else :
-                    path_select_2 +=  "<option value=" + key + ">" + value + "</option>"
         
         authorization_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=code&redirect_uri=" +  session['client_data']['callback'] 
         implicit_request = mode.server + 'sandbox/ebsi/authorize?client_id=' + session['client_data']['client_id'] + "&scope=openid&response_type=id_token&redirect_uri=" +  session['client_data']['callback']
@@ -249,16 +231,14 @@ def ebsi_verifier_console(mode) :
                 user_name=session['client_data'].get('user'),
                 verifier_landing_page_style_select =  verifier_landing_page_style_select,
                 vc_select_1=vc_select_1,
-                vc_issuer_id =  session['client_data'].get('vc_issuer_id', ""),
                 vc_select_2=vc_select_2,
-                ebsi_vp_type_select=ebsi_vp_type_select,
-                path_select_1=path_select_1,
-                path_select_2=path_select_2,
                 login_name=session['login_name']
                 )
     if request.method == 'POST' :
-       
-        if request.form['button'] == "delete" :
+        if request.form['button'] == "advanced" :
+            return redirect ('/sandbox/ebsi/verifier/console/advanced')
+        
+        elif request.form['button'] == "delete" :
             db_api.delete_ebsi_verifier( request.form['client_id'])
             return redirect ('/sandbox/ebsi/verifier/console')
 
@@ -291,12 +271,8 @@ def ebsi_verifier_console(mode) :
             session['client_data']['reason'] = request.form.get('reason', "")
             session['client_data']['reason_2'] = request.form.get('reason_2', "")
             session['client_data']['vc'] = request.form['vc_1']
-            #session['client_data']['vc_issuer_id'] = request.form['vc_issuer_id']
             session['client_data']['vc_2'] = request.form['vc_2']
-            session['client_data']['path_1'] = request.form['path_1']
-            session['client_data']['path_2'] = request.form['path_2']
             session['client_data']['user'] = request.form['user_name']
-            session['client_data']['ebsi_vp_type'] = request.form['ebsi_vp_type']
             session['client_data']['qrcode_message'] = request.form['qrcode_message']
             session['client_data']['mobile_message'] = request.form['mobile_message']          
             db_api.update_ebsi_verifier(request.form['client_id'], json.dumps(session['client_data']))
@@ -314,3 +290,62 @@ def ebsi_verifier_console(mode) :
         elif request.form['button'] == "preview" :
             return redirect ('/sandbox/ebsi/verifier/console/preview')
  
+
+async def ebsi_verifier_advanced() :
+    global  reason
+    if not session.get('is_connected') or not session.get('login_name') :
+        return redirect('/sandbox/saas4ssi')
+    if request.method == 'GET' :
+        session['client_data'] = json.loads(db_api.read_ebsi_verifier(session['client_id']))
+        oidc4vc_profile_select = str()
+        for key, value in oidc4vc_profile_list.items() :
+                if key ==  session['client_data'].get('profile', "DEFAULT") :
+                    oidc4vc_profile_select +=  "<option selected value=" + key + ">" + value + "</option>"
+                else :
+                    oidc4vc_profile_select +=  "<option value=" + key + ">" + value + "</option>"      
+
+        did = session['client_data'].get('did', "")
+        
+        did_document = oidc4vc.did_resolve_lp(did)
+
+        jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
+      
+        return render_template('ebsi/ebsi_verifier_advanced.html',
+                client_id = session['client_data']['client_id'],
+                jwk = jwk,
+                verification_method = session['client_data'].get('verification_method', ""),
+                oidc4vc_profile_select=oidc4vc_profile_select,
+                did = session['client_data'].get('did', ""),
+                did_document=json.dumps(did_document, indent=4)
+                )
+    if request.method == 'POST' :     
+        session['client_data'] = json.loads(db_api.read_ebsi_verifier(session['client_id']))
+        if request.form['button'] == "back" :
+            return redirect('/sandbox/ebsi/verifier/console?client_id=' + request.form['client_id'])
+
+        if request.form['button'] == "update" :
+            session['client_data']['profile'] = request.form['profile']
+            session['client_data']['did'] = request.form['did']
+            session['client_data']['verification_method'] = request.form['verification_method']
+            try :
+                did_method = request.form['did'].split(':')[1]
+            except :
+                did_method = None
+            
+            if request.form['profile'] in ["EBSIV2", "EBSIV3"] and did_method != 'ebsi' :
+                flash("This profile requires did:ebsi", "warning")
+                return redirect('/sandbox/ebsi/verifier/console/advanced')
+            
+            elif request.form['profile'] == "GAIAX" and did_method != 'web' :
+                flash("This profile requires did:web", "warning")
+                return redirect('/sandbox/ebsi/verifier/console/advanced')
+
+            elif request.form['profile'] == "JWTVC" and did_method not in ['web', 'ion'] :
+                flash("This profile requires did:web or did:ion", "warning")
+                return redirect('/sandbox/ebsi/verifier/console/advanced')
+            
+            else:
+                session['client_data']['jwk'] = request.form['jwk']
+                db_api.update_ebsi_verifier( request.form['client_id'], json.dumps(session['client_data']))
+                return redirect('/sandbox/ebsi/verifier/console/advanced')
+          

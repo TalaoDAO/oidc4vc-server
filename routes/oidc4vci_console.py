@@ -1,15 +1,13 @@
 from flask import  request, render_template, redirect, session, jsonify, flash
 import json
 import logging
-import didkit
 import copy
 import db_api 
 from urllib.parse import urlencode
 import uuid
-from oidc4vc_constante import  ebsi_credential_requested_list
 from oidc4vc_constante import  landing_page_style_list, oidc4vc_profile_list
 
-import ebsi
+import oidc4vc
 import issuer_activity_db_api
 
 logging.basicConfig(level=logging.INFO)
@@ -271,7 +269,7 @@ async def ebsi_issuer_advanced() :
 
         did = session['client_data'].get('did', "")
         
-        did_document = ebsi.did_resolve_lp(did)
+        did_document = oidc4vc.did_resolve_lp(did)
 
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
       

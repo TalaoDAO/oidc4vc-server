@@ -4,9 +4,10 @@ profile = {
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
-            "offer_prefix" : "openid://initiate_issuance",
-            "presentation_prefix" : 'openid://',
-            'cryptographic_binding_methods_supported' : ['DID'],
+            "oidc4vci_prefix" : "openid://initiate_issuance",
+            "siopv2_prefix" : 'openid://',
+            "oidc4vp_prefix" : 'openid://',
+            "cryptographic_binding_methods_supported" : ['DID'],
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:ebsi'],
             "grant_types_supported": [
@@ -15,17 +16,34 @@ profile = {
             ],
             'credential_supported' : ['VerifiableDiploma', 'VerifiableId'],
             'schema_for_type' : True,
-            'oidc4vci_draft' : 'https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#abstract',
-            'siopv2_draft' : '',
-            'service_documentation' : 'It is the profile of the EBSI V2 compliant test. DID for natural person is did:ebsi. \
+            'service_documentation' : 'EBSI V2 COMPLIANCE. It is the profile of the EBSI V2 compliant test. DID for natural person is did:ebsi. \
                 The schema url is used as the VC type in the credential offer QR code. \
-                The prefix openid_initiate_issuance://'
+                The prefix openid_initiate_issuance:// \
+                oidc4vci_draft : https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#abstract',
+        }, 
+     "CUSTOM" :
+        {
+            "issuer_vc_type" : "jwt_vc",
+            "verifier_vp_type" : "jwt_vp",
+            "oidc4vci_prefix" : "openid-initiate-issuance://" ,
+            "siopv2_prefix" : 'openid://',
+            "oidc4vp_prefix" : 'openid://',
+            "cryptographic_binding_methods_supported" : ['DID'],
+            'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
+            'subject_syntax_types_supported' : ['did:key'],
+            "grant_types_supported": [
+                "authorization_code",
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+            ],
+            'credential_supported' : ['VerifiableDiploma', 'VerifiableId', 'EmployeeCredential'],
+            'schema_for_type' : True,
+            'service_documentation' : '??? out of date issuer',
         }, 
     "EBSIV3" :
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
-            "offer_prefix" : "openid://initiate_issuance",
+            "oidc4vci_prefix" : "openid://initiate_issuance",
             "presentation_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ['DID'],
             'credential_supported' : ['VerifiableDiploma', 'VerifiableId'],
@@ -36,18 +54,17 @@ profile = {
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:key'],
             'schema_for_type' : False,
-            'oidc4vci_draft' : 'https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html',
             'service_documentation' : 'New environment for V3 compliance test'
 
         },
-     "GAIAX-COMMUNITY" :
+     "GAIAX" :
         {
             "issuer_vc_type" : "ldp_vc",
             "verifier_vp_type" : "ldp_vp",
-            "offer_prefix" : "openid-initiate-issuance://" ,
+            "oidc4vci_prefix" : "openid-initiate-issuance://" ,
             "presentation_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
-            'credential_supported' : ['EmployeeCredential'],
+            'credential_supported' : ['EmployeeCredential', 'VerifiableId'],
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"
@@ -55,33 +72,41 @@ profile = {
             "cryptographic_suites_supported" : ['ES256K','ES256','ES384','ES512','RS256'],
             "subject_syntax_types_supported" : ['did:key'],
             "schema_for_type" : False,
-            "oidc4vci_draft" : "https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html",
-            'service_documentation' : 'Issuer pour projet Docaposte Gaia-X'
+            'service_documentation' : 'WORK IN PROGRESS. WE use JSON-LD VC and VP and last release of the specs. \
+                oidc4vci_draft : https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html \
+                siopv2_draft : https://openid.net/specs/openid-connect-self-issued-v2-1_0.html \
+                oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-response  \
+                 Issuer pour projet Docaposte Gaia-X'
 
         },
     "DEFAULT" :
         {
-            "issuer_vc_type" : "ldp_vc",
-            "verifier_vp_type" : "ldp_vp",
-            "offer_prefix" : "openid-credential-offer://" ,
-            "presentation_prefix" : "openid-vc://",
+            "issuer_vc_type" : "jwt_vc",
+            "verifier_vp_type" : "jwt_vp",
+            "oidc4vci_prefix" : "openid-credential-offer://" ,
+            "siopv2_prefix" : 'siopv2://',
+            "oidc4vp_prefix" : 'oidc4vp://',
+            'credential_supported' : ['EmployeeCredential', 'VerifiableId'],
             "cryptographic_binding_methods_supported" : ('DID'),
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"
             ],
             "cryptographic_suites_supported" : ['ES256K','ES256','ES384','ES512','RS256'],
-            "subject_syntax_types_supported" : ['did:ebsi', 'did:key', 'did:ethr', 'did:tz'],
+            "subject_syntax_types_supported" : ['did:key'],
             "schema_for_type" : False,
-            "oidc4vci_draft" : "https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html",
-            'service_documentation' : 'Last release of the OIDC4VC documentation'
+            'service_documentation' : 'Last release of the OIDC4VC documentation \
+             oidc4vci_draft : https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html \
+                siopv2_draft : https://openid.net/specs/openid-connect-self-issued-v2-1_0.html \
+                oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html  \
+                 '
 
         },
     "ARF" :
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
-            "offer_prefix" : "openid-credential-offer://" ,
+            "oidc4vci_prefix" : "openid-credential-offer://" ,
             "presentation_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ('DID'),
             "grant_types_supported": [
@@ -97,7 +122,7 @@ profile = {
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
-            "presentation_prefix" : 'openid-vc://',
+            "siopv2_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ('DID'),
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
             'subject_syntax_types_supported' : ['did:ion'],

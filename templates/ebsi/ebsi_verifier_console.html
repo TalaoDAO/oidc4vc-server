@@ -126,17 +126,17 @@
                                     <label class="form-check-label" for="flexCheckDefault_1">PKCE : <strong>checked</strong> if application is a dApp and you do not use client secret in authorization code flow</label>
                                   </div>
                                 </div> 
-                                </div>
 
-                                <div class="form-row mb-3">
                                   <div class="col">
                                     <div class="form-check">
                                       <input class="form-check-input" type="checkbox" {{request_uri}} name="request_uri" id="flexCheckDefault_1">
                                       <label class="form-check-label" for="flexCheckDefault_1">request_uri : <strong>checked</strong> to reduce the QR code size</label>
                                     </div>
                                   </div> 
-                                  </div>
-                              
+
+                            
+                              </div>
+
                               <ul class="nav nav-tabs card-header-tabs pull-right mb-3"  id="myTab" role="tablist">
                                 
                                 <li class="nav-item">
@@ -392,27 +392,13 @@
                             </div>
                             <div class="card-body">
 
-                          
-                              <div class="form-row">
-                                <div class="col-3">
-                                    <div class="form-group"><label><strong>Credential type</strong></label><select name="ebsi_vp_type" class="form-control">
-                                      {{ebsi_vp_type_select|safe}}  
-                                      </select></div>
-    
-                              </div>  
-                            </div>
-
                           <div class="form-row">
                             <div class="col-3">
                                 <div class="form-group"><label><strong>Credential 1</strong></label><select name="vc_1" class="form-control">
                                   {{vc_select_1|safe}}  
                                   </select></div>
                             </div>  
-                            <div class="col-3">
-                              <div class="form-group"><label><strong>Path 1</strong></label><select name="path_1" class="form-control">
-                                {{path_select_1|safe}}  
-                                </select></div>
-                            </div> 
+                           
                         
 
                             <div class="col-3">
@@ -420,11 +406,7 @@
                                   {{vc_select_2|safe}}  
                                   </select></div>
                             </div>   
-                            <div class="col-3">
-                              <div class="form-group"><label><strong>Path 2</strong></label><select name="path_2" class="form-control">
-                                {{path_select_2|safe}}  
-                                </select></div>
-                            </div>    
+                          
                           
                           </div>
                        
@@ -528,6 +510,8 @@
 
                         <div class="form-group">
                           <div class="form-row">
+                            <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="advanced" type="submit">Advanced</button></div>
+
                                 <div class="col"><button  style="background-color: #09060f;" class="btn btn-primary btn-sm" name="button" value="copy" type="submit">Copy</button></div>
 
                                 {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin' %} 

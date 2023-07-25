@@ -20,7 +20,6 @@ import didkit
 import logging
 import requests
 import db_api
-import ebsi
 import beacon_activity_db_api
 from altme_on_chain import register_tezid, issue_sbt
 

@@ -8,7 +8,7 @@ import uuid
 import didkit
 import logging
 from urllib.parse import urlencode
-import ebsi
+import oidc4vc
 import requests
 
 
@@ -374,7 +374,7 @@ async def test_credentialOffer_endpoint(id, red):
         global did_selected
         if  credential["issuer"][:8] == "did:ebsi" :
             logging.info("ebsi signer")
-            signed_credential = ebsi.lp_sign(credential, Secp256kr, credential["issuer"])
+            signed_credential = oidc4vc.lp_sign(credential, Secp256kr, credential["issuer"])
             #filename = './signed_credentials/verifiablediploma' + '.jsonld'
             #with open(filename, 'w') as outfile :
             #    outfile.write(json.dumps(signed_credential, indent=4, ensure_ascii=False))

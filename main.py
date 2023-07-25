@@ -34,11 +34,11 @@ from routes import verifier_console, issuer_console, api_verifier, api_issuer
 from routes import saas4ssi
 from routes import beacon_issuer_console, api_issuer_beacon
 from routes import api_verifier_beacon, beacon_verifier_console
-from routes import api_verifier_ebsi, ebsi_verifier_console
+from routes import oidc4vp_api, oidc4vp_console
 from routes import oidc4vci_api, oidc4vci_console
 
 # for testing purpose
-from routes import issuer_ebsi_diploma
+from routes import test_issuer_oidc4vc
 from routes import  web_wallet_test
 from routes import web_display_VP
 
@@ -77,9 +77,9 @@ api_issuer.init_app(app, red, mode)
 verifier_console.init_app(app, red, mode)
 issuer_console.init_app(app, red, mode)
 
-# EBSI wallet
-ebsi_verifier_console.init_app(app, red, mode)
-api_verifier_ebsi.init_app(app, red, mode)
+# OIDC4VC wallet
+oidc4vp_console.init_app(app, red, mode)
+oidc4vp_api.init_app(app, red, mode)
 oidc4vci_console.init_app(app, red, mode)
 oidc4vci_api.init_app(app, red, mode)
 
@@ -93,7 +93,7 @@ beacon_issuer_console.init_app(app, red, mode)
 saas4ssi.init_app(app, red, mode)
 web_display_VP.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
-issuer_ebsi_diploma.init_app(app, red, mode)
+test_issuer_oidc4vc.init_app(app, red, mode)
 
 @app.route('/sandbox/md_file', methods = ['GET'])
 def md_file() :

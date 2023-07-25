@@ -14,7 +14,7 @@ import logging
 import didkit
 from urllib.parse import urlencode
 import db_api
-import ebsi
+import oidc4vc
 import base64
 import issuer_activity_db_api
 from oidc4vc_constante import type_2_schema
@@ -101,8 +101,6 @@ def oidc(issuer_id, mode) :
         'credential_supported' : cs,
         'credential_manifests' : cm,
     })
-   
-    
     return openid_configuration
 
 
@@ -163,6 +161,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
 
     try :
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+        issuer_profile = profile[issuer_data.get('profile', 'DEFAULT')]
     except :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
@@ -177,26 +176,68 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     
     qrcode_page = issuer_data.get('landing_page_style')
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
-    credential_type = credential_type if issuer_data.get('profile', 'DEFAULT') != 'EBSIV2' else type_2_schema[credential_type]
-    url_data  = { 
-        'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-        'credential_type'  : credential_type,
-        'op_state' : stream_id, #  op_stat 
+    if issuer_data['profile'] in ['EBSIV2', 'CUSTOM'] :
+        url_data  = { 
+            'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+            'credential_type'  : type_2_schema[credential_type],
+            'op_state' : stream_id, #  op_stat 
         }
+    else :
+        url_data  = { 
+            "credential_offer" : {
+                'credential_issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+                'credentials'  : credential_type,
+                #'op_state' : stream_id, #  op_stat 
+            }
+        }
+    
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
     # TODO PIN code not supported
-    if pre_authorized_code :
+    if pre_authorized_code and issuer_data['profile'] in ['EBSIV2', 'CUSTOM'] :
         url_data['pre-authorized_code'] = pre_authorized_code
         url_data['user_pin_required']= False
         code_data = {
             'credential_type' : credential_type,
-            'format' : profile[issuer_data.get('profile', 'DEFAULT')]['issuer_vc_type'],
+            'format' : issuer_profile['issuer_vc_type'],
             'stream_id' : stream_id,
             'vc' : vc
         }
         red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
+    
+    elif pre_authorized_code and issuer_data['profile'] not in ['EBSIV2', 'CUSTOM'] :
+        url_data['credential_offer'] ['grants'] ={
+            'urn:ietf:params:oauth:grant-type:pre-authorized_code': {
+                'pre-authorized_code': pre_authorized_code,
+                'user_pin_required': False
+            }
+        }
+        code_data = {
+            'credential_type' : credential_type,
+            'format' : issuer_profile['issuer_vc_type'],
+            'stream_id' : stream_id,
+            'vc' : vc
+        }
+        red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
+    
+    elif not pre_authorized_code and issuer_data['profile'] not in  ['EBSIV2', 'CUSTOM'] :
+        url_data['credential_offer']['grants'] ={
+            'authorization_code': {
+            'issuer_state': stream_id
+            }
+        }
+        code_data = {
+            'credential_type' : credential_type,
+            'format' : issuer_profile['issuer_vc_type'],
+            'stream_id' : stream_id,
+            'vc' : vc,
+            'issuer_state' : stream_id
+        }
+        red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data))
+    else :
+        logging.warning('Not supported')
+        jsonify('Parameters not supported')
 
-    url = profile[issuer_data.get('profile', 'DEFAULT')]['offer_prefix'] + '?' + urlencode(url_data)
+    url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
     
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
@@ -266,9 +307,12 @@ def ebsi_issuer_authorize(issuer_id, red) :
     try :
         client_id = request.args['client_id']
         redirect_uri = request.args['redirect_uri']
-        op_state = request.args['op_state']
+        op_state = request.args.get('op_state')
+        issuer_state = request.args.get('issuer_state')
     except :
         return jsonify('invalid_request'), 400
+    
+    op_state = op_state if op_state else issuer_state
 
     try :
         scope = request.args['scope']
@@ -289,21 +333,15 @@ def ebsi_issuer_authorize(issuer_id, red) :
         format = json.loads(request.args['authorization_details'])[0]['format']
     except :
         return authorization_error_response("invalid_request", "format is missing", op_state, red)
-
     if not db_api.read_ebsi_issuer(issuer_id) :
         return authorization_error_response("unauthorized_client", "issuer_id not found in data base", op_state, red)
-    
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-
     if scope != 'openid' :
         return authorization_error_response("invalid_scope", "unsupported scope", op_state, red)
-
     if response_type != 'code' :
         return authorization_error_response("unsupported_response_type", "unsupported response type", op_state, red)
-
     if credential_type != issuer_data['credential_to_issue'] :
         return authorization_error_response("invalid_request", "unsupported credential type", op_state, red)
-
     if format not in ['jwt_vc', 'jwt_vc_json'] :
         return authorization_error_response("invalid_request", "unsupported format", op_state, red)
 
@@ -369,6 +407,7 @@ def ebsi_issuer_token(issuer_id, red) :
     if grant_type == 'urn:ietf:params:oauth:grant-type:pre-authorized_code' :
         try :
             code = request.form['pre-authorized_code']
+            user_pin = request.form.get('user_pin')
         except :
             logging.warning('pre authorized code is missing')
             return Response(**manage_error("invalid_grant", "Request format is incorrect"))
@@ -382,6 +421,8 @@ def ebsi_issuer_token(issuer_id, red) :
     else : 
         pass # future use  
     
+    logging.info('user_pin = %s', user_pin)
+
     if not code : # in case of wallet error
         logging.warning('code is null')
         return Response(**manage_error("invalid_grant", "Request format is incorrect"))
@@ -422,6 +463,22 @@ async def ebsi_issuer_credential(issuer_id, red) :
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-credential-endpoint
     
     https://api-conformance.ebsi.eu/docs/specs/credential-issuance-guidelines#credential-request
+
+    {
+    "format":"jwt_vc_json",
+    "types":[
+      "VerifiableCredential",
+      "UniversityDegreeCredential"
+    ],
+    "proof":{
+      "proof_type":"jwt",
+      "jwt":"eyJraWQiOiJkaWQ6ZXhhbXBsZTplYmZlYjFmNzEyZWJjNmYxYzI3NmUxMmVjMjEva2V5cy8
+      xIiwiYWxnIjoiRVMyNTYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR
+      0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20iLCJpYXQiOiIyMDE4LTA5LTE0VDIxOjE5OjEwWiIsIm5vbm
+      NlIjoidFppZ25zbkZicCJ9.ewdkIkPV50iOeBUqMXCC_aZKPxgihac0aW9EkL1nOzM"
+    }
+    }
+    
     """
     logging.info("credential endpoint request")
     # Check access token
@@ -434,6 +491,9 @@ async def ebsi_issuer_credential(issuer_id, red) :
     except :
         return Response(**manage_error("invalid_token", "Access token expired")) 
     
+    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_profile = profile[issuer_data['profile']]
+    
     # Check request 
     try :
         result = request.json
@@ -444,22 +504,23 @@ async def ebsi_issuer_credential(issuer_id, red) :
     except :
         return Response(**manage_error("invalid_request", "Invalid request format 2")) 
     
-
-    print('proof format = ', proof_format)
-
-    if credential_type != access_token_data['credential_type'] :
-        return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
-
+    if issuer_data['profile'] == 'EBSIV2' :
+        if credential_type != type_2_schema[access_token_data['credential_type']] :
+            return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
+    else :
+        if credential_type != access_token_data['credential_type'] :
+            return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
+    
     # Get holder pub key from holder wallet and verify proof
     logging.info("proof of ownership = %s", proof)
     try :
-        ebsi.verif_token(proof, access_token_data['c_nonce'])
+        oidc4vc.verif_token(proof, access_token_data['c_nonce'])
         logging.info('proof of ownership is validated')
     except Exception as e :
         logging.error("proof of ownership error = %s", str(e))
         return Response(**manage_error("invalid_or_missing_proof", str(e))) 
     
-    proof_payload=ebsi.get_payload_from_token(proof)
+    proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     credential = access_token_data['vc']
     credential['credentialSubject']['id'] = proof_payload['iss']
@@ -473,7 +534,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
     issuer_vm = issuer_data.get('verification_method', 'Unknown') 
     
     if proof_format == 'jwt_vc' :        
-        credential_signed = ebsi.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
+        credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 
     elif proof_format == 'ldp_vc' :
         didkit_options = {
@@ -486,7 +547,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
                 issuer_key
                 )
     else :
-        print('proof format = ', proof_format)
+        logging.warning('proof format = %s', proof_format)
     
     logging.info('credential signed = %s', credential_signed)
 

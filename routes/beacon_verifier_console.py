@@ -8,7 +8,7 @@ import message
 import uuid
 from op_constante import protocol_list, method_list, beacon_verifier_credential_list
 from op_constante import sbt_network_list, tezid_network_list
-import ebsi
+import oidc4vc
 import beacon_activity_db_api
 import db_user_api
 import op_constante
@@ -363,7 +363,7 @@ def beacon_verifier_advanced() :
 async def did(session) :
     if session['client_data']['method'] == "ebsi" :
         DID = "Not applicable"
-        did_document = ebsi.did_resolve(DID, session['client_data']['jwk'])
+        did_document = oidc4vc.did_resolve(DID, session['client_data']['jwk'])
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
         did_ebsi = session['client_data']['did_ebsi']
 
