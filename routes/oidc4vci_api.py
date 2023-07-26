@@ -1,6 +1,9 @@
 """
 NEW
 
+
+https://issuer.walt.id/issuer-api/default/oidc
+
 https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
 
 support Authorization code flow and pre-authorized code flow of OIDC4VCI
@@ -48,7 +51,10 @@ def init_app(app,red, mode) :
 
 
 def ebsi_issuer_openid_configuration(issuer_id, mode):
-    return jsonify(oidc(issuer_id, mode))
+    doc = oidc(issuer_id, mode)
+    if not doc :
+        return jsonify('Not found'), 404
+    return jsonify(doc)
 
 
 def oidc(issuer_id, mode) :
@@ -57,9 +63,12 @@ def oidc(issuer_id, mode) :
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
     ATTENTION new standard is https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html
     """
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id)) 
-    issuer_profile = profile[issuer_data.get('profile', 'DEFAULT')]
-
+    try :
+        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id)) 
+        issuer_profile = profile[issuer_data.get('profile', 'DEFAULT')]
+    except :
+        logging.warning('issuer_id not found for %s', issuer_id)
+        return
     # Credential supported section
     cs = list()
     for vc in issuer_profile['credential_supported']:
