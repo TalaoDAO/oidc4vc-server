@@ -167,9 +167,17 @@ def verif_token(token, nonce) :
   if payload['nonce'] != nonce :
     raise Exception("Nonce is incorrect")
   a =jwt.JWT.from_jose_token(token)
-  if isinstance (header['jwk'], str) :
-    header['jwk'] = json.loads(header['jwk'])
-  issuer_key = jwk.JWK(**header['jwk']) 
+  if header.get('jwk') :
+    if isinstance (header['jwk'], str) :
+      header['jwk'] = json.loads(header['jwk'])
+    issuer_key = jwk.JWK(**header['jwk']) 
+  else :
+    did = payload['iss']
+    vm = header['kid']
+    print('vm = ', vm)
+    print('did = ', did)
+    dict_key = get_public_key_from_did_document(did, vm)
+    issuer_key = jwk.JWK(**dict_key)
   a.validate(issuer_key)
   return
 
@@ -225,9 +233,10 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   header = {
     'typ' :'JWT',
     'alg': alg(key),
-    'jwk' : signer_pub_key, # for natural person
-    'kid' : kid # only for EBSI
+    'kid' : kid
   }
+  if signer_did.split(':')[1] == "ebsi" : # EBSIV2
+    header['jwk'] = signer_pub_key
   payload = {
     'iss' : signer_did,
     'nonce' : nonce,
@@ -306,7 +315,17 @@ def did_resolve_lp(did) :
   except :
     logging.error('cannot access to Universal Resolver API')
     return "{'error' : 'cannot access to Universal Resolver API'}"
-  return r.json()             
+  return r.json()['didDocument']
+
+
+def get_public_key_from_did_document(did, vm) :
+  did_doc = did_resolve_lp(did)
+  for key in did_doc['verificationMethod'] :
+    if key['id'] == vm :
+      logging.info('publicKeyJwk = %s', key['publicKeyJwk'])
+      return key['publicKeyJwk']
+  return 
+
 
 
 def get_lp_public_jwk(did, kid) :

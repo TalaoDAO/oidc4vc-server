@@ -245,7 +245,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     else :
         logging.warning('Not supported')
         jsonify('Parameters not supported')
-
+    print(url_data)
     url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
     logging.info('qrcode = %s', url)
     
@@ -526,7 +526,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
         oidc4vc.verif_token(proof, access_token_data['c_nonce'])
         logging.info('proof of ownership is validated')
     except Exception as e :
-        logging.error("proof of ownership error = %s", str(e))
+        logging.warning("proof of ownership error = %s", str(e))
         return Response(**manage_error("invalid_or_missing_proof", str(e))) 
     
     proof_payload=oidc4vc.get_payload_from_token(proof)
@@ -541,8 +541,10 @@ async def ebsi_issuer_credential(issuer_id, red) :
     issuer_key =  issuer_data['jwk'] 
     issuer_did = issuer_data.get('did', 'Unknown') 
     issuer_vm = issuer_data.get('verification_method', 'Unknown') 
+
+    print('proof format = ', proof_format)
     
-    if proof_format == 'jwt_vc' :        
+    if proof_format in ['jwt_vc', 'jwt_vc_json-ld'] :        
         credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 
     elif proof_format == 'ldp_vc' :
