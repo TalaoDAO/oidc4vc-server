@@ -24,7 +24,11 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/issuer/gaiax',  view_func=issuer_gaiax, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/default',  view_func=issuer_default, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/custom',  view_func=issuer_custom, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/issuer/callback',  view_func=issuer_callback, methods = ['GET'])
 
+
+def issuer_callback():
+    return jsonify("Great !")
 
 def issuer_ebsiv2(mode):
     if mode.myenv == 'aws' :
@@ -54,7 +58,8 @@ def issuer_ebsiv2(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "100",
-        "credential_type" : 'VerifiableDiploma'
+        "credential_type" : 'VerifiableDiploma',
+        "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :
@@ -95,7 +100,8 @@ def issuer_gaiax(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "200",
-        "credential_type" : 'EmployeeCredential'
+        "credential_type" : 'EmployeeCredential',
+        "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :
@@ -134,7 +140,8 @@ def issuer_default(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "300",
-        "credential_type" : 'VerifiableId'
+        "credential_type" : 'VerifiableId',
+        "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :
@@ -173,7 +180,8 @@ def issuer_custom(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "300",
-        "credential_type" : 'VerifiableId'
+        "credential_type" : 'VerifiableId',
+        "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :

@@ -113,25 +113,25 @@ def oidc(issuer_id, mode) :
     return openid_configuration
 
 
-# Customer API
+# Customer API #1
 def issuer_api_endpoint(issuer_id, red, mode) :
     """
-    This API returns the QRcode content to be diplayed by teh website
+    This API returns the QRcode page URL to redirect user
 
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer <client_secret>'
     }
     data = { 
-        "vc" : {....}, -> object
-        pre-authorized_code : "lklkjlkjh",   -> optional,
-        "credential_type" : "VerifibaleDiploma",
-        "user_pin_required" : false -> optional
+        "vc" : {....}, -> REQUIRED : object, VC as a json-ld not signed
+        pre-authorized_code : "lklkjlkjh",   -> OPTIONAL,
+        "credential_type" : REQUIRED -> "VerifibaleDiploma",
+        "user_pin_required" : false -> OPTIONAL
+        "callback" : OPTIONAL
         }
     resp = requests.post(token_endpoint, headers=headers, data = data)
     return resp.json()
 
-    dans l api on passe le credential type, le pre authorization code si existe et le VC avec les données utilisateurs
     """    
     try :
         token = request.headers['Authorization']
@@ -149,7 +149,8 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         'issuer_id' : issuer_id,
         'credential_type' : credential_type,
         'pre-authorized_code' : request.json.get('pre-authorized_code'),
-        'user_pin_required' : request.json.get('user_pin_required')
+        'user_pin_required' : request.json.get('user_pin_required'),
+        'callback' : request.json.get('callback')
     }
     stream_id = str(uuid.uuid1())
     red.setex(stream_id, API_LIFE, json.dumps(user_data))
@@ -159,7 +160,7 @@ def issuer_api_endpoint(issuer_id, red, mode) :
 
 
 
-# initiate endpoint with QRcode
+# initiate endpoint with QRcode for API #1
 def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     #see EBSI specs as OpenID OIDC4VC issuance for issuance has changed
     #https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
@@ -597,14 +598,15 @@ async def ebsi_issuer_credential(issuer_id, red) :
   
 
 def ebsi_issuer_followup(stream_id, red):  
-    #try :
-    
-    data = json.loads(red.get(stream_id).decode())
-    print(data)
+    try :
+        data = json.loads(red.get(stream_id).decode())
+        pre_authorized_code = data['pre-authorized_code']
+    except :
+        return jsonify('Unhautorized'), 401
     issuer_id = data['issuer_id']
-    pre_authorized_code = data['pre-authorized_code']
-    #except :
-    #    return jsonify('Unhautorized'), 401
+    callback = data['callback']
+    if callback :
+        return redirect(callback)
     issuer_data = db_api.read_ebsi_issuer(issuer_id)
     if not issuer_data :
         return jsonify('Not found'), 404

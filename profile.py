@@ -75,7 +75,7 @@ profile = {
             'service_documentation' : 'WORK IN PROGRESS. WE use JSON-LD VC and VP and last release of the specs. \
                 oidc4vci_draft : https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html \
                 siopv2_draft : https://openid.net/specs/openid-connect-self-issued-v2-1_0.html \
-                oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#name-response  \
+                oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html  \
                  Issuer pour projet Docaposte Gaia-X'
 
         },

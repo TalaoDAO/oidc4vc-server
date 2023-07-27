@@ -402,11 +402,19 @@ def ebsi_login_qrcode(red, mode):
             "alg" : verifier_profile["cryptographic_suites_supported"]}
     } 
 
-    if verifier_data['vc'] == "DID" :
+    if verifier_data['vc'] == "None" and verifier_data['vc_2'] == "None":
+        logging.warning('Wrong configuration')
+        return jsonify("KO"), 400
+    
+    elif verifier_data['vc'] == "DID" and verifier_data['vc_2'] in  ['None', 'DID'] :
+        logging.info("SIOPV2 mode")
+        response_type = "id_token"
+
+    elif verifier_data['vc_2'] == "DID" and verifier_data['vc'] in  ['None', 'DID'] :
         logging.info("SIOPV2 mode")
         response_type = "id_token"
     
-    elif not verifier_data.get('vc_2') or verifier_data.get('vc_2') == "DID" :
+    elif verifier_data['vc'] == 'DID' or verifier_data['vc_2'] == 'DID':
         response_type = "id_token vp_token"
         logging.info("OIDC4VP mode")
         logging.info("1 credential requested")
@@ -425,8 +433,29 @@ def ebsi_login_qrcode(red, mode):
             filter["pattern"] =  verifier_data['vc']
         input_descriptor["constraints"]["fields"][0]["filter"] = filter
         presentation_definition["input_descriptors"].append(input_descriptor)
+    
+    elif (verifier_data['vc'] != 'DID' and verifier_data['vc_2'] ==  'None') or (verifier_data['vc_2'] != 'DID' and verifier_data['vc'] ==  'None') :
+        response_type = "vp_token"
+        logging.info("OIDC4VP mode")
+        logging.info("1 credential requested")
+        filter = {"type": "string"}  
+        input_descriptor = {"constraints":{"fields":[{"path":[]}]}}
+        if verifier_data['profile'] == "EBSIV2" :
+            input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
+        else :
+            input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
+        input_descriptor["id"] = str(uuid.uuid1())
+        input_descriptor["name"] = "Input descriptor 1"
+        input_descriptor["purpose"] = verifier_data['reason']
+        if verifier_data['profile'] == "EBSIV2" :
+            filter["pattern"] =  type_2_schema[verifier_data['vc']]
+        else :
+            filter["pattern"] =  verifier_data['vc']
+        input_descriptor["constraints"]["fields"][0]["filter"] = filter
+        presentation_definition["input_descriptors"].append(input_descriptor)
+
     else :
-        response_type = "id_token vp_token"
+        response_type = "vp_token"
         logging.info("OIDC4VP mode")
         logging.info("2 credentials requested")
         filter_1 = {"type": "string"} 
@@ -517,20 +546,20 @@ def ebsi_login_qrcode(red, mode):
                             deeplink_talao=deeplink_talao,
                             deeplink_altme=deeplink_altme,
 							stream_id=stream_id,
-                            application_name=verifier_data.get('application_name'),
-                            qrcode_message=verifier_data.get('qrcode_message'),
-                            mobile_message=verifier_data.get('mobile_message'),
-                            landing_page_url= verifier_data['landing_page_url'],
+                            #application_name=verifier_data.get('application_name'),
+                            #qrcode_message=verifier_data.get('qrcode_message'),
+                            #mobile_message=verifier_data.get('mobile_message'),
+                            #landing_page_url= verifier_data['landing_page_url'],
                             title=verifier_data['title'],
-                            terms_url= verifier_data.get('terms_url'),
-                            privacy_url=verifier_data.get('privacy_url'),
-                            company_name=verifier_data.get('company_name'),
+                            #terms_url= verifier_data.get('terms_url'),
+                            #privacy_url=verifier_data.get('privacy_url'),
+                            #company_name=verifier_data.get('company_name'),
                             page_title=verifier_data['page_title'],
                             page_subtitle=verifier_data['page_subtitle'],
                             page_description=verifier_data['page_description'],
-                            page_background_color = verifier_data['page_background_color'],
-                            page_text_color = verifier_data['page_text_color'],
-                            qrcode_background_color = verifier_data['qrcode_background_color']
+                            #page_background_color = verifier_data['page_background_color'],
+                            #page_text_color = verifier_data['page_text_color'],
+                            #qrcode_background_color = verifier_data['qrcode_background_color']
                             )
     
 
@@ -547,7 +576,7 @@ def ebsi_request_uri(stream_id, red) :
     signer_key = jwk.JWK(**verifier_key) 
     header = {
       'typ' :'JWT',
-      'kid': oidc4vc.verification_method(verifier_data['did_ebsi'], verifier_key),
+      'kid': oidc4vc.verification_method(verifier_data['did'], verifier_key),
       'alg': oidc4vc.alg(verifier_key)
     }
     token = jwt.JWT(header=header,claims=payload, algs=[oidc4vc.alg(verifier_key)])
@@ -559,15 +588,24 @@ def ebsi_request_uri(stream_id, red) :
     return Response(token.serialize(), headers=headers)
 
 
+
 def ebsi_login_endpoint(stream_id, red):
     logging.info("Enter wallet response endpoint")
     """
     https://openid.net/specs/openid-4-verifiable-presentations-1_0.html#section-6.2
     
     """
+
+    client_id = json.loads(red.get(stream_id).decode())['client_id']
+    verifier_data = json.loads(read_ebsi_verifier(client_id))
+    verifier_profile = profile[verifier_data['profile']]
+
+    logging.info('Profile = %s', verifier_data['profile'])
+    
     # prepare the verifier response to wallet
     status_code = 200
     response_format = "Unknown"
+    presentation_submission_status = "Unknown"
     qrcode_status = "Unknown"
     vp_token_status = "Unknown"
     id_token_status = "Unknown"
@@ -591,8 +629,9 @@ def ebsi_login_endpoint(stream_id, red):
     if access == "ok" :
         nonce = data['pattern']['nonce']
         try :
-            vp_token =request.form['vp_token']
-            id_token = request.form['id_token']
+            vp_token =request.form.get('vp_token')
+            id_token = request.form.get('id_token')
+            presentation_submission =request.form.get('presentation_submission')
             response_format = "ok"
             logging.info('id_token = %s', json.dumps(id_token, indent=4))
             logging.info('vp token = %s', json.dumps(vp_token, indent=4))
@@ -600,9 +639,19 @@ def ebsi_login_endpoint(stream_id, red):
             response_format = "invalid request format",
             status_code = 400
             access = "access_denied"
-    
-    # check signature of id_token and vp_token
-    if access == "ok"  :
+    if not id_token :
+         id_token_status = "Not received"
+    if not vp_token :
+         vp_token_status = "Not received"
+         
+    # check presentation submission
+    if vp_token and verifier_data['profile'] != "EBSIV2" :
+        if not presentation_submission :
+            access = "access_denied"
+            presentation_submission_status = "Not found"
+
+    # check signature of id_token if exists
+    if access == "ok"  and id_token :
         try :
             oidc4vc.verif_token(id_token, nonce)
             id_token_payload = oidc4vc.get_payload_from_token(id_token)
@@ -611,14 +660,19 @@ def ebsi_login_endpoint(stream_id, red):
             id_token_status = "signature check failed"
             status_code = 400
             access = "access_denied" 
+    
+
+    if access == 'ok' and vp_token :
         try :
-            oidc4vc.verif_token(id_token, nonce)
+            oidc4vc.verif_token(vp_token, nonce)
             vp_token_status = "ok"
             vp_token_payload = oidc4vc.get_payload_from_token(vp_token)
         except :
             vp_token_status = "signature check failed"
             status_code = 400
             access = "access_denied"
+
+    
     # check wallet DID
     if access == "ok" :
         id_token_header = oidc4vc.get_header_from_token(id_token)
@@ -678,6 +732,7 @@ def ebsi_login_endpoint(stream_id, red):
       "created": datetime.timestamp(datetime.now()),
       "qrcode_status" : qrcode_status,
       "holder_did_status" : holder_did_status,
+      "presentation_submission_status" : presentation_submission_status,
       "response_format" : response_format,
       "id_token_status" : id_token_status,
       "vp_token_status" : vp_token_status,

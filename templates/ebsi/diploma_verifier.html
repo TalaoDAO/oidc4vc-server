@@ -146,7 +146,15 @@
             </div>
         </footer>
     </div>
-
+    <script>
+        var source = new EventSource('/sandbox/ebsi/login/stream');
+        source.onmessage = function (event) {
+        const result = JSON.parse(event.data)
+        if (result.stream_id == '{{stream_id}}' ){
+          window.location.href='/sandbox/ebsi/login/followup?stream_id=' + result.stream_id;
+          }
+        };
+      </script>
 
     <script>
 

@@ -26,13 +26,14 @@ oidc4vc_profile_list = {
 
 #OIDC4VC Verifier
 ebsi_verifier_credential_list = {
-    "DID" : "None",
-    'VerifiableId' :  'Verifiable ID',
-    'VerifiableDiploma' : 'EBSI Diploma',
-    'EmployeeCredential' : 'Employee Credential',
-    'EmailPass' : 'Email proof',
-    'PhoneProof' : 'Phone proof',
-    'DeviceInfo' : 'Device information'
+    "DID" : "Authentication (id_token)",
+    "None" : "None",
+    'VerifiableId' :  'Verifiable ID (vp_token)',
+    'VerifiableDiploma' : 'EBSI Diploma (vp_token)',
+    'EmployeeCredential' : 'Employee Credential (vp_token)',
+    'EmailPass' : 'Email proof (vp_token)',
+    'PhoneProof' : 'Phone proof (vp_token)',
+    'DeviceInfo' : 'Device information (vp_token)'
 }
 
 
