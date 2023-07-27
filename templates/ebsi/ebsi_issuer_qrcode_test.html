@@ -43,7 +43,7 @@
 
           <div class="text-center mt-5">
             <h2>QR code url encoded</h2><br>
-          <textarea rows="3" cols="150">{{url|safe}}</textarea>
+          <textarea rows="10" cols="150">{{url|safe}}</textarea>
           </div>
 
           <div class="text-center mt-5">
@@ -52,13 +52,13 @@
           </div>
           
           <div class="text-center mt-5">
-            <h2>Altme deeplink </h2><br>
-            <textarea rows="3" cols="150">{{deeplink_altme}}</textarea>
+            <h2>Altme wallet deeplink </h2><br>
+            <textarea rows="10" cols="150">{{deeplink_altme}}</textarea>
           </div>
 
           <div class="text-center mt-5">
-            <h2>Talao deeplink </h2><br>
-            <textarea rows="3" cols="150">{{deeplink_talao}}</textarea>
+            <h2>Talao wallet deeplink </h2><br>
+            <textarea rows="10" cols="150">{{deeplink_talao}}</textarea>
           </div>
 
 
@@ -145,7 +145,7 @@
         source.onmessage = function (event) {
         const data = JSON.parse(event.data)
         if (data.stream_id == '{{stream_id}}'){
-          window.location.href='/sandbox/ebsi/issuer_followup?issuer_id=' + '{{issuer_id}}';
+          window.location.href='/sandbox/ebsi/issuer_followup/{{stream_id}}' ;
           }
         };
       </script>

@@ -2,7 +2,7 @@ profile = {
 
     "EBSIV2" :
         {
-            "issuer_vc_type" : "jwt_vc",
+            "issuer_vc_type" : "jwt_vc", ## jwt_vc_json, jwt_vc_json-ld, ldp_vc
             "verifier_vp_type" : "jwt_vp",
             "oidc4vci_prefix" : "openid://initiate_issuance",
             "siopv2_prefix" : 'openid://',

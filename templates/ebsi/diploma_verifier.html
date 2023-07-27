@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN" "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+
+<head>
+ 
+    <script> window.beaconSdkDebugEnabled = true    </script>
+    <script src="/static/walletbeacon.min.js"></script>
+    <link rel="stylesheet" href="/static/diploma_style.css">
+    <link rel="icon" type="image/png" href="/static/img/icon.png" sizes="16x16">
+    <script src="https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js"></script>
+    <title>Altme Identity - Add an identity to your favorite wallet !</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+</head>
+
+<body>
+    <div id="page">
+        <div id="large">
+            <div id="body">
+                <nav class=" nav-02 ">
+                    <div class="nav-02__box">
+                        <div class="nav-02__logo"><a class="nav-02__link" href="https://altme.io/" target="_self">
+                                <img loading="lazy" class="nav-02__logo_img"
+                                    src="/static/altme-decentralized-identity-wallet-did-logo.webp"
+                                    height="70" alt="Logo" />
+                            </a></div>
+
+                        <div class="nav-02__list_wrapper  ">
+                            <div class="nav-02__list nav-02__list--desktop">
+                               
+                                <div class="nav-02__item" id="faqNav">
+                                    <a class="button   button--black-outline  button--empty " href="https://altme.io/"
+                                        target="_self">
+                                        <p class="linkP">Back to home</p>
+                                    </a>
+                                </div>
+                                <div class="nav-02__item">
+
+                                    <a data-stripe-product-id="" data-stripe-mode="payment"
+                                        data-successful-payment-url="" data-cancel-payment-url=""
+                                        class="button button--accent-bg "
+                                        href="mailto:contact@altme.io?cc=hugo@altme.io&subject=Altme" target="_blank">
+                                        <div class="contactSpan">
+                                            <p class="contactP">Contact</p>
+                                        </div>
+                                    </a>
+                                </div>
+                            </div>
+
+
+                        </div>
+
+                    </div>
+
+                </nav>
+
+                <div id="bigBox">
+                    <div id="titles">
+                        <p id="titleP">Mint your Tezos student NFT now
+                        </p>
+                        <p id="textTopP">As a European graduate, you now have the chance to mint a unique Tezos NFT
+                            to access
+                            exclusive advantages within the Tezos ecosystem.
+                        </p>
+                    </div>
+                    <div id="mainBox">
+                        <div id="leftBox">
+                            <div id="leftTop">
+                                <div id="step1Div">
+                                    <p id="step1">Step 1 : Connect your EBSI wallet and share your diploma
+
+                                    </p>
+                                </div>
+                                <div id="chooseDiv">
+                                    <p id="choose">Scan this QR code, pair your wallet and share your EBSI diploma to
+                                        prove your are graduated.
+
+                                    </p>
+                                </div>
+                            </div>
+                            <div id="leftMid">
+                                <div id="frame4">
+
+                                </div>
+
+                                <div id="frame11">
+                                    <img id="qrcode" src="{{ qrcode(url) }}">
+                                    <a id="deeplink" href="https://app.altme.io/app/download?uri={{url}}">Click to present your diploma</a>
+
+                                </div>
+                            </div>
+                            <div id="frame6">
+                                <p id="ssi">** Self-Sovereign Identity (SSI) gives individuals control over the personal
+                                    information
+                                    they
+                                    use across the web.</p>
+
+
+                            </div>
+
+
+                        </div>
+                        <div id="rightBox"> <img id="draw" src="/static/img/diploma.png">
+                            <button id="logout">Disconnect Wallet</button>
+                            <button onclick="logoutOpenID()" id="logout2">Disconnect OpenID</button>
+
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% include './ebsi/faq.html' %}
+
+
+
+
+
+    </div>
+
+    <div class="bg-white-color ">
+        <footer class="footer-02" id="footer">
+            <div class="container">
+                <div class="footer-02__wrapper">
+                    <div class="footer-02__text content_box">
+                        <p id="line1Footer">&copy; 2022&nbsp; TALAO - Altme All rights reserved, <a
+                                href="https://altme.io/cgu/" target="_blank">CGU</a>, <a
+                                href="https://altme.io/privacy/" target="_blank">Privacy</a></p>
+                        <p id="line2Footer" hidden><strong>Built with TzKT API, Spruce Didkit 0.4.0</strong>&nbsp;</p>
+                    </div>
+                    <div class="social-buttons  ">
+
+                        <div class="social-buttons__item"><a class="social-buttons__link social-buttons__link--twitter"
+                                href="https://twitter.com/Altme_io" target="_blank"><img loading="lazy"
+                                    class="social-buttons__icon" alt="twitter icon"
+                                    src="https://dvzvtsvyecfyp.cloudfront.net/static/img/icons/social/black/twitter.svg" /></a>
+                        </div>
+                        <div class="social-buttons__item"><a class="social-buttons__link social-buttons__link--linkedin"
+                                href="https://www.linkedin.com/company/altme-web3/" target="_blank"><img loading="lazy"
+                                    class="social-buttons__icon" alt="linkedin icon"
+                                    src="https://dvzvtsvyecfyp.cloudfront.net/static/img/icons/social/black/linkedin.svg" /></a>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </footer>
+    </div>
+
+
+    <script>
+
+        const items = document.querySelectorAll('.accordion button');
+        function toggleAccordion() {
+            const itemToggle = this.getAttribute('aria-expanded');
+            for (i = 0; i < items.length; i++) {
+                items[i].setAttribute('aria-expanded', 'false');
+            }
+            if (itemToggle == 'false') {
+                this.setAttribute('aria-expanded', 'true');
+            }
+        }
+        items.forEach((item) => item.addEventListener('click', toggleAccordion));
+    </script>
+
+
+
+</body>
+
+</html>

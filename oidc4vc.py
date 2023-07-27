@@ -171,13 +171,13 @@ def verif_token(token, nonce) :
     if isinstance (header['jwk'], str) :
       header['jwk'] = json.loads(header['jwk'])
     issuer_key = jwk.JWK(**header['jwk']) 
-  else :
+  elif header.get('kid') :
     did = payload['iss']
     vm = header['kid']
-    print('vm = ', vm)
-    print('did = ', did)
     dict_key = get_public_key_from_did_document(did, vm)
     issuer_key = jwk.JWK(**dict_key)
+  else :
+    raise Exception("Cannot resolve public key")
   a.validate(issuer_key)
   return
 
@@ -226,6 +226,7 @@ def get_header_from_token(token) :
 def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   """
   For wallets natural person as jwk is added in header
+  https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html#name-proof-types
   """
   key = json.loads(key) if isinstance(key, str) else key
   signer_key = jwk.JWK(**key) 
@@ -233,15 +234,15 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   header = {
     'typ' :'JWT',
     'alg': alg(key),
-    'kid' : kid
+    #'kid' : kid
+    'jwk' : signer_pub_key # as isser cannot resolve did:key
   }
-  if signer_did.split(':')[1] == "ebsi" : # EBSIV2
-    header['jwk'] = signer_pub_key
+
   payload = {
-    'iss' : signer_did,
+    'iss' : signer_did, # client id of the clent making the credential request
     'nonce' : nonce,
     'iat': datetime.timestamp(datetime.now()),
-    'aud' : aud
+    'aud' : aud # Credential Issuer URL
   }  
   token = jwt.JWT(header=header,claims=payload, algs=[alg(key)])
   token.make_signed_token(signer_key)
@@ -309,13 +310,14 @@ def did_resolve_lp(did) :
     
   else :
     url = 'https://dev.uniresolver.io/1.0/identifiers/' + did
-  
   try :
+    logging.info('call universal resolver')
     r = requests.get(url)
   except :
     logging.error('cannot access to Universal Resolver API')
     return "{'error' : 'cannot access to Universal Resolver API'}"
-  return r.json()['didDocument']
+  logging.info("DID Document = %s", r.json())
+  return r.json().get('didDocument')
 
 
 def get_public_key_from_did_document(did, vm) :
@@ -371,7 +373,8 @@ def get_issuer_registry_data(did) :
 
 def did_resolve(did, key) :
   """
-  for natural person
+  EBSIV2
+  did:ebsi for natural person
   https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
   """
   if not did or not key :

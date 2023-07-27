@@ -62,7 +62,9 @@ landing_page_style_list = {
 # verifier
 ebsi_verifier_landing_page_style_list = {
                     "./ebsi/ebsi_verifier_qrcode_2.html" : "Style 2",
-                    "./ebsi/ebsi_verifier_qrcode_test.html" : "Test"
+                    "./ebsi/ebsi_verifier_qrcode_test.html" : "Test",
+                    "./ebsi/diploma_verifier.html" : "Diplome Tezos Ebsi"
+
 }
 
 
