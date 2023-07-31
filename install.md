@@ -30,4 +30,6 @@ pip install pyotp
 pip install pkce
 pip install PyLD
 pip install gevent
+pip install py-multibase
+pip install py-multicodec
 

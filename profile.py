@@ -25,7 +25,7 @@ profile = {
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
-            "oidc4vci_prefix" : "openid://initiate_issuance",
+            "oidc4vci_prefix" : "openid-credential-offer://",
             "presentation_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ['DID'],
             'credential_supported' : ['VerifiableDiploma', 'VerifiableId'],
@@ -43,7 +43,7 @@ profile = {
         {
             "issuer_vc_type" : "ldp_vc",
             "verifier_vp_type" : "ldp_vp",
-            "oidc4vci_prefix" : "openid-initiate-issuance://" ,
+            "oidc4vci_prefix" : "openid-credential-offer://" ,
             "presentation_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
             'credential_supported' : ['EmployeeCredential', 'VerifiableId'],
