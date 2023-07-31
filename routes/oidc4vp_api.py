@@ -420,14 +420,14 @@ def ebsi_login_qrcode(red, mode):
         logging.info("1 credential requested")
         filter = {"type": "string"}  
         input_descriptor = {"constraints":{"fields":[{"path":[]}]}}
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
         else :
             input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor["id"] = str(uuid.uuid1())
         input_descriptor["name"] = "Input descriptor 1"
         input_descriptor["purpose"] = verifier_data['reason']
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             filter["pattern"] =  type_2_schema[verifier_data['vc']]
         else :
             filter["pattern"] =  verifier_data['vc']
@@ -440,14 +440,14 @@ def ebsi_login_qrcode(red, mode):
         logging.info("1 credential requested")
         filter = {"type": "string"}  
         input_descriptor = {"constraints":{"fields":[{"path":[]}]}}
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
         else :
             input_descriptor["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor["id"] = str(uuid.uuid1())
         input_descriptor["name"] = "Input descriptor 1"
         input_descriptor["purpose"] = verifier_data['reason']
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             filter["pattern"] =  type_2_schema[verifier_data['vc']]
         else :
             filter["pattern"] =  verifier_data['vc']
@@ -460,14 +460,14 @@ def ebsi_login_qrcode(red, mode):
         logging.info("2 credentials requested")
         filter_1 = {"type": "string"} 
         input_descriptor_1 = {"constraints":{"fields":[{"path":[]}]}}
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             input_descriptor_1["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
         else :
             input_descriptor_1["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor_1["id"] = str(uuid.uuid1())
         input_descriptor_1["name"] = "Input descriptor 1"
         input_descriptor_1["purpose"] = verifier_data['reason'] 
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             filter_1["pattern"] =  type_2_schema[verifier_data['vc']]
         else :
             filter_1["pattern"] =  verifier_data['vc']
@@ -476,14 +476,14 @@ def ebsi_login_qrcode(red, mode):
         
         filter_2 = {"type": "string"} 
         input_descriptor_2 = {"constraints":{"fields":[{"path":[]}]}}
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             input_descriptor_2["constraints"]["fields"][0]['path'].append("$.credentialSchema.id")
         else :
             input_descriptor_2["constraints"]["fields"][0]['path'].append("$.credentialSubject.type")
         input_descriptor_2["id"] = str(uuid.uuid1())
         input_descriptor_2["name"] = "input descriptor 2"
         input_descriptor_2["purpose"] = verifier_data["reason_2"] 
-        if verifier_data['profile'] == "EBSIV2" :
+        if verifier_data['profile'] == "EBSI-V2" :
             filter_2["pattern"] =  type_2_schema[verifier_data['vc_2']]
         else :
             filter_2["pattern"] =  verifier_data['vc_2']
@@ -496,7 +496,7 @@ def ebsi_login_qrcode(red, mode):
         "redirect_uri" : mode.server + "sandbox/ebsi/login/endpoint/" + stream_id,
         "nonce" : str(uuid.uuid1())
     }
-    if verifier_data['profile'] == "EBSIV2" :
+    if verifier_data['profile'] == "EBSI-V2" :
         # previoous release of the OIDC4VC specifications
         # OIDC claims parameter https://openid.net/specs/openid-connect-core-1_0.html#ClaimsParameter
         authorization_request['scope'] = 'openid'
@@ -521,7 +521,7 @@ def ebsi_login_qrcode(red, mode):
             prefix = verifier_profile["siopv2_prefix"]
             #authorization_request['claims'] = 'not supported'
 
-    if not verifier_data.get('request_uri') and verifier_data['profile'] in ["EBSIV2" ] :
+    if not verifier_data.get('request_uri') and verifier_data['profile'] in ["EBSI-V2" ] :
         authorization_request_displayed = authorization_request
     else :
         authorization_request_displayed = { 
@@ -645,7 +645,7 @@ def ebsi_login_endpoint(stream_id, red):
          vp_token_status = "Not received"
          
     # check presentation submission
-    if vp_token and verifier_data['profile'] != "EBSIV2" :
+    if vp_token and verifier_data['profile'] != "EBSI-V2" :
         if not presentation_submission :
             access = "access_denied"
             presentation_submission_status = "Not found"

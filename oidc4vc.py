@@ -1,7 +1,6 @@
 import hashlib
 from pyld import jsonld
 import requests
-import requests
 from jwcrypto import jwk, jws, jwt
 import base64
 import base58
@@ -11,6 +10,9 @@ from datetime import datetime
 import os
 import logging
 logging.basicConfig(level=logging.INFO)
+from multibase import decode
+import multicodec
+
 
 """
  https://ec.europa.eu/digital-building-blocks/wikis/display/EBSIDOC/EBSI+DID+Method
@@ -174,7 +176,12 @@ def verif_token(token, nonce) :
   elif header.get('kid') :
     did = payload['iss']
     vm = header['kid']
-    dict_key = get_public_key_from_did_document(did, vm)
+    if did[:6] == "did:key" :
+      print('resolve did:key with internal resolver')
+      dict_key = json.loads(resolve_did_key(did))
+    else :
+      print("resolve with external resolver")
+      dict_key = get_public_key_from_did_document(did, vm)
     issuer_key = jwk.JWK(**dict_key)
   else :
     raise Exception("Cannot resolve public key")
@@ -247,6 +254,22 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   token = jwt.JWT(header=header,claims=payload, algs=[alg(key)])
   token.make_signed_token(signer_key)
   return token.serialize()
+
+
+def resolve_did_key(did) :
+    encoded = did.split(':')[2].encode()
+    ed255_Multi = decode(encoded)
+    ed255_binary = multicodec.remove_prefix(ed255_Multi)
+    x = base64.urlsafe_b64encode(ed255_binary).decode()
+    for i in range(3) :
+        if x[-1:] == '=' :
+            x = x[:-1]
+    key = {
+            "crv":"Ed25519",
+            "kty":"OKP",
+            "x": x
+        }
+    return json.dumps(key)
 
 
 def thumbprint(key) :

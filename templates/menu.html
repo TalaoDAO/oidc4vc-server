@@ -13,9 +13,7 @@
 
     <div class="text-center mt-5">
         <br><br><br>
-        {% if session['login_name'] == 'admin'  %}
         <h1  style="color: rgb(54, 24, 88);"">Choose your Issuer or Verifier</h1>
-        {% endif %}
         <br><br>
 
 
@@ -40,10 +38,10 @@
             </div>
 
         </div>
+        {% if session['login_name'] == 'admin'  %}
 
             <div class="row my-5">
 
-          {% if session['login_name'] == 'admin'  %}
           <div class="col-6 mx-auto">
             <div id="id_qrcode" class="text-center">
                 <a href="/sandbox/saas4ssi/beacon/verifier">
@@ -55,25 +53,18 @@
                 <br> Support of TezID whitelist.
             </div> 
         </div>
-        {% endif %}
         </div>
         
+        {% endif %}
 
-        {% if session['login_name'] != 'admin'  %}
-        <div class="row mb-4">
-          <div class="col text-center">
-            <a href="/sandbox/saas4ssi/verifier"><button type="button"   class="btn btn-outline-dark ">Select ou create a verifier connector</button></a></h3>
-         </div>
-        </div> 
-        {% endif %}  
-
+     
 
  
 
+        {% if session['login_name'] == 'admin'  %}
 
         <div class="row my-5">
 
-          {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/issuer">           
@@ -84,11 +75,12 @@
               Support of login/password pre authentication method with static password or TOTP.
           </div> 
       </div>
-      {% endif %}
-
 </div>
+{% endif %}
+
+{% if session['login_name'] == 'admin'  %}
+
       <div class="row my-5">
-      {% if session['login_name'] == 'admin'  %}
         <div class="col-6 mx-auto">
           <div id="id_qrcode" class="text-center">
               <a href="/sandbox/saas4ssi/beacon">
@@ -99,12 +91,10 @@
               <br> Support of TezID whitelist.
           </div> 
       </div>
-      {% endif %}
-
     </div>
-  
+    {% endif %}
 
-    {% if session['login_name'] == 'admin'  %}
+
     <div class="row my-5">
     <div class="col-6 mx-auto">
       <div id="id_qrcode" class="text-center">
@@ -113,18 +103,19 @@
           </a>
           This is a bridge between the SIOPv2/OIDC4VP verifier flow and a standard OpenID authorization code flow and implicit flow.
           For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
-          This verifier supports different profiles as EBSIV2, GAIAX, ARF....(In progress)
-        This verifier accepts EBSI compliant wallets with support for did:ebsi.
+          This verifier supports different profiles as EBSIV2, GAIAX, ARF....
+        This verifier accepts EBSI compliant wallets with support for did:ebsi.<br>
+        <a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0.html">See OIDC4VP standards</a><br>
+        <a href="https://openid.net/specs/openid-connect-self-issued-v2-1_0.html">See SIOPV2 standards</a>
+
+
       </div> 
   </div>
     </div>
-    {% endif %}
 
 
-    {% if session['login_name'] == 'admin'  %}
 
     <div class="row my-5">
-
     <div class="col-4 mx-auto">
       <div id="id_qrcode" class="text-center">
         <a href="/sandbox/saas4ssi/ebsi/issuer">
@@ -133,15 +124,19 @@
          Issuer for EBSI-V2 , OIDC4VC issuance<br>
          This verifier supports different profiles as EBSIV2, GAIAX, ARF....(In progress)<br>
          Support of authorization code flow and pre-authorized_code flow <br>
-         <a href="https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html
-         ">See OIDC4VCI standards</a>
+         <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html">See OIDC4VCI standards</a>
       </div> 
   </div>
-   
         </div>
 
-        {% endif %}
 
+        {% if session['login_name'] != 'admin'  %}
+        <div class="row mb-4">
+          <div class="col text-center">
+            <a href="/sandbox/saas4ssi/verifier"><button type="button"   class="btn btn-outline-dark ">Select ou create a verifier connector</button></a></h3>
+         </div>
+        </div> 
+        {% endif %}  
 
            
        

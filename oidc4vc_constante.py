@@ -13,13 +13,10 @@ ebsi_vc_type_list = {
 }
 
 oidc4vc_profile_list = {
-    'EBSIV2' : 'EBSI V2',
-    'GAIAX' : 'Projet GAIA-X Community',
+    'EBSI-V2' : 'EBSI V2',
     'DEFAULT' : 'Default profile',
-    'CUSTOM' : 'No compliant issuer',
-    'EBSIV3' : 'EBSI V3',
-    'JWTVC' : 'JWT VC presentation profile',
-    'ARF' : 'Achitecture reference framework'
+    'EBSI-V3' : 'EBSI V3',
+    'JWT-VC' : 'JWT-VC presentation profile',
 }
 
 
