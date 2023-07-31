@@ -247,7 +247,6 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
         logging.warning('Not supported')
         jsonify('Parameters not supported')
     
-    print("Profile = ", issuer_data['profile'])
     if issuer_data['profile']  != 'EBSI-V2' :
         url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode({"credential_offer" : json.dumps(url_data)})
     else :
@@ -549,16 +548,16 @@ async def ebsi_issuer_credential(issuer_id, red) :
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
     credential = access_token_data['vc']
     credential['credentialSubject']['id'] = proof_payload['iss']
-    credential['issuer']= issuer_data.get('did', 'Unknown')
+    credential['issuer']= issuer_data['did']
     credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     
     issuer_key =  issuer_data['jwk'] 
-    issuer_did = issuer_data.get('did', 'Unknown') 
+    issuer_did = issuer_data['did'] 
     issuer_vm = issuer_data.get('verification_method', 'Unknown') 
 
-    
+    print('credential to sign = ', credential)
     if proof_format in ['jwt_vc', 'jwt_vc_json', 'jwt_vc_json-ld'] :        
         credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 

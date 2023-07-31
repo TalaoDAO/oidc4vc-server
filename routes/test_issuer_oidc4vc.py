@@ -76,7 +76,7 @@ def issuer_default(mode):
     else :
         return jsonify("Profile DEFAULT client issue")
 
-    with open('./verifiable_credentials/VerifiableId.jsonld', 'r') as f :
+    with open('./verifiable_credentials/EmployeeCredential.jsonld', 'r') as f :
         credential = json.loads(f.read())
     credential['id'] = "urn:uuid:" + str(uuid.uuid4())
     credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
@@ -90,7 +90,7 @@ def issuer_default(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "200",
-        "credential_type" : 'VerifiableId',
+        "credential_type" : 'EmployeeCredential',
         "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
