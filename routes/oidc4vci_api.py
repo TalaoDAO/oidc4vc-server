@@ -25,10 +25,10 @@ from profile import profile
 
 logging.basicConfig(level=logging.INFO)
 
-API_LIFE = 1000
+API_LIFE = 5000
 ACCESS_TOKEN_LIFE = 1000
-GRANT_LIFE = 1000
-C_NONCE_LIFE = 1000
+GRANT_LIFE = 5000
+C_NONCE_LIFE = 5000
 DID_METHODS = ['did:ebsi']
 GRANT_TYPE_SUPPORTED = [ 'urn:ietf:params:oauth:grant-type:pre-authorized_code', 'authorization_code']
 
@@ -557,7 +557,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
     issuer_did = issuer_data['did'] 
     issuer_vm = issuer_data.get('verification_method', 'Unknown') 
 
-    print('credential to sign = ', credential)
     if proof_format in ['jwt_vc', 'jwt_vc_json', 'jwt_vc_json-ld'] :        
         credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 

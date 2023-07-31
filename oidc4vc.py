@@ -176,11 +176,11 @@ def verif_token(token, nonce) :
   elif header.get('kid') :
     did = payload['iss']
     vm = header['kid']
-    if did[:6] == "did:key" :
-      print('resolve did:key with internal resolver')
+    if did[:7] == "did:key" :
+      logging.info('resolve did:key with internal resolver')
       dict_key = json.loads(resolve_did_key(did))
     else :
-      print("resolve with external resolver")
+      logging.info("resolve with external resolver")
       dict_key = get_public_key_from_did_document(did, vm)
     issuer_key = jwk.JWK(**dict_key)
   else :
@@ -202,17 +202,7 @@ def verify_jwt_credential(token, pub_key) :
   a.validate(issuer_key)
   return
 
-"""
-def get_payload_from_token(token, nonce) :
-  payload = token.split('.')[1]
-  payload += "=" * ((4 - len(payload) % 4) % 4) # solve the padding issue of the base64 python lib
-  payload = json.loads(base64.urlsafe_b64decode(payload).decode())
-  try :
-    verif_proof_of_key(token, nonce)
-  except :
-    return
-  return payload
-  """
+
 
 def get_payload_from_token(token) :
   """
@@ -241,8 +231,8 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   header = {
     'typ' :'JWT',
     'alg': alg(key),
-    #'kid' : kid
-    'jwk' : signer_pub_key # as isser cannot resolve did:key
+    'kid' : kid
+    #'jwk' : signer_pub_key # as isser cannot resolve did:key
   }
 
   payload = {
