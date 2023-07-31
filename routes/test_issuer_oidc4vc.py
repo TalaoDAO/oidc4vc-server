@@ -90,7 +90,7 @@ def issuer_default(mode):
     data = { 
         "vc" : credential, 
         "pre-authorized_code" : "200",
-        "credential_type" : 'VerrifiableId',
+        "credential_type" : 'VerifiableId',
         "callback" : mode.server + '/sandbox/issuer/callback'
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
