@@ -177,7 +177,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
 
     try :
         issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-        issuer_profile = profile[issuer_data.get('profile', 'DEFAULT')]
+        issuer_profile = profile[issuer_data['profile']]
     except :
         logging.error('issuer id not found')
         return render_template('op_issuer_removed.html')
@@ -204,10 +204,24 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
                 'credentials'  : [credential_type],
                 #'op_state' : stream_id, #  op_stat 
         }
+
+     # 
+    if issuer_data['profile'] == 'GAIA-X' :
+        url_data  = { 
+            'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+            'credential_type'  : credential_type,
+            'op_state' : stream_id, #  op_stat 
+        }
+    else :
+        url_data  = { 
+                'credential_issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+                'credentials'  : [credential_type],
+                #'op_state' : stream_id, #  op_stat 
+        }
     
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
     # TODO PIN code not supported
-    if pre_authorized_code and issuer_data['profile'] in ['EBSI-V2'] :
+    if pre_authorized_code and issuer_data['profile'] in ['EBSI-V2', 'GAIA-X'] :
         url_data['pre-authorized_code'] = pre_authorized_code
         url_data['user_pin_required']= False
         code_data = {
@@ -218,7 +232,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
         }
         red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
     
-    elif pre_authorized_code and issuer_data['profile'] not in ['EBSI-V2'] :
+    elif pre_authorized_code and issuer_data['profile'] not in ['EBSI-V2', 'GAIA-X'] :
         url_data['grants'] ={
             'urn:ietf:params:oauth:grant-type:pre-authorized_code': {
                 'pre-authorized_code': pre_authorized_code,
@@ -233,7 +247,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
         }
         red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
     
-    elif not pre_authorized_code and issuer_data['profile'] not in  ['EBSI-V2'] :
+    elif not pre_authorized_code and issuer_data['profile'] not in  ['EBSI-V2', 'GAIA-X'] :
         url_data['grants'] ={
             'authorization_code': {
             'issuer_state': stream_id
@@ -251,7 +265,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
         logging.warning('Not supported')
         jsonify('Parameters not supported')
     
-    if issuer_data['profile']  != 'EBSI-V2' :
+    if issuer_data['profile']  not in ['EBSI-V2', 'GAIA-X'] :
         url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode({"credential_offer" : json.dumps(url_data)})
     else :
         url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
@@ -503,13 +517,14 @@ async def ebsi_issuer_credential(issuer_id, red) :
     # Check request 
     try :
         result = request.json
+        logging.info('credential request received from wallet = %s', result)
         proof_format = result['format']
-        proof_type  = result['proof']['proof_type']
+        proof_type  = result['proof']['proof_type'] # not needed as always jwt
         proof = result['proof']['jwt']
     except :
         return Response(**manage_error("invalid_request", "Invalid request format 2")) 
-    
-    # get type of credntila requested
+
+    # get type of credentia requested
     try :
         credential_type = result['type']
     except :
@@ -570,6 +585,8 @@ async def ebsi_issuer_credential(issuer_id, red) :
         credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
 
     else : #  proof_format == 'ldp_vc' :
+        print("issuer_vm = ", issuer_vm)
+        print("issuer_key = ", issuer_key)
         didkit_options = {
                 "proofPurpose": "assertionMethod",
                 "verificationMethod": issuer_vm

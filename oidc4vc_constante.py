@@ -18,6 +18,7 @@ ebsi_vc_type_list = {
 oidc4vc_profile_list = {
     'EBSI-V2' : 'EBSI V2',
     'DEFAULT' : 'Default profile',
+    'GAIA-X' : 'GAIA-X projects',
     'EBSI-V3' : 'EBSI V3',
     'JWT-VC' : 'JWT-VC presentation profile',
     'HEDERA' : 'Hedera projects'
