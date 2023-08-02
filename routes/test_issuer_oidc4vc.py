@@ -118,8 +118,8 @@ def issuer_default(mode):
 
 def issuer_gaiax(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = ""
-        client_secret = ""
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/mfyttabosy"
+        client_secret = "c0ab5d96-3113-11ee-a3e3-0a1628958560"
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
         api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/cqmygbreop"
         client_secret = "a71f33f9-3100-11ee-825b-9db9eb02bfb8"
@@ -160,8 +160,8 @@ def issuer_gaiax(mode):
 
 def issuer_hedera(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/npwsshblrm"
-        client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/nkpbjplfbi"
+        client_secret = "ed055e57-3113-11ee-a280-0a1628958560"
     
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
         api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/uxzjfrjptk"
