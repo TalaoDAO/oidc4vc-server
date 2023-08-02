@@ -6,6 +6,8 @@ import uuid
 import requests
 from flask_qrcode import QRcode
 
+test = True
+
 
 # Init Flask
 app = Flask(__name__)
@@ -22,15 +24,22 @@ Configure your issuer page, text, color and if needed SSI data as keys, DID meth
 def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/issuer/ebsiv2',  view_func=issuer_ebsiv2, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/default',  view_func=issuer_default, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/sandbox/issuer/hedera',  view_func=issuer_hedera, methods = ['GET'], defaults={'mode' : mode})
+
     app.add_url_rule('/sandbox/issuer/callback',  view_func=issuer_callback, methods = ['GET'])
 
 
 def issuer_callback():
     return jsonify("Great !")
 
+
 def issuer_ebsiv2(mode):
     if mode.myenv == 'aws' :
         api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/zxhaokccsi"
+        client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
+    
+    elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
+        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/zxhaokccsi"
         client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
     
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
@@ -50,9 +59,10 @@ def issuer_ebsiv2(mode):
     }
     data = { 
         "vc" : credential, 
-        "pre-authorized_code" : "100",
+        "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : 'VerifiableDiploma',
-        "callback" : mode.server + '/sandbox/issuer/callback'
+        "callback" : mode.server + '/sandbox/issuer/callback',
+        "test" : test
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :
@@ -68,8 +78,8 @@ def issuer_default(mode):
         api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/npwsshblrm"
         client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = ""
-        client_secret = ""
+        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/npwsshblrm"
+        client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
         api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/npwsshblrm"
         client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
@@ -89,9 +99,53 @@ def issuer_default(mode):
     }
     data = { 
         "vc" : credential, 
-        "pre-authorized_code" : "200",
+        "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : 'EmployeeCredential',
-        "callback" : mode.server + '/sandbox/issuer/callback'
+        "callback" : mode.server + '/sandbox/issuer/callback',
+        "test" : test
+        }
+    resp = requests.post(api_endpoint, headers=headers, json = data)
+    if test :
+        try :
+            qrcode =  resp.json()['initiate_qrcode']
+        except :
+            return jsonify("No qr code")
+        return redirect(qrcode) 
+    else :
+        return jsonify(resp.json()['url'])
+
+def issuer_hedera(mode):
+    if mode.myenv == 'aws' :
+        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/npwsshblrm"
+        client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
+    
+    elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
+        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/uxzjfrjptk"
+        client_secret = "2675ebcf-2fc1-11ee-825b-9db9eb02bfb8"
+    
+    elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
+        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/uxzjfrjptk"
+        client_secret = "2675ebcf-2fc1-11ee-825b-9db9eb02bfb8"
+    else :
+        return jsonify("Profile DEFAULT client issue")
+
+    with open('./verifiable_credentials/ProofOfAsset.jsonld', 'r') as f :
+        credential = json.loads(f.read())
+    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
+    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization' : 'Bearer ' + client_secret
+    }
+    data = { 
+        "vc" : credential, 
+        "pre-authorized_code" : str(uuid.uuid1()),
+        "credential_type" : 'ProofOfAsset',
+        "callback" : mode.server + '/sandbox/issuer/callback',
+        "test" : test
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
     try :
@@ -99,8 +153,6 @@ def issuer_default(mode):
     except :
         return jsonify("No qr code")
     return redirect(qrcode) 
-
-
 
 
 

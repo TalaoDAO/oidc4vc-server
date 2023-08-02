@@ -21,7 +21,7 @@ profile = {
                 The prefix openid_initiate_issuance:// \
                 oidc4vci_draft : https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#abstract',
         }, 
-    "EBSI-V3" : # TOBE completed
+    "EBSI-V3" : # TODO completed
         {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
@@ -58,11 +58,31 @@ profile = {
                 oidc4vci_draft : https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html \
                 siopv2_draft : https://openid.net/specs/openid-connect-self-issued-v2-1_0.html \
                 oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html  \
-                 Issuer pour projet Docaposte Gaia-X'
+                 '
 
         },
+        "HEDERA" :
+        {
+            "issuer_vc_type" : "jwt_vc",
+            "verifier_vp_type" : "jwt_vp",
+            "oidc4vci_prefix" : "openid-credential-offer-hedera://" ,
+            "presentation_prefix" : "openid-hedera://",
+            "cryptographic_binding_methods_supported" : ('DID'),
+            'credential_supported' : ['EmployeeCredential', 'ProofOfAsset'],
+            "grant_types_supported": [
+                "authorization_code",
+                "urn:ietf:params:oauth:grant-type:pre-authorized_code"
+            ],
+            "cryptographic_suites_supported" : ['ES256K','ES256','ES384','ES512','RS256'],
+            "subject_syntax_types_supported" : ['did:key', 'did:pkh'],
+            "schema_for_type" : False,
+            'service_documentation' : 'WORK IN PROGRESS EON project. last release of the specs. \
+                oidc4vci_draft : https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html \
+                siopv2_draft : https://openid.net/specs/openid-connect-self-issued-v2-1_0.html \
+                oidc4vp_draft : https://openid.net/specs/openid-4-verifiable-presentations-1_0.html  \
+                 Issuer and verifier for marjetplace and WCM'
+        },
     
- 
     "JWT-VC" :
         {
             "issuer_vc_type" : "jwt_vc",
@@ -71,7 +91,7 @@ profile = {
             'cryptographic_binding_methods_supported' : ('DID'),
             'credential_supported' : ['EmployeeCredential', 'VerifiableId'],
             'cryptographic_suites_supported' : ['ES256K','ES256','ES384','ES512','RS256'],
-            'subject_syntax_types_supported' : ['did:ion'],
+            'subject_syntax_types_supported' : ['did:ion', 'did:web'],
             'schema_for_type' : False,
             'service_documentation' : 'https://identity.foundation/jwt-vc-presentation-profile/'
 

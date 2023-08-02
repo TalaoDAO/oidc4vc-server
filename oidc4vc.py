@@ -173,9 +173,11 @@ def verif_token(token, nonce) :
     if isinstance (header['jwk'], str) :
       header['jwk'] = json.loads(header['jwk'])
     issuer_key = jwk.JWK(**header['jwk']) 
+  
   elif header.get('kid') :
-    did = payload['iss']
+    #did = payload['iss'] # iss is not required  
     vm = header['kid']
+    did = vm.split('#')[0]
     if did[:7] == "did:key" :
       logging.info('resolve did:key with internal resolver')
       dict_key = json.loads(resolve_did_key(did))
@@ -183,6 +185,7 @@ def verif_token(token, nonce) :
       logging.info("resolve with external resolver")
       dict_key = get_public_key_from_did_document(did, vm)
     issuer_key = jwk.JWK(**dict_key)
+
   else :
     raise Exception("Cannot resolve public key")
   a.validate(issuer_key)
@@ -299,12 +302,23 @@ def did_resolve_lp(did) :
   for legal person  did:ebsi and did:web
   API v3   Get DID document with EBSI API
   https://api-pilot.ebsi.eu/docs/apis/did-registry/latest#/operations/get-did-registry-v3-identifier
+
+  return DID Document
   """
   if not did :
     return "{'error' : 'No DID defined'}"
+  
+
   elif did.split(':')[1] == 'ebsi' :
     url = 'https://api-pilot.ebsi.eu/did-registry/v3/identifiers/' + did
+    try :
+      r = requests.get(url)
+    except :
+      logging.error('cannot access to Universal Resolver API')
+      return "{'error' : 'cannot access to EBSI registry'}"
+    return r.json()
   
+
   elif did.split(':')[1] == 'web' :
     url = 'https://' + did.split(':')[2] 
     i = 3
@@ -318,13 +332,13 @@ def did_resolve_lp(did) :
     r = requests.get(url)
     if 399 < r.status_code < 500 :
       logging.warning('return API code = %s', r.status_code)
-     
+      return "{'error' : 'did:web not found on server'}"
+    logging.info('did:web found on server')
     return r.json()
     
   else :
     url = 'https://dev.uniresolver.io/1.0/identifiers/' + did
   try :
-    logging.info('call universal resolver')
     r = requests.get(url)
   except :
     logging.error('cannot access to Universal Resolver API')

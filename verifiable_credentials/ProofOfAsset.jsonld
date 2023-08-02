@@ -1,0 +1,77 @@
+{
+    "@context": [
+        "https://www.w3.org/2018/credentials/v1",
+        
+        {
+            "ProofOfAsset" : {
+                "@id" : "urn:proofofasset",
+                "@context" : {
+                    "@version": 1.1,
+                    "@protected": true,
+                    "id": "@id",
+                    "type": "@type",
+                    "schema" : "https://schema.org/",
+                    "hasCountry": "schema:addressCountry",
+                    "hasJurisdiction": "schema:addressCountry",
+                    "hasLegallyBindingName": "schema:legalName",
+                    "hasRegistrationNumber": "schema:identifier",
+                    "leiCode": "schema:leiCode",
+                    "parentOrganisation": "schema:legalName",
+                    "subOrganisation": "schema:legalName",
+                    "legalName": "schema:legalName",
+                    "projects" : "schema:legalName"
+               }
+            },
+            "StatusList2021Entry": {
+                "@id": "https://w3id.org/vc/status-list#StatusList2021Entry",
+                "@context": {
+                  "@protected": true,
+                  "id": "@id",
+                  "type": "@type",
+                  "statusPurpose": "https://w3id.org/vc/status-list#statusPurpose",
+                  "statusListIndex": "https://w3id.org/vc/status-list#statusListIndex",
+                  "statusListCredential": {
+                    "@id": "https://w3id.org/vc/status-list#statusListCredential",
+                    "@type": "@id"
+                  }
+                }
+              }
+        }
+    ],
+
+    "type": ["VerifiableCredential",
+        "ProofOfAsset"
+    ],
+
+    "id": "urn:uuid:8558cbd7-9923-44d9-b328-c41c7fa5a049",
+    "issuer": "did:key:z6Mkhwpk8MDkMURxMdLYjrApfYFb6uzDkbh6M7mdiaCrvSKu",
+    "issuanceDate": "2023-07-20T15:36:41Z",
+    "issued": "2023-07-20T15:36:41Z",
+    "validFrom": "2023-07-20T15:36:41Z",
+    "expirationDate": "2023-10-18T17:36:19.882+02:00",
+
+    "credentialSchema": {
+        "id": "https://raw.githubusercontent.com/walt-id/waltid-ssikit-vclib/master/src/test/resources/schemas/ParticipantCredential.json",
+        "type": "JsonSchemaValidator2018"
+    },
+
+    "credentialSubject": {
+        "type" : "ProofOfAsset",
+        "id": "did:key:z6MkhtVRXQ5byNWwQYCNoH6ap3JQn5qF5AiMZFq3dvakxCRg",
+        "hasCountry": "GER",
+        "hasJurisdiction": "GER",
+        "hasLegallyBindingName": "EON AG",
+        "hasRegistrationNumber": "DEK1101R.HRB170364",
+        "leiCode": "391200FJBNU0YW987L26",
+        "legalName": "GreenCypher AG",
+        "projects" : ["LHGYF1236786876", "345KHFKYFU678756"]
+    },
+    "credentialStatus": {
+        "type": "StatusList2021Entry",
+        "id": "https://revocation-registry.abc-federation.dev.gaiax.ovh/api/v1/revocations/credentials/ABC-Federation-revocation#51",
+        "statusPurpose": "revocation",
+        "statusListIndex": "51",
+        "statusListCredential": "https://revocation-registry.abc-federation.dev.gaiax.ovh/api/v1/revocations/credentials/ABC-Federation-revocation"
+    }
+
+}

@@ -7,16 +7,20 @@ user = {
         "client_id" : []
 }
 
+"""
 ebsi_vc_type_list = {
     "jwt_vc" : "JWT-JSON",
     "ldp_vc" : "JSON-LD"
 }
+"""
+
 
 oidc4vc_profile_list = {
     'EBSI-V2' : 'EBSI V2',
     'DEFAULT' : 'Default profile',
     'EBSI-V3' : 'EBSI V3',
     'JWT-VC' : 'JWT-VC presentation profile',
+    'HEDERA' : 'Hedera projects'
 }
 
 
@@ -28,6 +32,7 @@ ebsi_verifier_credential_list = {
     'VerifiableId' :  'Verifiable ID (vp_token)',
     'VerifiableDiploma' : 'EBSI Diploma (vp_token)',
     'EmployeeCredential' : 'Employee Credential (vp_token)',
+    'ProofOfAsset' : 'Carbon credit projects',
     'EmailPass' : 'Email proof (vp_token)',
     'PhoneProof' : 'Phone proof (vp_token)',
     'DeviceInfo' : 'Device information (vp_token)'
@@ -70,8 +75,6 @@ pre_authorized_code_list = {'none' : "None",
                  'pac' : 'Pre authorized code',
                   'pac_pin' : 'Pre authorized code + PIN code'
                  }
-
-
 
 
 

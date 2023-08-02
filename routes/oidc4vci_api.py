@@ -72,8 +72,12 @@ def oidc(issuer_id, mode) :
     # Credential supported section
     cs = list()
     for vc in issuer_profile['credential_supported']:
+        file_path = './verifiable_credentials/' + vc + '.jsonld'
+        credential = json.load(open(file_path))
         cs.append({
             'format': issuer_profile['issuer_vc_type'],
+            'types' : credential['type'],
+            #"@context" : credential['@context'],
             'id': vc,
             'display': [
                 {
@@ -478,21 +482,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-credential-endpoint
     
     https://api-conformance.ebsi.eu/docs/specs/credential-issuance-guidelines#credential-request
-
-    {
-    "format":"jwt_vc_json",
-    "types":[
-      "VerifiableCredential",
-      "UniversityDegreeCredential"
-    ],
-    "proof":{
-      "proof_type":"jwt",
-      "jwt":"eyJraWQiOiJkaWQ6ZXhhbXBsZTplYmZlYjFmNzEyZWJjNmYxYzI3NmUxMmVjMjEva2V5cy8
-      xIiwiYWxnIjoiRVMyNTYiLCJ0eXAiOiJKV1QifQ.eyJpc3MiOiJzNkJoZFJrcXQzIiwiYXVkIjoiaHR
-      0cHM6Ly9zZXJ2ZXIuZXhhbXBsZS5jb20iLCJpYXQiOiIyMDE4LTA5LTE0VDIxOjE5OjEwWiIsIm5vbm
-      NlIjoidFppZ25zbkZicCJ9.ewdkIkPV50iOeBUqMXCC_aZKPxgihac0aW9EkL1nOzM"
-    }
-    }
     
     """
     logging.info("credential endpoint request")
@@ -514,13 +503,21 @@ async def ebsi_issuer_credential(issuer_id, red) :
     # Check request 
     try :
         result = request.json
-        credential_type = result['type']
         proof_format = result['format']
         proof_type  = result['proof']['proof_type']
         proof = result['proof']['jwt']
     except :
         return Response(**manage_error("invalid_request", "Invalid request format 2")) 
     
+    # get type of credntila requested
+    try :
+        credential_type = result['type']
+    except :
+        try :
+            credential_type = result['types']
+        except :
+            return Response(**manage_error("invalid_request", "Invalid request format 2")) 
+    """
     # check credential type requested
     logging.info('credential type requested = %s', access_token_data['credential_type'])
     if issuer_data['profile'] == 'EBSI-V2' :
@@ -529,7 +526,19 @@ async def ebsi_issuer_credential(issuer_id, red) :
     else :
         if credential_type != access_token_data['credential_type'] :
             return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
-    
+    """
+
+    credential_is_supported = False
+    if issuer_data['profile'] != 'EBSI-V2' :
+        for vc in issuer_profile['credential_supported'] :
+            if vc == credential_type :
+                credential_is_supported = True
+                logging.info('credential is supported')
+                break
+        if not credential_is_supported : 
+            return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
+
+
     # check proof format requested
     logging.info("proof format requested = %s", proof_format)
     if proof_format not in ['jwt_vc','jwt_vc_json', 'jwt_vc_json-ld', 'ldp_vc'] :#TODO
@@ -541,8 +550,8 @@ async def ebsi_issuer_credential(issuer_id, red) :
         oidc4vc.verif_token(proof, access_token_data['c_nonce'])
         logging.info('proof of ownership is validated')
     except Exception as e :
-        logging.warning("proof of ownership error = %s", str(e))
-        return Response(**manage_error("invalid_or_missing_proof", str(e))) 
+        logging.error("proof of ownership error = %s", str(e))
+        #return Response(**manage_error("invalid_or_missing_proof", str(e))) 
     
     proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
