@@ -91,12 +91,16 @@ def ebsi_issuer_select() :
         client_id = data_dict['client_id']
         act = len(issuer_activity_db_api.list(client_id))              
         if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
+            curve = data_dict['jwk']
+            vm =  data_dict['verification_method'].split('#')[1]
             issuer = """<tr>
                     <td>""" + data_dict.get('application_name', "unknown") + """</td>
                     <td>""" + str(act) + """</td>
                     <td>""" + data_dict.get('user', "unknown") + """</td>
                     <td><a href=/sandbox/ebsi/issuer/console?client_id=""" + client_id + """>""" + client_id + """</a></td>
-                    <td>""" + data_dict.get('did', 'Unknown') + """</td> 
+                    <td>""" + data_dict['did'] + """</td> 
+                    <td>""" + vm + """</td> 
+                    <td>""" + curve + """</td> 
                     <td>""" +  data_dict['profile'] + """</td>
                     </tr>"""
             issuer_list += issuer

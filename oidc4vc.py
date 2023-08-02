@@ -121,7 +121,7 @@ def sign_jwt_vc(vc, issuer_vm , issuer_key, nonce) :
 
 
 """
-For holder/wallet
+For Wallet
 Build and sign verifiable presentation as vp_token
 Ascii is by default in the json string 
 """
@@ -161,7 +161,6 @@ def verif_token(token, nonce) :
   """
   For issuer 
   raise exception if problem
-  pub _key is in header
   https://jwcrypto.readthedocs.io/en/latest/jwt.html#jwcrypto.jwt.JWT.validate
   """
   header = get_header_from_token(token)
@@ -169,25 +168,24 @@ def verif_token(token, nonce) :
   if payload['nonce'] != nonce :
     raise Exception("Nonce is incorrect")
   a =jwt.JWT.from_jose_token(token)
+  
   if header.get('jwk') :
     if isinstance (header['jwk'], str) :
       header['jwk'] = json.loads(header['jwk'])
     issuer_key = jwk.JWK(**header['jwk']) 
   
   elif header.get('kid') :
-    #did = payload['iss'] # iss is not required  
     vm = header['kid']
     did = vm.split('#')[0]
     if did[:7] == "did:key" :
-      logging.info('resolve did:key with internal resolver')
-      dict_key = json.loads(resolve_did_key(did))
-    else :
       logging.info("resolve with external resolver")
-      dict_key = get_public_key_from_did_document(did, vm)
+      dict_key = resolve_did_key(did)
+      if not dict_key :
+         raise Exception("Cannot resolve public key")
     issuer_key = jwk.JWK(**dict_key)
-
   else :
     raise Exception("Cannot resolve public key")
+  
   a.validate(issuer_key)
   return
 
@@ -249,6 +247,7 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   return token.serialize()
 
 
+"""
 def resolve_did_key(did) :
     encoded = did.split(':')[2].encode()
     ed255_Multi = decode(encoded)
@@ -263,6 +262,18 @@ def resolve_did_key(did) :
             "x": x
         }
     return json.dumps(key)
+"""
+
+def resolve_did_key(did) -> dict :
+    url = 'https://dev.uniresolver.io/1.0/identifiers/' + did
+    try :
+        r = requests.get(url)
+    except :
+        logging.error('cannot access to Universal Resolver API')
+        return 
+    jwk = r.json()['didDocument']['verificationMethod'][0]['publicKeyJwk']
+    return jwk
+
 
 
 def thumbprint(key) :

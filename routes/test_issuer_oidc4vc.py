@@ -1,4 +1,4 @@
-from flask import Flask, redirect, jsonify
+from flask import Flask, redirect, jsonify, request
 import base64
 from datetime import datetime, timedelta
 import json
@@ -31,7 +31,7 @@ def init_app(app,red, mode) :
 
 
 def issuer_callback():
-    return jsonify("Great !")
+    return jsonify("Great ! pre-authorized_code =" + request.args.get('pre-authorized_code'))
 
 
 def issuer_ebsiv2(mode):
@@ -66,11 +66,15 @@ def issuer_ebsiv2(mode):
         "test" : test
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    try :
-        qrcode =  resp.json()['initiate_qrcode']
-    except :
-        return jsonify("No qr code")
-    return redirect(qrcode) 
+    if test :
+        try :
+            qrcode =  resp.json()['initiate_qrcode']
+        except :
+            return jsonify("No qr code")
+        return redirect(qrcode) 
+    else :
+        return jsonify(resp.json()['url'])
+   
 
 
 
@@ -192,11 +196,15 @@ def issuer_hedera(mode):
         "test" : test
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    try :
-        qrcode =  resp.json()['initiate_qrcode']
-    except :
-        return jsonify("No qr code")
-    return redirect(qrcode) 
+    if test :
+        try :
+            qrcode =  resp.json()['initiate_qrcode']
+        except :
+            return jsonify("No qr code")
+        return redirect(qrcode) 
+    else :
+        return jsonify(resp.json()['url'])
+   
 
 
 
