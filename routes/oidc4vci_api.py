@@ -18,8 +18,6 @@ import didkit
 from urllib.parse import urlencode
 import db_api
 import oidc4vc
-import base64
-import issuer_activity_db_api
 from oidc4vc_constante import type_2_schema
 from profile import profile
 
@@ -142,13 +140,13 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         'Authorization' : 'Bearer <client_secret>'
     }
     data = { 
-        "vc" : {....}, -> REQUIRED : object, VC as a json-ld not signed
-        "pre-authorized_code" : "lklkjlkjh",   -> OPTIONAL, if no it will be an authorization flow
-        "issuer_state" : OPTIONAL, opaque to wallet
-        "credential_type" : REQUIRED -> name of the credential
-        "user_pin_required" : false -> OPTIONAL, False by default
-        "callback" : OPTIONAL, this the route for at the end of the flo
-        "test" : True by default OPTIONAL, allow to use thet test template
+        "vc" : { "EmployeeCredendial" : {}, ....}, -> REQUIRED : object, VC as a json-ld not signed
+        "pre-authorized_code" : "lklkjlkjh",   -> OPTIONAL, string if no it will be an authorization flow
+        "issuer_state" : OPTIONAL, string, opaque to wallet
+        "credential_type" : REQUIRED -> array or string name of the credential
+        "user_pin_required" : false -> OPTIONAL, bool, False by default
+        "callback" : OPTIONAL, string, this the route for at the end of the flo
+        "redirect" : True by default OPTIONAL, bool, allow to use thet test template
         }
     resp = requests.post(token_endpoint, headers=headers, data = data)
     return resp.json()
@@ -163,13 +161,20 @@ def issuer_api_endpoint(issuer_id, red, mode) :
     except :
         return Response(**manage_error("invalid_request", "Request format is incorrect"))
     
-    test = request.json.get('test', True)
+    redirect = request.json.get('redirect', True)
     pre_authorized_code = request.json.get('credential_type')
 
     if client_secret != issuer_data['client_secret'] :
-        return Response(**manage_error("Unauthorized", "Client secret is incorrect"), status=401)
+        return Response(**manage_error("Unauthorized", "Client secret is incorrect", status=401))
     
     issuer_profile = profile[issuer_data['profile']]
+
+    credential_type_checklist = credential_type if isinstance(credential_type, list) else [credential_type]
+    for vc in credential_type_checklist :
+        if vc not in issuer_profile[ 'credential_supported'] :
+              logging.warning("Credential not supported %s", vc)
+              return Response(**manage_error("Unauthorized", "Credential not supported", status=401))
+        
     issuer_vc_type = issuer_profile['issuer_vc_type']
     user_data = {
         'vc' : vc,
@@ -181,24 +186,24 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         'user_pin_required' : request.json.get('user_pin_required'),
         'callback' : request.json.get('callback')
     }
-    if test :
+    if redirect :
         stream_id = str(uuid.uuid1())
         logging.info('Test mode')
         red.setex(stream_id, API_LIFE, json.dumps(user_data))
-        response = {"initiate_qrcode" : mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' + stream_id }
+        response = {"redirect_uri" : mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' + stream_id }
         logging.info('initiate qrcode = %s', mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' + stream_id)
         return jsonify( response)
     
     url_data, code_data = build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, profile, vc, mode)
     if not url_data :
-        return Response(**manage_error("Internal server error", "Server error"), status=500)
+        return Response(**manage_error("Internal server error", "Server error", status=500))
 
     if issuer_data['profile']  != 'EBSI-V2' :
-        url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode({"credential_offer" : json.dumps(url_data)})
+        qrcode = issuer_profile['oidc4vci_prefix'] + '?' + urlencode({"credential_offer" : json.dumps(url_data)})
     else :
-        url = issuer_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
-    response = {"url" : url}
-    logging.info("Url is sent back to application = %s", url)
+        qrcode = issuer_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
+    response = {"qrcode" : qrcode}
+    logging.info("Qrcode value is sent back to application = %s", url)
     red.setex(pre_authorized_code, GRANT_LIFE, json.dumps(code_data)) 
     return jsonify(response)
 
@@ -215,11 +220,13 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
        
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     logging.info('PROFILE = %s', profile)
-    
+    if isinstance(credential_type, str) :
+        credential_type = [credential_type]
+
     if profile == 'EBSI-V2' :
         url_data  = { 
             'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credential_type'  : type_2_schema[credential_type],
+            'credential_type'  : [ type_2_schema[ct] for ct in credential_type],
         }
     
     elif profile == 'GAIA-X' :
@@ -227,11 +234,10 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
             'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
             'credential_type'  : credential_type,
         }
-    
     else :
         url_data  = { 
             'credential_issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credentials'  : [credential_type],
+            'credentials'  : credential_type
         }
     
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
@@ -511,7 +517,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
     except :
         return Response(**manage_error("invalid_request", "Invalid request format 2")) 
     
-    # get type of credntila requested
+    # get type of credential requested
     try :
         credential_type = result['type']
     except :
@@ -519,16 +525,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
             credential_type = result['types']
         except :
             return Response(**manage_error("invalid_request", "Invalid request format 2")) 
-    """
-    # check credential type requested
-    logging.info('credential type requested = %s', access_token_data['credential_type'])
-    if issuer_data['profile'] == 'EBSI-V2' :
-        if credential_type != type_2_schema[access_token_data['credential_type']] :
-            return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
-    else :
-        if credential_type != access_token_data['credential_type'] :
-            return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
-    """
 
     credential_is_supported = False
     if issuer_data['profile'] != 'EBSI-V2' :
@@ -553,10 +549,14 @@ async def ebsi_issuer_credential(issuer_id, red) :
     except Exception as e :
         logging.warning("proof of ownership error = %s", str(e))
         #return Response(**manage_error("invalid_or_missing_proof", str(e)))  #bypass
-    
+
     proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    credential = access_token_data['vc']
+    try :
+        credential = access_token_data['vc'][credential_type]
+    except :
+        return Response(**manage_error("unsupported_credential_type", "The credential type is not offered")) 
+
     credential['id']= 'urn:uuid:' + str(uuid.uuid1())
     credential['credentialSubject']['id'] = proof_payload.get('iss')
     credential['issuer']= issuer_data['did']
@@ -571,7 +571,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
 
     if proof_format in ['jwt_vc', 'jwt_vc_json', 'jwt_vc_json-ld'] :        
         credential_signed = oidc4vc.sign_jwt_vc(credential, issuer_vm , issuer_key, access_token_data['c_nonce'])
-
     else : #  proof_format == 'ldp_vc' :
         didkit_options = {
                 "proofPurpose": "assertionMethod",
@@ -583,8 +582,8 @@ async def ebsi_issuer_credential(issuer_id, red) :
                 issuer_key
                 )
         result = await didkit.verify_credential(credential_signed, '{}')   
-        logging.info('signature check = %s', result)
-        logging.info('credential signed sent to wallet = %s', credential_signed)
+        logging.info('signature check with didkit = %s', result)
+    logging.info('credential signed sent to wallet = %s', credential_signed)
 
     # send event to front to go forward callback and send credential to wallet
     data = json.dumps({

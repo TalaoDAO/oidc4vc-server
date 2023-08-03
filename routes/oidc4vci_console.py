@@ -17,7 +17,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/sandbox/ebsi/issuer/console',  view_func=ebsi_issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/issuer/console/select',  view_func=ebsi_issuer_select, methods = ['GET', 'POST'])
     app.add_url_rule('/sandbox/ebsi/issuer/console/advanced',  view_func=ebsi_issuer_advanced, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/ebsi/issuer/console/preview',  view_func=ebsi_issuer_preview, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=ebsi_issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
     app.add_url_rule('/sandbox/ebsi/issuer/console/activity',  view_func=ebsi_issuer_activity, methods = ['GET', 'POST'])
     # nav bar option
@@ -77,7 +76,7 @@ def ebsi_issuer_activity() :
                     <td>""" + " & ".join(data_received) + """</td>
                     </tr>"""
             activity_list += activity
-        return render_template('ebsi/ebsi_issuer_activity.html', activity=activity_list) 
+        return render_template('issuer_oidc/issuer_activity.html', activity=activity_list) 
     else :
         return redirect('/sandbox/ebsi/issuer/console?client_id=' + session['client_data']['client_id'])
 
@@ -103,7 +102,7 @@ def ebsi_issuer_select() :
                     <td>""" + curve + """</td>
                     </tr>"""
             issuer_list += issuer
-    return render_template('ebsi/ebsi_issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
+    return render_template('issuer_oidc/issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
    
        
 def ebsi_nav_create(mode) :
@@ -111,44 +110,6 @@ def ebsi_nav_create(mode) :
         return redirect('/sandbox/saas4ssi')
     return redirect('/sandbox/ebsi/issuer/console?client_id=' + db_api.create_ebsi_issuer(mode,  user=session['login_name']))
 
-
-def ebsi_issuer_preview (mode) :
-    if not session.get('is_connected') or not session.get('login_name') :
-        return redirect('/sandbox/saas4ssi')
-    stream_id = str(uuid.uuid1())
-    client_id = session['client_data']['client_id']
-    issuer_data = json.loads(db_api.read_ebsi_issuer(client_id))
-    qrcode_message = issuer_data.get('qrcode_message', "No message")
-    mobile_message = issuer_data.get('mobile_message', "No message")
-    if not issuer_data.get('landing_page_style') :
-        qrcode_page = "op_issuer_qrcode_2.html"
-    else : 
-        qrcode_page = issuer_data.get('landing_page_style')
-
-    issuer_did = session['client_data'].get('did', 'Unknown')
-        
-    url = mode.server + 'sandbox/issuer/preview_presentation/' + stream_id + '?' + urlencode({'issuer' : issuer_did})
-    deeplink_altme = mode.deeplink_altme + 'app/download?' + urlencode({'uri' : url})
-    deeplink_talao = mode.deeplink_talao + 'app/download?' + urlencode({'uri' : url})
-    return render_template(qrcode_page,
-							url=url,
-                            deeplink=deeplink_altme,
-                            deeplink_talao=deeplink_talao,
-							stream_id=stream_id,
-                            qrcode_message=qrcode_message,
-                            mobile_message=mobile_message,
-                            landing_page_url= issuer_data['landing_page_url'],
-                            title=issuer_data['title'],
-                            page_title=issuer_data['page_title'],
-                            page_subtitle=issuer_data['page_subtitle'],
-                            page_description=issuer_data['page_description'],
-                            terms_url= issuer_data.get('terms_url'),
-                            privacy_url=issuer_data.get('privacy_url'),
-                            back_button = True,
-                            page_background_color = issuer_data['page_background_color'],
-                            page_text_color = issuer_data['page_text_color'],
-                            qrcode_background_color = issuer_data['qrcode_background_color'],
-                            )
     
 def ebsi_issuer_preview_presentation_endpoint(stream_id, red):
     if request.method == 'GET':
@@ -180,7 +141,7 @@ def ebsi_issuer_console(mode) :
                 else :
                     issuer_landing_page_select +=  "<option value=" + key + ">" + value + "</option>"
         issuer_api_endpoint = mode.server + 'sandbox/ebsi/issuer/api/' + session['client_id']
-        return render_template('ebsi/ebsi_issuer_console.html',
+        return render_template('issuer_oidc/issuer_console.html',
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
                 client_secret=session['client_data']['client_secret'],
@@ -190,9 +151,6 @@ def ebsi_issuer_console(mode) :
                 title = session['client_data'].get('title'),
                 contact_name = session['client_data'].get('contact_name'),
                 contact_email = session['client_data'].get('contact_email'),
-                privacy_url = session['client_data'].get('privacy_url'),
-                #landing_page_url = session['client_data'].get('landing_page_url'),
-                terms_url = session['client_data'].get('terms_url'),
                 client_id= session['client_data']['client_id'],
                 company_name = session['client_data']['company_name'],
                 page_title = session['client_data']['page_title'],
@@ -218,9 +176,7 @@ def ebsi_issuer_console(mode) :
             session['client_data']['note'] = request.form['note']          
             session['client_data']['title'] = request.form['title']
             session['client_data']['contact_email'] = request.form['contact_email']
-            session['client_data']['privacy_url'] = request.form['privacy_url']
             session['client_data']['issuer_landing_page'] = request.form['issuer_landing_page']
-            session['client_data']['terms_url'] = request.form['terms_url']
             session['client_data']['client_id'] =  request.form['client_id']
             session['client_data']['company_name'] = request.form['company_name']
             session['client_data']['application_name'] = request.form['application_name']
@@ -269,7 +225,7 @@ async def ebsi_issuer_advanced() :
 
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
       
-        return render_template('ebsi/ebsi_issuer_advanced.html',
+        return render_template('issuer_oidc/issuer_advanced.html',
                 client_id = session['client_data']['client_id'],
                 jwk = jwk,
                 verification_method = session['client_data'].get('verification_method', ""),

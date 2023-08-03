@@ -6,7 +6,7 @@ import uuid
 import requests
 from flask_qrcode import QRcode
 
-test = True
+REDIRECT = True
 
 
 # Init Flask
@@ -49,31 +49,27 @@ def issuer_ebsiv2(mode):
     else :
         return jsonify("Profile EBSIV2 client issue")
 
-    with open('./verifiable_credentials/VerifiableDiploma.jsonld', 'r') as f :
-        credential = json.loads(f.read())
-    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
-    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    offer = 'VerifiableDiploma'
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
     }
     data = { 
-        "vc" : credential, 
+        "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
-        "credential_type" : 'VerifiableDiploma',
+        "credential_type" : offer,
         "callback" : mode.server + '/sandbox/issuer/callback',
-        "test" : test
+        "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    if test :
+    if REDIRECT :
         try :
-            qrcode =  resp.json()['initiate_qrcode']
+            qrcode =  resp.json()['redirect_uri']
         except :
             return jsonify("No qr code")
         return redirect(qrcode) 
     else :
-        return jsonify(resp.json()['url'])
+        return jsonify(resp.json()['qrcode'])
    
 
 
@@ -91,33 +87,28 @@ def issuer_default(mode):
     else :
         return jsonify("Profile DEFAULT client issue")
 
-    with open('./verifiable_credentials/EmployeeCredential.jsonld', 'r') as f :
-        credential = json.loads(f.read())
-    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
-    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
-    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    offer = ["ProofOfAsset", "EmployeeCredential"]
+
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
     }
     data = { 
-        "vc" : credential, 
+        "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
-        "credential_type" : 'EmployeeCredential',
+        "credential_type" : offer,
         "callback" : mode.server + '/sandbox/issuer/callback',
-        "test" : test
+        "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    if test :
+    if REDIRECT :
         try :
-            qrcode =  resp.json()['initiate_qrcode']
+            qrcode =  resp.json()['redirect_uri']
         except :
             return jsonify("No qr code")
         return redirect(qrcode) 
     else :
-        return jsonify(resp.json()['url'])
+        return jsonify(resp.json()['qrcode'])
 
 
 def issuer_gaiax(mode):
@@ -133,33 +124,27 @@ def issuer_gaiax(mode):
     else :
         return jsonify("Profile GAIA-X client issue")
 
-    with open('./verifiable_credentials/EmployeeCredential.jsonld', 'r') as f :
-        credential = json.loads(f.read())
-    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
-    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
-    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    offer = ["VerifiableId", "EmployeeCredential"]
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
     }
     data = { 
-        "vc" : credential, 
+        "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
-        "credential_type" : 'EmployeeCredential',
+        "credential_type" : offer,
         "callback" : mode.server + '/sandbox/issuer/callback',
-        "test" : test
+        "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    if test :
+    if REDIRECT :
         try :
-            qrcode =  resp.json()['initiate_qrcode']
+            qrcode =  resp.json()['redirect_uri']
         except :
             return jsonify("No qr code")
         return redirect(qrcode) 
     else :
-        return jsonify(resp.json()['url'])
+        return jsonify(resp.json()['qrcode'])
 
 
 def issuer_hedera(mode):
@@ -177,37 +162,44 @@ def issuer_hedera(mode):
     else :
         return jsonify("Profile HEDERA client issue")
 
-    with open('./verifiable_credentials/ProofOfAsset.jsonld', 'r') as f :
-        credential = json.loads(f.read())
-    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
-    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
-    credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
-    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    offer = ["ProofOfAsset", "EmployeeCredential"]
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
     }
     data = { 
-        "vc" : credential, 
+        "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
-        "credential_type" : 'ProofOfAsset',
+        "credential_type" : offer,
         "callback" : mode.server + '/sandbox/issuer/callback',
-        "test" : test
+        "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
-    if test :
+    if REDIRECT :
         try :
-            qrcode =  resp.json()['initiate_qrcode']
+            qrcode =  resp.json()['redirect_uri']
         except :
             return jsonify("No qr code")
         return redirect(qrcode) 
     else :
-        return jsonify(resp.json()['url'])
+        return jsonify(resp.json()['qrcode'])
    
 
-
-
+def build_credential_offered(offer) :
+    credential_offered = dict()
+    for vc in offer :
+        try :
+            with open('./verifiable_credentials/' + vc + '.jsonld', 'r') as f :
+                credential = json.loads(f.read())
+        except :
+            return
+        credential['id'] = "urn:uuid:" + str(uuid.uuid4())
+        credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+        credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+        credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+        credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+        credential_offered[vc] = credential
+    return credential_offered
 
 # Python Flask http server loop
 if __name__ == '__main__':

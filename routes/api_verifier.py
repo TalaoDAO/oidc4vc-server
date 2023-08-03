@@ -595,9 +595,15 @@ async def login_presentation_endpoint(stream_id, red, mode):
     if request.method == 'POST' :
         
         def manage_error(msg) :
-            value = json.dumps({
+            try : 
+                value = json.dumps({
                     'access' : 'access_denied',
-                    'user' : credential['credentialSubject']['id']
+                    'user' : credential.get['credentialSubject']['id']
+                    })
+            except :
+                value = json.dumps({
+                    'access' : 'access_denied',
+                    'user' : "unknown"
                     })
             red.setex(stream_id + '_DIDAuth', 180, value)
             event_data = json.dumps({'stream_id' : stream_id})           

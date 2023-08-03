@@ -32,8 +32,6 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 from routes import verifier_console, issuer_console, api_verifier, api_issuer
 
 from routes import saas4ssi
-from routes import beacon_issuer_console, api_issuer_beacon
-from routes import api_verifier_beacon, beacon_verifier_console
 from routes import oidc4vp_api, oidc4vp_console
 from routes import oidc4vci_api, oidc4vci_console
 
@@ -84,14 +82,10 @@ oidc4vp_api.init_app(app, red, mode)
 oidc4vci_console.init_app(app, red, mode)
 oidc4vci_api.init_app(app, red, mode)
 
-# BEACON integration
-api_issuer_beacon.init_app(app, red, mode)
-api_verifier_beacon.init_app(app, red, mode)
-beacon_verifier_console.init_app(app, red, mode)
-beacon_issuer_console.init_app(app, red, mode)
-
 # MAIN
 saas4ssi.init_app(app, red, mode)
+
+# TEST
 web_display_VP.init_app(app, red, mode)
 web_wallet_test.init_app(app, red, mode)
 test_issuer_oidc4vc.init_app(app, red, mode)

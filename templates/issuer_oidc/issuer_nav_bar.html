@@ -6,26 +6,22 @@
         <a href="https://altme.io"><img  src="/static/img/altme_logo_2.png" style="width: 100px;border-radius:0px;"></a>
       </div>
       <h6 class="text-secondary flex-nowrap ml-auto d-none d-sm-block">
-        <h4 class="d-none d-sm-block"style="color: rgb(54, 24, 88); margin-bottom: 0">Issuer with Beacon for login : {{session['login_name']}}</h4>
+        <h4 class="d-none d-sm-block"style="color: rgb(54, 24, 88); margin-bottom: 0">Issuer OIDC4VCI  : {{session['login_name']}}</h4>
       </h6>
       
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
 
        
         <li class="nav-item active">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/menu">Menu</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/menu">Home</a>
         </li> 
         <li class="nav-item active">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/op/beacon/nav/create">Create</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/ebsi/issuer/nav/create">Create</a>
         </li>
         <li class="nav-item active">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/op/beacon/console/select">Select</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/ebsi/issuer/console/select">Select</a>
         </li>
       
-<!--
-        <li class="nav-item active">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/issuer">How it works</a>
-          </li> -->
 
           <li class="nav-item dropdown d-none d-md-block">
             <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -33,17 +29,13 @@
             </a>
             <div class="dropdown-menu" aria-labelledby="navbarDropdown">
               <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/"">Doc : Full documentation</a>
-              <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration">Doc : OpenID bridge for Verifiers</a>
-              <a class="dropdown-item" href="https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/beacon-integration">Doc : Beacon integration for Verifiers</a>
               <hr>
               <a class="dropdown-item" href="/sandbox/saas4ssi/dids">Our DIDs</a>
-              
               <hr>
-              <a class="dropdown-item" href="/sandbox/saas4ssi/dapp">Beacon wallet testing</a>
               <a class="dropdown-item" href="/sandbox/playground">Get fake credentials for demo and tools</a>
               <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP content</a>
             </div>
-            
+         
           </li>
 
           <li class="nav-item active">

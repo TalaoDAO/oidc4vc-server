@@ -46,7 +46,7 @@ profile = {
             "oidc4vci_prefix" : "openid-credential-offer://" ,
             "presentation_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
-            'credential_supported' : ['EmployeeCredential', 'VerifiableId'],
+            'credential_supported' : ['EmployeeCredential', 'VerifiableId', 'ProofOfAsset', 'VerifiableDiploma'],
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"

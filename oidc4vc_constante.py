@@ -7,12 +7,6 @@ user = {
         "client_id" : []
 }
 
-"""
-ebsi_vc_type_list = {
-    "jwt_vc" : "JWT-JSON",
-    "ldp_vc" : "JSON-LD"
-}
-"""
 
 
 oidc4vc_profile_list = {
@@ -47,7 +41,6 @@ type_2_schema = {
 
 
 
-
 # OIDC4VC issuer
 ebsi_credential_requested_list = {
                     'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
@@ -58,8 +51,8 @@ ebsi_credential_requested_list = {
 
 # issuer
 landing_page_style_list = {
-                    "./ebsi/ebsi_issuer_qrcode.html" : "Style",
-                    "./ebsi/ebsi_issuer_qrcode_test.html" : "Test"
+                    "./issuer_oidc/issuer_qrcode.html" : "Style",
+                    "./issuer_oidc/issuer_qrcode_test.html" : "Test"
                 }
 
 
@@ -109,17 +102,12 @@ client_data_pattern_ebsi = {
                 "page_title" : "Page title",
                 "page_subtitle" : "Page subtitle",
                 "page_description" : "Add here a credential description as you would like to see it displayed on the landing page of your app.",
-                "page_background_color" : "#ffffff",
-                "page_text_color" : "#000000",
                 "credential_duration" : "365",
-                "qrcode_background_color" :"#ffffff",
                 "qrcode_message" : "Scan with your wallet",
                 "mobile_message" : "Open your wallet",
                 "contact_email" : "support@altme.io",
                 "contact_name" : "",
                 "landing_page_url" : "https://talao.io",
-                "privacy_url" : "https://altme.io/privacy",
-                "terms_url" : "https://altme.io/cgu", 
                 "title" : "Get it !" # QR code title
                 }
 
