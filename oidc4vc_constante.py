@@ -58,7 +58,7 @@ ebsi_credential_requested_list = {
 
 # issuer
 landing_page_style_list = {
-                    "./ebsi/ebsi_issuer_qrcode_2.html" : "Style 2",
+                    "./ebsi/ebsi_issuer_qrcode.html" : "Style",
                     "./ebsi/ebsi_issuer_qrcode_test.html" : "Test"
                 }
 
@@ -92,7 +92,7 @@ client_data_pattern_ebsi = {
                 "jwk" : "",
                 "did": "did:web:app.altme.io:issuer",
                 "verification_method" : "did:web:app.altme.io:issuer#key-1",
-                "issuer_landing_page" : "",     
+                "issuer_landing_page" : "./ebsi/ebsi_issuer_qrcode_test.html",     
                 "note" : "",
                 "company_name" : "New company",
                 "application_name" : "Application name",

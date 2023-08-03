@@ -33,8 +33,9 @@ DID_METHODS = ['did:ebsi']
 GRANT_TYPE_SUPPORTED = [ 'urn:ietf:params:oauth:grant-type:pre-authorized_code', 'authorization_code']
 
 
+
 def init_app(app,red, mode) :
-    # endpoint for application
+    # endpoint for application if redirect to local page (test)
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/<stream_id>',  view_func=ebsi_issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/issuer_stream',  view_func=ebsi_issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/issuer_followup/<stream_id>',  view_func=ebsi_issuer_followup, methods = ['GET'], defaults={'red' :red})
@@ -42,7 +43,7 @@ def init_app(app,red, mode) :
     # api 
     app.add_url_rule('/sandbox/ebsi/issuer/api/<issuer_id>',  view_func=issuer_api_endpoint, methods = ['POST'], defaults={'red' :red, 'mode' : mode})
     
-    # EBSI protocol with wallet
+    # OIDC protocol with wallet
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/.well-known/openid-configuration', view_func=ebsi_issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/authorize',  view_func=ebsi_issuer_authorize, methods = ['GET', 'POST'], defaults={'red' :red})
     app.add_url_rule('/sandbox/ebsi/issuer/<issuer_id>/token',  view_func=ebsi_issuer_token, methods = ['GET', 'POST'], defaults={'red' :red})
@@ -163,8 +164,6 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         return Response(**manage_error("invalid_request", "Request format is incorrect"))
     
     test = request.json.get('test', True)
-    callback = request.json.get('callback')
-    issuer_state = request.json.get('issuer_state')
     pre_authorized_code = request.json.get('credential_type')
 
     if client_secret != issuer_data['client_secret'] :
@@ -176,6 +175,7 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         'vc' : vc,
         'issuer_vc_type' : issuer_vc_type,
         'issuer_id' : issuer_id,
+        'issuer_state' : request.json.get('issuer_state'),
         'credential_type' : credential_type,
         'pre-authorized_code' : request.json.get('pre-authorized_code'),
         'user_pin_required' : request.json.get('user_pin_required'),
@@ -189,7 +189,7 @@ def issuer_api_endpoint(issuer_id, red, mode) :
         logging.info('initiate qrcode = %s', mode.server+ 'sandbox/ebsi/issuer/' + issuer_id +'/' + stream_id)
         return jsonify( response)
     
-    url_data, code_data =   url_data, code_data = build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, profile, vc, mode)
+    url_data, code_data = build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, profile, vc, mode)
     if not url_data :
         return Response(**manage_error("Internal server error", "Server error"), status=500)
 
@@ -262,7 +262,11 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
 
 # initiate endpoint with QRcode for API in case of test
 def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
-    user_data = json.loads(red.get(stream_id).decode())
+    try :
+        user_data = json.loads(red.get(stream_id).decode())
+    except :
+        logging.warning("session expired")
+        return jsonify("Session expired"), 404
     credential_type = user_data['credential_type']
     pre_authorized_code = user_data['pre-authorized_code']
     issuer_vc_type = user_data['issuer_vc_type']
@@ -279,7 +283,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
     deeplink_talao = mode.deeplink_talao + 'app/download/ebsi?' + urlencode({'uri' : url })
     deeplink_altme = mode.deeplink_altme + 'app/download/ebsi?' + urlencode({'uri' : url})
-    qrcode_page = issuer_data.get('landing_page_style')
+    qrcode_page = issuer_data.get('issuer_landing_page')
     return render_template(
         qrcode_page,
         openid_configuration = openid_configuration,
@@ -401,8 +405,6 @@ def ebsi_issuer_authorize(issuer_id, red) :
     if request.args.get('state') :
         resp['state'] = request.args['state']
     return redirect(redirect_uri + '?' + urlencode(resp))
-
-
 
 
 
@@ -580,8 +582,9 @@ async def ebsi_issuer_credential(issuer_id, red) :
                 didkit_options.__str__().replace("'", '"'),
                 issuer_key
                 )
-   
-    logging.info('credential signed sent to wallet = %s', credential_signed)
+        result = await didkit.verify_credential(credential_signed, '{}')   
+        logging.info('signature check = %s', result)
+        logging.info('credential signed sent to wallet = %s', credential_signed)
 
     # send event to front to go forward callback and send credential to wallet
     data = json.dumps({
@@ -609,7 +612,7 @@ def ebsi_issuer_followup(stream_id, red):
         return jsonify('Unhautorized'), 401
     callback = user_data['callback']
     if not callback :
-        issuer_id = data['issuer_id']
+        issuer_id = user_data['issuer_id']
         issuer_data = db_api.read_ebsi_issuer(issuer_id)
         callback = json.loads(issuer_data)['callback']
     return redirect( callback + '?pre-authorized_code=' + user_data.get('pre-authorized_code') )
