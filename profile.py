@@ -48,7 +48,7 @@ profile = {
             "siopv2_prefix" : "openid-vc://",
             "oidc4vp_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
-            'credential_supported' : ['EmployeeCredential', 'VerifiableId', 'ProofOfAsset', 'VerifiableDiploma'],
+            'credential_supported' : ['EmployeeCredential',  'ProofOfAsset', 'VerifiableDiploma'],
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"
@@ -69,7 +69,7 @@ profile = {
             "oidc4vci_prefix" : "openid-initiate-issuance://" ,
             "presentation_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
-            'credential_supported' :  ['EmployeeCredential', 'VerifiableId', 'ProofOfAsset', 'VerifiableDiploma'],
+            'credential_supported' :  ['EmployeeCredential',  'ProofOfAsset', 'VerifiableDiploma'],
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"

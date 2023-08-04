@@ -124,7 +124,7 @@ def issuer_gaiax(mode):
     else :
         return jsonify("Profile GAIA-X client issue")
 
-    offer = ["VerifiableId", "EmployeeCredential", "ProofOfAsset"]
+    offer = ["EmployeeCredential", "ProofOfAsset"]
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
