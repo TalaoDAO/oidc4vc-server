@@ -26,9 +26,9 @@
                  </a>
                  <h5>Connect Altme with any application thanks to a connector acting as an OpenID provider for your application.
                  
-                 <br><br>The connector supports the OIDC authorization code flow and implicit flow.
-                 <br><br>All credentials available in Altme can be triggered.
-                  <br><br>More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...) and 
+                 <br>The connector supports the OIDC authorization code flow and implicit flow.
+                 <br>All credentials available in Altme can be triggered.
+                  <br>More than 20 librairies for popular frameworks (Nodejs, Python,  C, Rust, PHP, Go, Ruby, ...) and 
                  pluggins for CMS as Webflow, Wordpress are available for the client application.
                  <br><a href="#" onClick="window.open('https://openid.net/certified-open-id-developer-tools/', '_blank')">See OIDC Certified Relying Party librairies</a>
                  
@@ -38,25 +38,7 @@
             </div>
 
         </div>
-        {% if session['login_name'] == 'admin'  %}
-
-            <div class="row my-5">
-
-          <div class="col-6 mx-auto">
-            <div id="id_qrcode" class="text-center">
-                <a href="/sandbox/saas4ssi/beacon/verifier">
-                <h3><strong>Verifier with Tezos Beacon for Altme Wallet</strong></h3>
-                </a>
-                Web3 applications on Tezos. Beacon is the protocol used between dApps and wallets in the Tezos ecosystem. 
-                You can now request credentials to your users through a unique Beacon QRcode.
-                 Integration in minutes through a Beacon payload. 
-                <br> Support of TezID whitelist.
-            </div> 
-        </div>
-        </div>
-        
-        {% endif %}
-
+       
      
 
  
@@ -78,21 +60,7 @@
 </div>
 {% endif %}
 
-{% if session['login_name'] == 'admin'  %}
 
-      <div class="row my-5">
-        <div class="col-6 mx-auto">
-          <div id="id_qrcode" class="text-center">
-              <a href="/sandbox/saas4ssi/beacon">
-              <h3><strong>Issuer with Tezos Beacon for Altme Wallet</strong></h3>
-              </a>
-              Web3 applications on Tezos. Beacon is the protocol used between dApp and wallet in the Tezos ecosystem. 
-              You can now issue credentials to your users through Beacon. Integration in minutes with a beacon payload.
-              <br> Support of TezID whitelist.
-          </div> 
-      </div>
-    </div>
-    {% endif %}
 
 
     <div class="row my-5">
@@ -103,7 +71,7 @@
           </a>
           This is a bridge between the SIOPv2/OIDC4VP verifier flow and a standard OpenID authorization code flow and implicit flow.
           For web2 applications with all frameworks (Nodejs, Python, C, Ruby, Java,...) and popular CMS (Webflow, Wordess,...).
-          This verifier supports different profiles as EBSIV2, GAIAX, ARF....
+          This verifier supports different profiles as EBSIV2, GAIA-X, ....
         This verifier accepts EBSI compliant wallets with support for did:ebsi.<br>
         <a href="https://openid.net/specs/openid-4-verifiable-presentations-1_0.html">See OIDC4VP standards</a><br>
         <a href="https://openid.net/specs/openid-connect-self-issued-v2-1_0.html">See SIOPV2 standards</a>
@@ -121,8 +89,7 @@
         <a href="/sandbox/saas4ssi/ebsi/issuer">
           <h3><strong>OIDC4VCI issuers for mobile wallets</strong></h3>
           </a>
-         Issuer for EBSI-V2 , OIDC4VC issuance<br>
-         This verifier supports different profiles as EBSIV2, GAIAX, ARF....(In progress)<br>
+         This verifier supports different profiles as EBSIV2, GAIAX, ...(In progress)<br>
          Support of authorization code flow and pre-authorized_code flow <br>
          <a href="https://openid.net/specs/openid-4-verifiable-credential-issuance-1_0.html">See OIDC4VCI standards</a>
       </div> 

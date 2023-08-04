@@ -552,6 +552,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
 
     proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    print("access token data = ", access_token_data['vc'])
     try :
         credential = access_token_data['vc'][credential_type]
     except :

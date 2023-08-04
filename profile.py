@@ -26,7 +26,8 @@ profile = {
             "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
             "oidc4vci_prefix" : "openid-credential-offer://",
-            "presentation_prefix" : 'openid-vc://',
+            "siopv2_prefix" : 'openid-vc://',
+            "oidc4vp_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ['DID'],
             'credential_supported' : ['VerifiableDiploma', 'VerifiableId'],
             "grant_types_supported": [
@@ -44,7 +45,8 @@ profile = {
             "issuer_vc_type" : "ldp_vc",
             "verifier_vp_type" : "ldp_vp",
             "oidc4vci_prefix" : "openid-credential-offer://" ,
-            "presentation_prefix" : "openid-vc://",
+            "siopv2_prefix" : "openid-vc://",
+            "oidc4vp_prefix" : "openid-vc://",
             "cryptographic_binding_methods_supported" : ('DID'),
             'credential_supported' : ['EmployeeCredential', 'VerifiableId', 'ProofOfAsset', 'VerifiableDiploma'],
             "grant_types_supported": [
@@ -105,7 +107,6 @@ profile = {
     
     "JWT-VC" :
         {
-            "issuer_vc_type" : "jwt_vc",
             "verifier_vp_type" : "jwt_vp",
             "siopv2_prefix" : 'openid-vc://',
             'cryptographic_binding_methods_supported' : ('DID'),
