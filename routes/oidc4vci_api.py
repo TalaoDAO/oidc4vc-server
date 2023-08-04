@@ -170,9 +170,9 @@ def issuer_api_endpoint(issuer_id, red, mode) :
     issuer_profile = profile[issuer_data['profile']]
 
     credential_type_checklist = credential_type if isinstance(credential_type, list) else [credential_type]
-    for vc in credential_type_checklist :
-        if vc not in issuer_profile[ 'credential_supported'] :
-              logging.warning("Credential not supported %s", vc)
+    for _vc in credential_type_checklist :
+        if _vc not in issuer_profile[ 'credential_supported'] :
+              logging.warning("Credential not supported %s", _vc)
               return Response(**manage_error("Unauthorized", "Credential not supported", status=401))
         
     issuer_vc_type = issuer_profile['issuer_vc_type']
@@ -263,6 +263,7 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
             'format' : issuer_vc_type,
             'vc' : vc,
     }
+    print(code_data)
     return url_data, code_data
 
 
