@@ -598,6 +598,11 @@ async def ebsi_issuer_credential(issuer_id, red) :
         'c_nonce': str(uuid.uuid1()),
         'c_nonce_expires_in': C_NONCE_LIFE
     }
+
+    # update access token data with new nonce
+    access_token_data['c_nonce'] = payload['c_nonce']
+    red.setex(access_token, ACCESS_TOKEN_LIFE,json.dumps(access_token_data))
+
     headers = {
         'Cache-Control' : 'no-store',
         'Content-Type': 'application/json'}
