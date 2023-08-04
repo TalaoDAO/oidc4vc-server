@@ -187,6 +187,8 @@ def issuer_hedera(mode):
 
 def build_credential_offered(offer) :
     credential_offered = dict()
+    if isinstance(offer, str) :
+        offer = [offer]
     for vc in offer :
         try :
             with open('./verifiable_credentials/' + vc + '.jsonld', 'r') as f :

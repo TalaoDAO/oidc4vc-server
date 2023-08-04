@@ -176,6 +176,7 @@ def issuer_api_endpoint(issuer_id, red, mode) :
               return Response(**manage_error("Unauthorized", "Credential not supported", status=401))
         
     issuer_vc_type = issuer_profile['issuer_vc_type']
+    print('vc = ', vc)
     user_data = {
         'vc' : vc,
         'issuer_vc_type' : issuer_vc_type,
@@ -599,7 +600,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
         'c_nonce_expires_in': C_NONCE_LIFE
     }
 
-    # update access token data with new nonce
+    # update nonce in access token for next VC request
     access_token_data['c_nonce'] = payload['c_nonce']
     red.setex(access_token, ACCESS_TOKEN_LIFE,json.dumps(access_token_data))
 
