@@ -263,7 +263,6 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
             'format' : issuer_vc_type,
             'vc' : vc,
     }
-    print(code_data)
     return url_data, code_data
 
 
@@ -553,7 +552,6 @@ async def ebsi_issuer_credential(issuer_id, red) :
 
     proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
-    print("access token data = ", access_token_data['vc'])
     try :
         credential = access_token_data['vc'][credential_type]
     except :
