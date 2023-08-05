@@ -49,15 +49,23 @@ def issuer_ebsiv2(mode):
     else :
         return jsonify("Profile EBSIV2 client issue")
 
-    offer = 'VerifiableDiploma'
+    vc = 'VerifiableDiploma'
+    with open('./verifiable_credentials/' + vc + '.jsonld', 'r') as f :
+        credential = json.loads(f.read())
+    credential['id'] = "urn:uuid:" + str(uuid.uuid4())
+    credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + "Z"
+    credential['validFrom'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    credential['expirationDate'] =  (datetime.now().replace(microsecond=0) + timedelta(days= 365)).isoformat() + "Z"
+    
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret
     }
     data = { 
-        "vc" : build_credential_offered(offer), 
+        "vc" : {vc : credential}, 
         "pre-authorized_code" : str(uuid.uuid1()),
-        "credential_type" : offer,
+        "credential_type" : vc,
         "callback" : mode.server + '/sandbox/issuer/callback',
         "redirect" : REDIRECT
         }

@@ -176,7 +176,8 @@ def issuer_api_endpoint(issuer_id, red, mode) :
               return Response(**manage_error("Unauthorized", "Credential not supported", status=401))
         
     issuer_vc_type = issuer_profile['issuer_vc_type']
-    print('vc = ', vc)
+    logging.info('VC from API = %s', vc)
+   
     user_data = {
         'vc' : vc,
         'issuer_vc_type' : issuer_vc_type,
@@ -221,25 +222,27 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
        
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     logging.info('PROFILE = %s', profile)
-    if isinstance(credential_type, str) :
-        credential_type = [credential_type]
-
+   
     if profile == 'EBSI-V2' :
         url_data  = { 
             'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credential_type'  : [ type_2_schema[ct] for ct in credential_type],
+            'credential_type'  : type_2_schema[credential_type],
         }
-    
-    elif profile == 'GAIA-X' :
-        url_data  = { 
-            'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credential_type'  : credential_type,
-        }
+
     else :
-        url_data  = { 
-            'credential_issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
-            'credentials'  : credential_type
+        if isinstance(credential_type, str) :
+            credential_type = [credential_type]
+
+        if profile == 'GAIA-X' :
+            url_data  = { 
+                'issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+                'credential_type'  : credential_type,
         }
+        else :
+            url_data  = { 
+                'credential_issuer' : mode.server +'sandbox/ebsi/issuer/' + issuer_id,
+                'credentials'  : credential_type
+            }
     
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
     # TODO PIN code not supported
@@ -516,7 +519,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
         proof_type  = result['proof']['proof_type']
         proof = result['proof']['jwt']
     except :
-        return Response(**manage_error("invalid_request", "Invalid request format 2")) 
+        return Response(**manage_error("invalid_request", "Invalid request format")) 
     
     # get type of credential requested
     try :
@@ -525,8 +528,10 @@ async def ebsi_issuer_credential(issuer_id, red) :
         try :
             credential_type = result['types']
         except :
-            return Response(**manage_error("invalid_request", "Invalid request format 2")) 
-
+            return Response(**manage_error("invalid_request", "Invalid request format")) 
+    
+    logging.info('credential type requested = %s', credential_type)
+    
     credential_is_supported = False
     if issuer_data['profile'] != 'EBSI-V2' :
         for vc in issuer_profile['credential_supported'] :
@@ -553,6 +558,11 @@ async def ebsi_issuer_credential(issuer_id, red) :
 
     proof_payload=oidc4vc.get_payload_from_token(proof)
     issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+  
+    if credential_type == 'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' :
+        credential_type = 'VerifiableId' 
+    elif  credential_type == 'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' :
+        credential_type = 'VerifiableDiploma' 
     try :
         credential = access_token_data['vc'][credential_type]
     except :
