@@ -11,7 +11,7 @@ import redis
 import sys
 import logging
 import environment
-from components import message
+import message
 
 logging.basicConfig(level=logging.INFO)
 logging.info("python version : %s", sys.version)
@@ -65,7 +65,6 @@ def page_abort(e):
 def error_500(e):
     message.message("Error 500 on sandbox", 'thierry.thevenet@talao.io', str(e) , mode)
     return redirect(mode.server + '/')
-
 
 
 # OIDC4VC wallet
