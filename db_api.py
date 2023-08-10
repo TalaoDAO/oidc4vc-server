@@ -5,7 +5,7 @@ import sqlite3
 import random 
 import string
 from jwcrypto import jwk
-from oidc4vc_constante import client_data_pattern
+from constante import client_data_pattern
 
 logging.basicConfig(level=logging.INFO)
 

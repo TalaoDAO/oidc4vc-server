@@ -1,3 +1,6 @@
+
+JWT_CREDENTIAL_SUPPORTED = ['Over18', 'EmployeeCredential', 'VerifiableId', 'EmailPass', 'AgeOver18']
+
 profile = {
 
    
@@ -70,7 +73,7 @@ profile = {
             "oidc4vci_prefix" : "openid-credential-offer-hedera://" ,
             "presentation_prefix" : "openid-hedera://",
             "cryptographic_binding_methods_supported" : ('DID'),
-            'credential_supported' :  ['EmployeeCredential', 'VerifiableId', 'EmailPass', 'AgeOver18'],
+            'credential_supported' :  JWT_CREDENTIAL_SUPPORTED,
             "grant_types_supported": [
                 "authorization_code",
                 "urn:ietf:params:oauth:grant-type:pre-authorized_code"

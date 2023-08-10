@@ -11,6 +11,7 @@ def init_app(app,red, mode) :
     app.add_url_rule('/issuer/default',  view_func=issuer_default, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/issuer/hedera',  view_func=issuer_hedera, methods = ['GET'], defaults={'mode' : mode})
     app.add_url_rule('/issuer/hedera_2',  view_func=issuer_hedera_2, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/hedera_3',  view_func=issuer_hedera_3, methods = ['GET'], defaults={'mode' : mode})
 
     app.add_url_rule('/issuer/gaia-x',  view_func=issuer_gaiax, methods = ['GET'], defaults={'mode' : mode})
 
@@ -174,6 +175,34 @@ def issuer_hedera_2(mode):
     client_secret = "2675ebcf-2fc1-11ee-825b-9db9eb02bfb8"
 
     offer = ["EmployeeCredential", "AgeOver18"]
+    headers = {
+        'Content-Type': 'application/json',
+        'Authorization' : 'Bearer ' + client_secret
+    }
+    data = { 
+        "vc" : build_credential_offered(offer), 
+        "pre-authorized_code" : str(uuid.uuid1()),
+        "credential_type" : offer,
+        "callback" : mode.server + 'issuer/callback',
+        "redirect" : REDIRECT
+        }
+    resp = requests.post(api_endpoint, headers=headers, json = data)
+    if REDIRECT :
+        try :
+            qrcode =  resp.json()['redirect_uri']
+        except :
+            return jsonify("No qr code")
+        return redirect(qrcode) 
+    else :
+        return jsonify(resp.json()['qrcode'])
+
+
+def issuer_hedera_3(mode):
+   
+    api_endpoint = mode.server + "issuer/api/mzejfxwvon"
+    client_secret = "d4e08abe-37bb-11ee-b7a3-299494bdab61"
+
+    offer = ["EmployeeCredential", "Over18"]
     headers = {
         'Content-Type': 'application/json',
         'Authorization' : 'Bearer ' + client_secret

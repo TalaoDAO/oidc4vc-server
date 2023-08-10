@@ -1,6 +1,4 @@
 
-
-
 user = {
         "login_name" : "",
         "did" : "",
@@ -10,12 +8,11 @@ user = {
 
 
 oidc4vc_profile_list = {
-    'EBSI-V2' : 'EBSI V2',
-    'DEFAULT' : 'Default profile',
-    'GAIA-X' : 'GAIA-X projects',
+    'DEFAULT' : 'DEFAULT (ldp_vc, ldp_vp)',
+    'GAIA-X' : 'GAIA-X',
     'EBSI-V3' : 'EBSI V3',
     'JWT-VC' : 'JWT-VC presentation profile',
-    'HEDERA' : 'Hedera projects'
+    'HEDERA' : 'HEDERA (jwt_vc, jwt_vp)'
 }
 
 
@@ -34,19 +31,6 @@ ebsi_verifier_credential_list = {
 }
 
 
-type_2_schema = {
-    'VerifiableId' : 'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv',
-    'VerifiableDiploma'  : 'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' 
-} 
-
-
-
-# OIDC4VC issuer
-ebsi_credential_requested_list = {
-                    'https://api-conformance.ebsi.eu/trusted-schemas-registry/v2/schemas/z22ZAMdQtNLwi51T2vdZXGGZaYyjrsuP1yzWyXZirCAHv' : 'VerifiableId',
-                    'https://api.preprod.ebsi.eu/trusted-schemas-registry/v1/schemas/0xbf78fc08a7a9f28f5479f58dea269d3657f54f13ca37d380cd4e92237fb691dd' : 'VerifiableDiploma',
-                    'DID' : "None"
-                }
 
 
 # issuer
@@ -60,7 +44,6 @@ landing_page_style_list = {
 ebsi_verifier_landing_page_style_list = {
                     "./ebsi/ebsi_verifier_qrcode_2.html" : "Style 2",
                     "./ebsi/ebsi_verifier_qrcode_test.html" : "Test",
-                    "./ebsi/diploma_verifier.html" : "Diplome Tezos Ebsi"
 
 }
 

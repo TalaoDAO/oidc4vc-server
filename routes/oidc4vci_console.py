@@ -3,10 +3,9 @@ import json
 import logging
 import copy
 import db_api 
-from oidc4vc_constante import  landing_page_style_list, oidc4vc_profile_list
-
+from constante import  landing_page_style_list, oidc4vc_profile_list
+from profile import profile
 import oidc4vc
-import issuer_activity_db_api
 
 logging.basicConfig(level=logging.INFO)
 
@@ -15,7 +14,6 @@ def init_app(app,red, mode) :
     app.add_url_rule('/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
     app.add_url_rule('/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'])
     app.add_url_rule('/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
-    app.add_url_rule('/issuer/console/activity',  view_func=issuer_activity, methods = ['GET', 'POST'])
     # nav bar option
     app.add_url_rule('/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
     app.add_url_rule('/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
@@ -28,55 +26,6 @@ def nav_logout() :
     session.clear()
     return redirect ('/sandbox/saas4ssi')
 
-# display activities of the issuer
-def issuer_activity() :
-    if not session.get('is_connected') or not session.get('login_name') :
-        return redirect('/sandbox/saas4ssi')
-
-    if request.method == 'GET' :  
-        activities = issuer_activity_db_api.list(session['client_data']['client_id'])
-        activities.reverse() 
-        activity_list = str()
-        for data in activities :
-            data_dict = json.loads(data)
-            vp = data_dict.get('vp', [])
-            if isinstance(vp, dict) : # only one verifiable presentation sent by wallet
-                vp_list = list()
-                vp_list.append(json.dumps(vp))
-                vp = vp_list
-            DID = data_dict.get('wallet_did', "Unknown            ")
-            data_received = list()
-            for credential in vp :
-                if not json.loads(credential).get('verifiableCredential') :
-                    data_received = ""
-                elif json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'EmailPass' :
-                    data_received.append("email=" +json.loads(credential)['verifiableCredential']['credentialSubject']['email'])
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Over18' :
-                    data_received.append('Over18=True')
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Over13' :
-                    data_received.append('Over13=True')
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Nationality' :
-                    data_received.append('nationality=' + json.loads(credential)['verifiableCredential']['credentialSubject']['nationality'])  
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'AgeRange' :
-                    data_received.append('ageRange=' + json.loads(credential)['verifiableCredential']['credentialSubject']['ageRange'])  
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'Gender' :
-                    data_received.append('gender=' + json.loads(credential)['verifiableCredential']['credentialSubject']['gender'])    
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'TezosAssociatedAddress' :
-                    data_received.append('tezosAddress=' + json.loads(credential)['verifiableCredential']['credentialSubject']['associatedAddress'])               
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'PhoneProof' :
-                    data_received.append('phon=' + json.loads(credential)['verifiableCredential']['credentialSubject']['phone']) 
-                elif  json.loads(credential)['verifiableCredential']['credentialSubject']['type'] == 'PassportNumber' :
-                    data_received.append('passport_footprint=' + json.loads(credential)['verifiableCredential']['credentialSubject']['passportNumber']) 
-            activity = """<tr>
-                    <td>""" + data_dict['presented'] + """</td>
-                     <td>""" +  DID + """</td>
-                    <td>""" + " & ".join(data_received) + """</td>
-                    </tr>"""
-            activity_list += activity
-        return render_template('issuer_oidc/issuer_activity.html', activity=activity_list) 
-    else :
-        return redirect('/issuer/console?client_id=' + session['client_data']['client_id'])
-
 def issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
@@ -85,7 +34,6 @@ def issuer_select() :
     for issuer_data in my_list :
         data_dict = json.loads(issuer_data)         
         client_id = data_dict['client_id']
-        act = len(issuer_activity_db_api.list(client_id))              
         if data_dict['user'] == "all" or session['login_name'] in [data_dict['user'], "admin"] :
             curve = json.loads(data_dict['jwk'])['crv']
             vm =  data_dict['verification_method']
@@ -199,7 +147,7 @@ async def issuer_advanced() :
         session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         oidc4vc_profile_select = str()
         for key, value in oidc4vc_profile_list.items() :
-                if key ==  session['client_data'].get('profile', "DEFAULT") :
+                if key ==  session['client_data']['profile'] :
                     oidc4vc_profile_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     oidc4vc_profile_select +=  "<option value=" + key + ">" + value + "</option>"      
@@ -207,7 +155,7 @@ async def issuer_advanced() :
         did = session['client_data'].get('did', "")
         
         did_document = oidc4vc.did_resolve_lp(did)
-
+        issuer_profile = profile[session['client_data']['profile']]
         jwk = json.dumps(json.loads(session['client_data']['jwk']), indent=4)
       
         return render_template('issuer_oidc/issuer_advanced.html',
@@ -216,6 +164,7 @@ async def issuer_advanced() :
                 verification_method = session['client_data'].get('verification_method', ""),
                 oidc4vc_profile_select=oidc4vc_profile_select,
                 did = session['client_data'].get('did', ""),
+                profile=json.dumps(issuer_profile, indent=4),
                 did_document=json.dumps(did_document, indent=4)
                 )
     if request.method == 'POST' :     

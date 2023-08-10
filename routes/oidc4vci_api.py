@@ -27,7 +27,7 @@ API_LIFE = 5000
 ACCESS_TOKEN_LIFE = 1000
 GRANT_LIFE = 5000
 C_NONCE_LIFE = 5000
-
+VC_EXPIRES_IN = 365
 
 def init_app(app,red, mode) :
     # endpoint for application if redirect to local page (test)
@@ -101,7 +101,6 @@ def oidc(issuer_id, mode) :
         cs.append({
             'format': issuer_profile['issuer_vc_type'],
             'types' : credential['type'],
-            #"@context" : credential['@context'],
             'id': vc,
             'display': [
                 {
@@ -217,21 +216,15 @@ def issuer_api_endpoint(issuer_id, red, mode) :
     return jsonify(response)
 
 
-def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, profile, vc, mode) :
-   
-       
+def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, profile, vc, mode) :    
     # Option 1 https://api-conformance.ebsi.eu/docs/wallet-conformance/issue
     logging.info('PROFILE = %s', profile)
-   
-   
-
     if isinstance(credential_type, str) :
         credential_type = [credential_type]
 
     if profile == 'GAIA-X' :
         if len(credential_type)== 1 :
             credential_type = credential_type[0]
-
         url_data  = { 
             "issuer" : mode.server +'issuer/' + issuer_id,
             "credential_type"  : credential_type,
@@ -242,7 +235,6 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
             "credentials"  : credential_type
         }
 
-    
     #  https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-pre-authorized-code-flow
     # TODO PIN code not supported
     if pre_authorized_code and profile in [ 'GAIA-X'] :
@@ -255,8 +247,7 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
                 "pre-authorized_code": pre_authorized_code,
                 "user_pin_required": False
             }
-        }
-    
+        }    
     elif not pre_authorized_code and profile not in  ['GAIA-X'] :
         url_data["grants"] ={
             "authorization_code": {}
@@ -292,7 +283,6 @@ def issuer_landing_page(issuer_id, stream_id, red, mode) :
     else :
         url = data_profile['oidc4vci_prefix'] + '?' + urlencode(url_data)
         json_url = url_data
-
     openid_configuration  = json.dumps(oidc(issuer_id, mode), indent=4)
     deeplink_talao = mode.deeplink_talao + 'app/download/ebsi?' + urlencode({'uri' : url })
     deeplink_altme = mode.deeplink_altme + 'app/download/ebsi?' + urlencode({'uri' : url})
@@ -312,8 +302,6 @@ def issuer_landing_page(issuer_id, stream_id, red, mode) :
         page_description=issuer_data['page_description'],
         title=issuer_data['title'],
         landing_page_url=issuer_data['landing_page_url'],
-        privacy_url=issuer_data['privacy_url'],
-        qrcode_background_color = issuer_data['qrcode_background_color'],
     )
 
 
@@ -490,7 +478,6 @@ def issuer_token(issuer_id, red) :
     if data['issuer_id'] in  ['omjqeppxps', 'wzxtwpltvn'] :
         return Response(**manage_error("invalid_grant", "Grant code expired", red))
     
-
     red.setex(access_token, ACCESS_TOKEN_LIFE,json.dumps(token_endpoint_data))
 
     headers = {
@@ -539,10 +526,8 @@ async def issuer_credential(issuer_id, red) :
     if issuer_id in ['cejjvswuep', 'vijlmybjib'] :
         return Response(**manage_error('invalid_request', 'Invalid request format', red, stream_id=stream_id)) 
     
-    """
     if proof_type != 'jwt' : 
-        return Response(**manage_error("unsupported_credential_type", "The credential type is not supported")) 
-    """
+        return Response(**manage_error("unsupported_credential_type", "The credential type is not supported", red,stream_id=stream_id )) 
 
     # get type of credential requested
     try :
@@ -591,14 +576,15 @@ async def issuer_credential(issuer_id, red) :
         # send event to front to go forward callback and send credential to wallet
         return Response(**manage_error('unsupported_credential_type', 'The credential type is not offered', red, stream_id=stream_id)) 
 
+    # update of the standard attributes
     credential['id']= 'urn:uuid:' + str(uuid.uuid1())
     credential['credentialSubject']['id'] = proof_payload.get('iss')
     credential['issuer']= issuer_data['did']
     credential['issued'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['issuanceDate'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
     credential['validFrom'] = datetime.now().replace(microsecond=0).isoformat() + 'Z'
-    credential['expirationDate'] =  (datetime.now() + timedelta(days= 365)).isoformat() + 'Z'
-    credential['validUntil'] =  (datetime.now() + timedelta(days= 365)).isoformat() + 'Z'
+    credential['expirationDate'] =  (datetime.now() + timedelta(days= VC_EXPIRES_IN)).isoformat() + 'Z'
+    credential['validUntil'] =  (datetime.now() + timedelta(days= VC_EXPIRES_IN)).isoformat() + 'Z'
     
     issuer_key =  issuer_data['jwk'] 
     issuer_vm = issuer_data['verification_method'] 
@@ -618,6 +604,7 @@ async def issuer_credential(issuer_id, red) :
         result = await didkit.verify_credential(credential_signed, '{}')   
         logging.info('signature check with didkit = %s', result)
         credential_signed = json.loads(credential_signed)
+        
     logging.info('credential signed sent to wallet = %s', credential_signed)
 
     # send event to front to go forward callback and send credential to wallet

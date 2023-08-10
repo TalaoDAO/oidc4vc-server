@@ -80,6 +80,13 @@
                       </div>
 
                       <div class="form-row">
+                              <div class="col">
+                                <div class="form-group"><label><strong>Profile</strong><br></label><textarea readonly class="form-control" rows="20" name="" >{{profile}}</textarea></div>
+                              </div>
+                      </div>
+
+
+                      <div class="form-row">
                         <div class="col"><button  class="btn btn-primary btn-sm" style="background-color: #09060f;" name="button" value="back" type="submit">Back</button></div>
 
                         {% if session['client_data']['user'] == session['login_name'] or session['login_name'] == 'admin' %} 
