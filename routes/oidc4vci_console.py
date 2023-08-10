@@ -13,26 +13,25 @@ import issuer_activity_db_api
 logging.basicConfig(level=logging.INFO)
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/ebsi/issuer/console/logout',  view_func=ebsi_nav_logout, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/ebsi/issuer/console',  view_func=ebsi_issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/ebsi/issuer/console/select',  view_func=ebsi_issuer_select, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/ebsi/issuer/console/advanced',  view_func=ebsi_issuer_advanced, methods = ['GET', 'POST'])
-    app.add_url_rule('/sandbox/issuer/preview_presentation/<stream_id>',  view_func=ebsi_issuer_preview_presentation_endpoint, methods = ['GET', 'POST'],  defaults={'red' : red})
-    app.add_url_rule('/sandbox/ebsi/issuer/console/activity',  view_func=ebsi_issuer_activity, methods = ['GET', 'POST'])
+    app.add_url_rule('/issuer/console/logout',  view_func=nav_logout, methods = ['GET', 'POST'])
+    app.add_url_rule('/issuer/console',  view_func=issuer_console, methods = ['GET', 'POST'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/console/select',  view_func=issuer_select, methods = ['GET', 'POST'])
+    app.add_url_rule('/issuer/console/advanced',  view_func=issuer_advanced, methods = ['GET', 'POST'])
+    app.add_url_rule('/issuer/console/activity',  view_func=issuer_activity, methods = ['GET', 'POST'])
     # nav bar option
-    app.add_url_rule('/sandbox/ebsi/issuer/nav/logout',  view_func=ebsi_nav_logout, methods = ['GET'])
-    app.add_url_rule('/sandbox/ebsi/issuer/nav/create',  view_func=ebsi_nav_create, methods = ['GET'], defaults= {'mode' : mode})
+    app.add_url_rule('/issuer/nav/logout',  view_func=nav_logout, methods = ['GET'])
+    app.add_url_rule('/issuer/nav/create',  view_func=nav_create, methods = ['GET'], defaults= {'mode' : mode})
     return
     
 
-def ebsi_nav_logout() :
+def nav_logout() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     session.clear()
     return redirect ('/sandbox/saas4ssi')
 
 # display activities of the issuer
-def ebsi_issuer_activity() :
+def issuer_activity() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
 
@@ -78,9 +77,9 @@ def ebsi_issuer_activity() :
             activity_list += activity
         return render_template('issuer_oidc/issuer_activity.html', activity=activity_list) 
     else :
-        return redirect('/sandbox/ebsi/issuer/console?client_id=' + session['client_data']['client_id'])
+        return redirect('/issuer/console?client_id=' + session['client_data']['client_id'])
 
-def ebsi_issuer_select() :
+def issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     my_list = db_api.list_ebsi_issuer()
@@ -96,7 +95,7 @@ def ebsi_issuer_select() :
                     <td>""" + data_dict.get('application_name', "unknown") + """</td>
                     <td>""" + data_dict.get('user', "unknown") + """</td>
                     <td>""" +  data_dict['profile'] + """</td>
-                    <td><a href=/sandbox/ebsi/issuer/console?client_id=""" + client_id + """>""" + client_id + """</a></td>
+                    <td><a href=/issuer/console?client_id=""" + client_id + """>""" + client_id + """</a></td>
                     <td>""" + data_dict['did'] + """</td> 
                     <td>""" + vm + """</td> 
                     <td>""" + curve + """</td>
@@ -105,31 +104,19 @@ def ebsi_issuer_select() :
     return render_template('issuer_oidc/issuer_select.html', issuer_list=issuer_list, login_name=session['login_name']) 
    
        
-def ebsi_nav_create(mode) :
+def nav_create(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    return redirect('/sandbox/ebsi/issuer/console?client_id=' + db_api.create_ebsi_issuer(mode,  user=session['login_name']))
-
-    
-def ebsi_issuer_preview_presentation_endpoint(stream_id, red):
-    if request.method == 'GET':
-        try :
-            my_pattern = json.loads(red.get(stream_id).decode())['pattern']
-        except :
-            logging.error('red decode failed')
-            red.set(stream_id + '_access',  'server_error')
-            red.publish('login', json.dumps({"stream_id" : stream_id}))
-            return jsonify("server error"), 500
-        return jsonify(my_pattern)
+    return redirect('/issuer/console?client_id=' + db_api.create_ebsi_issuer(mode,  user=session['login_name']))
 
 
-def ebsi_issuer_console(mode) :
+def issuer_console(mode) :
     global  reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
         if not request.args.get('client_id') :
-            return redirect('/sandbox/ebsi/issuer/console/select')
+            return redirect('/issuer/console/select')
         else  :
             session['client_id'] = request.args.get('client_id')
         session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
@@ -140,7 +127,7 @@ def ebsi_issuer_console(mode) :
                     issuer_landing_page_select +=  "<option selected value=" + key + ">" + value + "</option>"
                 else :
                     issuer_landing_page_select +=  "<option value=" + key + ">" + value + "</option>"
-        issuer_api_endpoint = mode.server + 'sandbox/ebsi/issuer/api/' + session['client_id']
+        issuer_api_endpoint = mode.server + 'issuer/api/' + session['client_id']
         return render_template('issuer_oidc/issuer_console.html',
                 login_name=session['login_name'],
                 application_name=session['client_data'].get('application_name', 'Unknown'),
@@ -164,7 +151,7 @@ def ebsi_issuer_console(mode) :
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
             db_api.delete_ebsi_issuer( request.form['client_id'])
-            return redirect ('/sandbox/ebsi/issuer/console')
+            return redirect ('/issuer/console')
         
         else :
             session['client_data']['contact_name'] = request.form['contact_name']
@@ -184,17 +171,17 @@ def ebsi_issuer_console(mode) :
             session['client_data']['mobile_message'] = request.form['mobile_message'] 
               
             if request.form['button'] == "preview" :
-                return redirect ('/sandbox/ebsi/issuer/console/preview')
+                return redirect ('/issuer/console/preview')
 
             if request.form['button'] == "activity" :
-                return redirect ('/sandbox/ebsi/issuer/console/activity')
+                return redirect ('/issuer/console/activity')
             
             if request.form['button'] == "advanced" :
-                return redirect ('/sandbox/ebsi/issuer/console/advanced')
+                return redirect ('/issuer/console/advanced')
             
             if request.form['button'] == "update" :
                 db_api.update_ebsi_issuer(request.form['client_id'], json.dumps(session['client_data']))
-                return redirect('/sandbox/ebsi/issuer/console?client_id=' + request.form['client_id'])
+                return redirect('/issuer/console?client_id=' + request.form['client_id'])
 
             if request.form['button'] == "copy" :
                 new_client_id=  db_api.create_ebsi_issuer(mode,  user=session['login_name'])
@@ -203,10 +190,10 @@ def ebsi_issuer_console(mode) :
                 new_data['client_id'] = new_client_id
                 new_data['user'] = session['login_name']
                 db_api.update_ebsi_issuer(new_client_id, json.dumps(new_data))
-                return redirect('/sandbox/ebsi/issuer/console?client_id=' + new_client_id)
+                return redirect('/issuer/console?client_id=' + new_client_id)
 
 
-async def ebsi_issuer_advanced() :
+async def issuer_advanced() :
     global  reason
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
@@ -236,7 +223,7 @@ async def ebsi_issuer_advanced() :
     if request.method == 'POST' :     
         session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
         if request.form['button'] == "back" :
-            return redirect('/sandbox/ebsi/issuer/console?client_id=' + request.form['client_id'])
+            return redirect('/issuer/console?client_id=' + request.form['client_id'])
 
         if request.form['button'] == "update" :
             session['client_data']['profile'] = request.form['profile']
@@ -249,13 +236,13 @@ async def ebsi_issuer_advanced() :
             issuer_profile = session['client_data'].get('profile', 'DEFAULT')
             if issuer_profile in ["EBSI-V2", "EBSI-V3"] and did_method != 'ebsi' :
                 flash("This profile requires did:ebsi", "warning")
-                return redirect('/sandbox/ebsi/issuer/console/advanced')
+                return redirect('/issuer/console/advanced')
             elif issuer_profile == "JWTVC" and did_method not in ['web', 'ion'] :
                 flash("This profile requires did:web or did:ion", "warning")
-                return redirect('/sandbox/ebsi/issuer/console/advanced')
+                return redirect('/issuer/console/advanced')
             else:
                 pass
             session['client_data']['jwk'] = request.form['jwk']
             db_api.update_ebsi_issuer( request.form['client_id'], json.dumps(session['client_data']))
-            return redirect('/sandbox/ebsi/issuer/console/advanced')
+            return redirect('/issuer/console/advanced')
           

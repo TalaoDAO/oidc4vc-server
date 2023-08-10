@@ -72,7 +72,7 @@ pre_authorized_code_list = {'none' : "None",
 
 
 
-client_data_pattern_ebsi = {
+client_data_pattern = {
                 "profile" : "DEFAULT",
                 "pkce" : None,
                 "request_uri" : None,

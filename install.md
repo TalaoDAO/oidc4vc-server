@@ -12,24 +12,4 @@ cd issuer
 python3.10 -m venv venv  
 . venv/bin/activate  
 
-pip install redis
-pip install Flask-Session
-pip install Flask[async]
-pip install didkit==0.3.0
-pip install  Flask-QRcode
-pip install  jwcrypto
-pip install  gunicorn
-pip install base58
-pip install requests
-pip install eth_keys
-pip install pytezos
-pip install PyGithub
-pip install markdown
-pip install Flask-Mobility
-pip install pyotp
-pip install pkce
-pip install PyLD
-pip install gevent
-pip install py-multibase
-pip install py-multicodec
-
+pip install -r requirements.txt

@@ -29,16 +29,13 @@ logging.info('end of init environment')
 red= redis.Redis(host='localhost', port=6379, db=0)
 
 # Centralized  routes : modules in ./routes
-from routes import verifier_console, issuer_console, api_verifier, api_issuer
 
-from routes import saas4ssi
+from routes import home
 from routes import oidc4vp_api, oidc4vp_console
 from routes import oidc4vci_api, oidc4vci_console
 
 # for testing purpose
 from routes import test_issuer_oidc4vc
-from routes import  web_wallet_test
-from routes import web_display_VP
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -61,20 +58,15 @@ Mobility(app)
 @app.errorhandler(403)
 def page_abort(e):
     logging.warning('abort 403')
-    return redirect(mode.server + 'login/')
+    return redirect(mode.server + '/')
 
 
 @app.errorhandler(500)
 def error_500(e):
     message.message("Error 500 on sandbox", 'thierry.thevenet@talao.io', str(e) , mode)
-    return redirect(mode.server + '/sandbox')
+    return redirect(mode.server + '/')
 
 
-# BASIC wallet protocol
-api_verifier.init_app(app, red, mode)
-api_issuer.init_app(app, red, mode)
-verifier_console.init_app(app, red, mode)
-issuer_console.init_app(app, red, mode)
 
 # OIDC4VC wallet
 oidc4vp_console.init_app(app, red, mode)
@@ -83,14 +75,12 @@ oidc4vci_console.init_app(app, red, mode)
 oidc4vci_api.init_app(app, red, mode)
 
 # MAIN
-saas4ssi.init_app(app, red, mode)
+home.init_app(app, red, mode)
 
 # TEST
-web_display_VP.init_app(app, red, mode)
-web_wallet_test.init_app(app, red, mode)
 test_issuer_oidc4vc.init_app(app, red, mode)
 
-@app.route('/sandbox/md_file', methods = ['GET'])
+@app.route('/md_file', methods = ['GET'])
 def md_file() :
 	#https://dev.to/mrprofessor/rendering-markdown-from-flask-1l41
     if request.args['file'] == 'privacy' :

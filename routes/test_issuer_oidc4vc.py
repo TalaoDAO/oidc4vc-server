@@ -22,12 +22,12 @@ Configure your issuer page, text, color and if needed SSI data as keys, DID meth
 
 
 def init_app(app,red, mode) :
-    app.add_url_rule('/sandbox/issuer/ebsiv2',  view_func=issuer_ebsiv2, methods = ['GET'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/issuer/default',  view_func=issuer_default, methods = ['GET'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/issuer/hedera',  view_func=issuer_hedera, methods = ['GET'], defaults={'mode' : mode})
-    app.add_url_rule('/sandbox/issuer/gaia-x',  view_func=issuer_gaiax, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/ebsiv2',  view_func=issuer_ebsiv2, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/default',  view_func=issuer_default, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/hedera',  view_func=issuer_hedera, methods = ['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/gaia-x',  view_func=issuer_gaiax, methods = ['GET'], defaults={'mode' : mode})
 
-    app.add_url_rule('/sandbox/issuer/callback',  view_func=issuer_callback, methods = ['GET'])
+    app.add_url_rule('/issuer/callback',  view_func=issuer_callback, methods = ['GET'])
 
 
 def issuer_callback():
@@ -36,15 +36,15 @@ def issuer_callback():
 
 def issuer_ebsiv2(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/zxhaokccsi"
+        api_endpoint = "https://talao.co/issuer/api/zxhaokccsi"
         client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
     
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/zxhaokccsi"
+        api_endpoint = "http://192.168.0.20:3000/issuer/api/zxhaokccsi"
         client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
     
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/zxhaokccsi"
+        api_endpoint = "http://192.168.0.65:3000/issuer/api/zxhaokccsi"
         client_secret = "0e2e27b3-28a9-11ee-825b-9db9eb02bfb8"
     else :
         return jsonify("Profile EBSIV2 client issue")
@@ -66,7 +66,7 @@ def issuer_ebsiv2(mode):
         "vc" : {vc : credential}, 
         "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : vc,
-        "callback" : mode.server + '/sandbox/issuer/callback',
+        "callback" : mode.server + '/issuer/callback',
         "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
@@ -84,13 +84,13 @@ def issuer_ebsiv2(mode):
 
 def issuer_default(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/npwsshblrm"
+        api_endpoint = "https://talao.co/issuer/api/npwsshblrm"
         client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/npwsshblrm"
+        api_endpoint = "http://192.168.0.20:3000/issuer/api/npwsshblrm"
         client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/npwsshblrm"
+        api_endpoint = "http://192.168.0.65:3000/issuer/api/npwsshblrm"
         client_secret = "731dc86d-2abb-11ee-825b-9db9eb02bfb8"
     else :
         return jsonify("Profile DEFAULT client issue")
@@ -105,7 +105,7 @@ def issuer_default(mode):
         "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : offer,
-        "callback" : mode.server + '/sandbox/issuer/callback',
+        "callback" : mode.server + '/issuer/callback',
         "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
@@ -121,10 +121,10 @@ def issuer_default(mode):
 
 def issuer_gaiax(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/mfyttabosy"
+        api_endpoint = "https://talao.co/issuer/api/mfyttabosy"
         client_secret = "c0ab5d96-3113-11ee-a3e3-0a1628958560"
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/cqmygbreop"
+        api_endpoint = "http://192.168.0.20:3000/issuer/api/cqmygbreop"
         client_secret = "a71f33f9-3100-11ee-825b-9db9eb02bfb8"
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
         api_endpoint = ""
@@ -141,7 +141,7 @@ def issuer_gaiax(mode):
         "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : offer,
-        "callback" : mode.server + '/sandbox/issuer/callback',
+        "callback" : mode.server + '/issuer/callback',
         "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)
@@ -157,15 +157,15 @@ def issuer_gaiax(mode):
 
 def issuer_hedera(mode):
     if mode.myenv == 'aws' :
-        api_endpoint = "https://talao.co/sandbox/ebsi/issuer/api/nkpbjplfbi"
+        api_endpoint = "https://talao.co/issuer/api/nkpbjplfbi"
         client_secret = "ed055e57-3113-11ee-a280-0a1628958560"
     
     elif  mode.server == "http://192.168.0.20:3000/"  :        # Houdan
-        api_endpoint = "http://192.168.0.20:3000/sandbox/ebsi/issuer/api/uxzjfrjptk"
+        api_endpoint = "http://192.168.0.20:3000/issuer/api/uxzjfrjptk"
         client_secret = "2675ebcf-2fc1-11ee-825b-9db9eb02bfb8"
     
     elif  mode.server == "http://192.168.0.65:3000/"  :        # Paris
-        api_endpoint = "http://192.168.0.65:3000/sandbox/ebsi/issuer/api/uxzjfrjptk"
+        api_endpoint = "http://192.168.0.65:3000/issuer/api/uxzjfrjptk"
         client_secret = "2675ebcf-2fc1-11ee-825b-9db9eb02bfb8"
     else :
         return jsonify("Profile HEDERA client issue")
@@ -179,7 +179,7 @@ def issuer_hedera(mode):
         "vc" : build_credential_offered(offer), 
         "pre-authorized_code" : str(uuid.uuid1()),
         "credential_type" : offer,
-        "callback" : mode.server + '/sandbox/issuer/callback',
+        "callback" : mode.server + '/issuer/callback',
         "redirect" : REDIRECT
         }
     resp = requests.post(api_endpoint, headers=headers, json = data)

@@ -9,64 +9,38 @@
       <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
 
         <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/admin"></a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/admin"></a>
         </li>
        
         {% if not session['is_connected']  %}
         <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi">Home</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/">Home</a>
         </li>
         {% else %}
         <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/menu">Menu</a>
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/menu">Menu</a>
         </li>
 
         {% endif %}
 
-
-        {% if not session['is_connected']  %}
-        <li class="nav-item active d-none d-md-block">
-          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="/sandbox/saas4ssi/dids">Our DIDs</a>
-        </li>
-        {% endif %}
-
-        {% if not session['is_connected']  %}
+       {% if not session['is_connected']  %}
         <li class="nav-item dropdown d-none d-md-block">
           <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Developers
           </a>
           <div class="dropdown-menu" aria-labelledby="navbarDropdown">
             <a class="dropdown-item" style="color: rgb(54, 24, 88); margin-bottom: 0" href="#" onClick="window.open('https://altme-documentation.gitbook.io/altmes-documentation/altme-saas/openid-integration', '_blank')">Documentation</a>
-            <a class="dropdown-item" href="/sandbox/playground">Fake credentials and tools</a>
-            <a class="dropdown-item" href="/sandbox/display_VP">Display VC/VP content</a>
-            <a class="dropdown-item" href="/sandbox/issuer/ebsiv2">Issuer VerifiableDiploma (Profile EBSI-V2)</a>
-            <a class="dropdown-item" href="/sandbox/issuer/default">Issuer EmployeeCredential (Profile DEFAULT)</a>
-            <a class="dropdown-item" href="/sandbox/issuer/hedera">Issuer ProofOfAsset (Profile HEDERA)</a>
-            <a class="dropdown-item" href="/sandbox/issuer/gaia-x">Issuer EmployeeCredential (Profile GAIA-X)</a>
-
-
-
+            <a class="dropdown-item" href="/issuer/ebsiv2">Issuer VerifiableDiploma (Profile EBSI-V2)</a>
+            <a class="dropdown-item" href="/issuer/default">Issuer EmployeeCredential (Profile DEFAULT)</a>
+            <a class="dropdown-item" href="/issuer/hedera">Issuer ProofOfAsset (Profile HEDERA)</a>
+            <a class="dropdown-item" href="/issuer/gaia-x">Issuer EmployeeCredential (Profile GAIA-X)</a>
 
           </div>
         </li>
         {% endif %}
 
       
-          {% if session['is_connected']  %}
-          <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/logout">Logout</a>
-          </li>
-          {% else %}
-          <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/signup">Register</a>
-          </li>
-          {% endif %}
-
-          {% if not session['is_connected']  %}
-          <li class="nav-item active d-none d-md-block">
-            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/sandbox/saas4ssi/login">Login</a>
-          </li>
-          {% endif %}
+         
 
           {% if not session['is_connected']  %}
           <li class="nav-item active d-none d-md-block">
@@ -84,9 +58,6 @@
                 <span  style="color: grey;"><i class="fas fa-bars fa-sm fa-fw mr-2 text-gray-400"></i></span>
               </a>
               <div class="dropdown-menu shadow dropdown-menu-right animated--grow-in" style="position:absolute;" role="menu">
-                  <a class="dropdown-item" role="presentation"  href="/sandbox/saas4ssi/login" >Login</a>
-                  <a class="dropdown-item" role="presentation"  href="/sandbox/saas4ssi/signup" >Register</a>
-                  <a class="dropdown-item" role="presentation" href="https://issuer.talao.co/defi/nft">Compliance NFT</a>
                   <a class="dropdown-item" role="presentation" href="https://altme.io">Download Altme</a>
                   <a class="dropdown-item" role="presentation" href="mailto:thierry@altme.io">Contact</a>
 
