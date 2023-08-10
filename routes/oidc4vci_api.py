@@ -31,20 +31,20 @@ C_NONCE_LIFE = 5000
 
 def init_app(app,red, mode) :
     # endpoint for application if redirect to local page (test)
-    app.add_url_rule('/issuer/<issuer_id>/<stream_id>',  view_func=ebsi_issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
-    app.add_url_rule('/issuer_stream',  view_func=ebsi_issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/issuer_followup/<stream_id>',  view_func=ebsi_issuer_followup, methods = ['GET'], defaults={'red' :red})
+    app.add_url_rule('/issuer/<issuer_id>/<stream_id>',  view_func=issuer_landing_page, methods = ['GET', 'POST'], defaults={'red' :red, 'mode' : mode})
+    app.add_url_rule('/issuer_stream',  view_func=issuer_stream, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/issuer_followup/<stream_id>',  view_func=issuer_followup, methods = ['GET'], defaults={'red' :red})
 
     # api 
     app.add_url_rule('/issuer/api/<issuer_id>',  view_func=issuer_api_endpoint, methods = ['POST'], defaults={'red' :red, 'mode' : mode})
     
     # OIDC4VCI protocol with wallet
-    app.add_url_rule('/issuer/<issuer_id>/.well-known/openid-configuration', view_func=ebsi_issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
-    app.add_url_rule('/issuer/<issuer_id>/.well-known/openid-credential-issuer', view_func=ebsi_issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/<issuer_id>/.well-known/openid-configuration', view_func=issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
+    app.add_url_rule('/issuer/<issuer_id>/.well-known/openid-credential-issuer', view_func=issuer_openid_configuration, methods=['GET'], defaults={'mode' : mode})
 
-    app.add_url_rule('/issuer/<issuer_id>/authorize',  view_func=ebsi_issuer_authorize, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/issuer/<issuer_id>/token',  view_func=ebsi_issuer_token, methods = ['GET', 'POST'], defaults={'red' :red})
-    app.add_url_rule('/issuer/<issuer_id>/credential',  view_func=ebsi_issuer_credential, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/issuer/<issuer_id>/authorize',  view_func=issuer_authorize, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/issuer/<issuer_id>/token',  view_func=issuer_token, methods = ['GET', 'POST'], defaults={'red' :red})
+    app.add_url_rule('/issuer/<issuer_id>/credential',  view_func=issuer_credential, methods = ['GET', 'POST'], defaults={'red' :red})
     return
 
 
@@ -74,7 +74,7 @@ def manage_error(error, error_description, red, stream_id=None, status=400) :
     return {'response' : json.dumps(payload), 'status' : status, 'headers' : headers}
 
 
-def ebsi_issuer_openid_configuration(issuer_id, mode):
+def issuer_openid_configuration(issuer_id, mode):
     doc = oidc(issuer_id, mode)
     if not doc :
         return jsonify('Not found'), 404
@@ -84,7 +84,7 @@ def ebsi_issuer_openid_configuration(issuer_id, mode):
 def oidc(issuer_id, mode) :
    
     try :
-        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id)) 
+        issuer_data = json.loads(db_api.read_issuer(issuer_id)) 
         issuer_profile = profile[issuer_data['profile']]
     except :
         logging.warning('issuer_id not found for %s', issuer_id)
@@ -165,7 +165,7 @@ def issuer_api_endpoint(issuer_id, red, mode) :
     try :
         token = request.headers['Authorization']
         client_secret = token.split(" ")[1]
-        issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+        issuer_data = json.loads(db_api.read_issuer(issuer_id))
         vc =  request.json['vc']
         credential_type = request.json['credential_type']  
     except :
@@ -271,7 +271,7 @@ def build_credential_offer(issuer_id, credential_type, pre_authorized_code, issu
 
 
 # initiate endpoint with QRcode for API in case of test
-def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
+def issuer_landing_page(issuer_id, stream_id, red, mode) :
     try :
         user_data = json.loads(red.get(stream_id).decode())
     except :
@@ -281,7 +281,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     pre_authorized_code = user_data['pre-authorized_code']
     issuer_vc_type = user_data['issuer_vc_type']
     vc = user_data['vc']
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_data = json.loads(db_api.read_issuer(issuer_id))
     data_profile = profile[issuer_data['profile']]
     url_data, code_data = build_credential_offer(issuer_id, credential_type, pre_authorized_code, issuer_vc_type, issuer_data['profile'], vc, mode)
     code_data['stream_id'] = stream_id  # to manage the followup screen
@@ -317,7 +317,7 @@ def ebsi_issuer_landing_page(issuer_id, stream_id, red, mode) :
     )
 
 
-def ebsi_issuer_authorize(issuer_id, red) :
+def issuer_authorize(issuer_id, red) :
     """
     
     DEPRECATAED
@@ -385,9 +385,9 @@ def ebsi_issuer_authorize(issuer_id, red) :
         format = json.loads(request.args['authorization_details'])[0]['format']
     except :
         return authorization_error_response("invalid_request", "format is missing", op_state, red)
-    if not db_api.read_ebsi_issuer(issuer_id) :
+    if not db_api.read_issuer(issuer_id) :
         return authorization_error_response("unauthorized_client", "issuer_id not found in data base", op_state, red)
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_data = json.loads(db_api.read_issuer(issuer_id))
     if scope != 'openid' :
         return authorization_error_response("invalid_scope", "unsupported scope", op_state, red)
     if response_type != 'code' :
@@ -426,7 +426,7 @@ def ebsi_issuer_authorize(issuer_id, red) :
 
 
 # token endpoint
-def ebsi_issuer_token(issuer_id, red) :
+def issuer_token(issuer_id, red) :
     """
     https://datatracker.ietf.org/doc/html/rfc6749#section-5.2
 
@@ -500,7 +500,7 @@ def ebsi_issuer_token(issuer_id, red) :
  
 
 # credential endpoint
-async def ebsi_issuer_credential(issuer_id, red) :
+async def issuer_credential(issuer_id, red) :
     """
     https://openid.net/specs/openid-connect-4-verifiable-credential-issuance-1_0-05.html#name-credential-endpoint
     
@@ -521,7 +521,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
     # to manage followuip screen
     stream_id = access_token_data.get('stream_id')
     
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_data = json.loads(db_api.read_issuer(issuer_id))
     logging.info('Profile = %s', issuer_data['profile'])
 
     issuer_profile = profile[issuer_data['profile']]
@@ -583,7 +583,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
         logging.warning('proof of ownership error = %s', str(e))
 
     proof_payload=oidc4vc.get_payload_from_token(proof)
-    issuer_data = json.loads(db_api.read_ebsi_issuer(issuer_id))
+    issuer_data = json.loads(db_api.read_issuer(issuer_id))
     
     try :
         credential = access_token_data['vc'][credential_type]
@@ -642,7 +642,7 @@ async def ebsi_issuer_credential(issuer_id, red) :
     return Response(response=json.dumps(payload), headers=headers)
 
 
-def ebsi_issuer_followup(stream_id, red):  
+def issuer_followup(stream_id, red):  
     try :
         user_data = json.loads(red.get(stream_id).decode())
     except :
@@ -650,7 +650,7 @@ def ebsi_issuer_followup(stream_id, red):
     callback = user_data['callback']
     if not callback :
         issuer_id = user_data['issuer_id']
-        issuer_data = db_api.read_ebsi_issuer(issuer_id)
+        issuer_data = db_api.read_issuer(issuer_id)
         callback = json.loads(issuer_data)['callback']
     callback_uri = callback + '?pre-authorized_code=' + user_data.get('pre-authorized_code')
     if request.args.get('error') :
@@ -659,7 +659,7 @@ def ebsi_issuer_followup(stream_id, red):
  
 
 # server event push for user agent EventSource
-def ebsi_issuer_stream(red):
+def issuer_stream(red):
     def event_stream(red):
         pubsub = red.pubsub()
         pubsub.subscribe('issuer_oidc')

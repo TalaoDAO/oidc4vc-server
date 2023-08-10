@@ -1,17 +1,12 @@
-import hashlib
-from pyld import jsonld
 import requests
-from jwcrypto import jwk, jws, jwt
+from jwcrypto import jwk, jwt
 import base64
 import base58
 import json
-from jwcrypto.common import json_encode
 from datetime import datetime
 import os
 import logging
 logging.basicConfig(level=logging.INFO)
-from multibase import decode
-import multicodec
 
 
 """
@@ -247,23 +242,6 @@ def build_proof_of_key_ownership(key, kid, aud, signer_did, nonce) :
   return token.serialize()
 
 
-"""
-def resolve_did_key(did) :
-    encoded = did.split(':')[2].encode()
-    ed255_Multi = decode(encoded)
-    ed255_binary = multicodec.remove_prefix(ed255_Multi)
-    x = base64.urlsafe_b64encode(ed255_binary).decode()
-    for i in range(3) :
-        if x[-1:] == '=' :
-            x = x[:-1]
-    key = {
-            "crv":"Ed25519",
-            "kty":"OKP",
-            "x": x
-        }
-    return json.dumps(key)
-"""
-
 def resolve_did_key(did) -> dict :
     url = 'https://dev.uniresolver.io/1.0/identifiers/' + did
     try :
@@ -293,13 +271,12 @@ def generate_lp_ebsi_did() :
     return  'did:ebsi:z' + base58.b58encode(b'\x01' + os.urandom(16)).decode()
 
 
+"""
 def generate_np_ebsi_did(key) :
-    """
-    for natural person / wallet
-    """
+    #for natural person / wallet
     key = json.loads(key) if isinstance(key, str) else key
     return  'did:ebsi:z' + base58.b58encode(b'\x02' + bytes.fromhex(thumbprint(key))).decode()
-
+"""
 
 def verification_method(did, key) : # = kid
     key = json.loads(key) if isinstance(key, str) else key
@@ -445,84 +422,4 @@ def did_resolve(did, key) :
   return json.dumps(did_document)
 
 
-# JSON-LD sign
-def sign_jsonld_vc(credential, key, did) :
-  key = json.loads(key) if isinstance(key, str) else key
-  issuer_key = jwk.JWK(**key) 
-  if isinstance(credential, str) :
-    credential = json.loads(credential)
-  proof= {
-    #'@context':'https://w3id.org/security/v2',
-    "type": "EcdsaSecp256k1Signature2019",
-    "created": datetime.now().replace(microsecond=0).isoformat() + 'Z',
-    "verificationMethod": verification_method(did, key),
-    "proofPurpose": "assertionMethod"
-  }
-  h = {'alg':alg(key),'b64':False,'crit':['b64']}
-  jws_header = json.dumps(h).encode()
 
-  normalized_doc   = jsonld.normalize(credential , {'algorithm': 'URDNA2015', 'format': 'application/n-quads'})
-  normalized_proof = jsonld.normalize(proof, {'algorithm': 'URDNA2015', 'format': 'application/n-quads'})
-  doc_hash         = hashlib.sha256()
-  proof_hash       = hashlib.sha256()
-
-  doc_hash.update(normalized_doc.encode('utf-8'))
-  proof_hash.update(normalized_proof.encode('utf-8'))
-
-  encodedHeader = base64.urlsafe_b64encode(jws_header)
-  to_sign = encodedHeader + b'.' + proof_hash.digest() + doc_hash.digest()
-
-  jwstoken = jws.JWS(to_sign)
-  jwstoken.add_signature(issuer_key, None, json_encode({'alg': alg(key)}))
-
-  sig = json.loads(jwstoken.serialize())['signature']
-  
-  proof_jws =encodedHeader + b'..' + base64.urlsafe_b64encode(sig.encode())
-
-  #TODO check that
-  #proof['jws']  = proof_jws.decode()[:-2] 
-  proof['jws']  = proof_jws.decode()
-  try :
-    del proof['@context']
-  except :
-    pass
-  credential['proof'] = proof
-  return json.dumps(credential)
-
-
-
-########################## TEST VECTORS
-
-# EBSI TEST VECTORS
-
-alice_key = {
-  "kty" : "EC",
-  "d" : "d_PpSCGQWWgUc1t4iLLH8bKYlYfc9Zy_M7TsfOAcbg8",
-  "use" : "sig",
-  "crv" : "P-256",
-  "x" : "ngy44T1vxAT6Di4nr-UaM9K3Tlnz9pkoksDokKFkmNc",
-  "y" : "QCRfOKlSM31GTkb4JHx3nXB4G_jSPMsbdjzlkT_UpPc",
-  "alg" : "ES256",
-}
-
-alice_DID = "did:ebsi:znxntxQrN369GsNyjFjYb8fuvU7g3sJGyYGwMTcUGdzuy"
-KID       = "did:ebsi:znxntxQrN369GsNyjFjYb8fuvU7g3sJGyYGwMTcUGdzuy#qujALp4bIDg5qs4lGuG_1OLycbh3ZyUfL-SJwiM9YjQ",
-
-"""
-{'crv': 'P-256', 'd': 'fdoUpbYXqQwLdA59KAGjHDK-tfSwILl6KOgmUR-9G-E', 'kty': 'EC', 'x': 'swb4CEhlK9LVttgfhkTE3fyzh3CVJOJWZFwnpvws06w', 'y': '61sQzFW216xWdfXhWi7oHzLH7AW55Sb_cRnpvMt0o_c'}
-did:ebsi:zmBbuRFdCyzo8YXxdFfiWiDm5SYbAAXM2Qks824hv1WKK
-did:ebsi:zmBbuRFdCyzo8YXxdFfiWiDm5SYbAAXM2Qks824hv1WKK#kHl_qBhwIoW9hiQDYDVxxg4vDt6vbg-_YCHXY3Piwso
-
-
-{'crv': 'secp256k1', 'd': 'btbbhfOMozv735FBv1vE7oajjrvgjOmFz0RPPrKGIhI', 'kty': 'EC', 'x': 'jueEqLxxzNYzjuitj-6wQVjMKHtbVkz336BWmrv2n5k', 'y': 'fy-awzXPdLe_AzKvDHWMWxpVvDsXv_jZ3WcOxdaZ5CQ'}
-did:ebsi:ztMVxH9gTfWxLVePz348Rme8fZqNL5vn7wJ8Ets2fAgSX
-did:ebsi:ztMVxH9gTfWxLVePz348Rme8fZqNL5vn7wJ8Ets2fAgSX#-wRjA5dN5TJvZH_epIsrzZvAt28DHwPXloQvMVWevqw
-
-
-key = jwk.JWK.generate(kty='EC', crv='P-256')
-key = jwk.JWK.generate(kty='EC', crv='secp256k1')
-my_key = json.loads(key.export(private_key=True))   #doctest: +ELLIPSIS
-print(my_key)
-print(did_ebsi(my_key))
-print(verification_method_ebsi(my_key))
-"""

@@ -1,0 +1,55 @@
+  <!-- Nav Bar saas-->
+  <nav class="navbar navbar-light navbar-expand-md sticky-top shadow " style="filter: blur(0px);opacity: 1;background: #ffffff;">
+    
+    <div class="container-fluid">
+
+        <a href="https://talao.co"><img  src="/static/img/altme_logo_2.png" style="width: 100px;border-radius:0px;"></a>
+        
+      
+      <ul class="nav navbar-nav ml-auto d-lg-flex align-items-center" style="flex-direction: row;">
+        {% if not session['is_connected']  %}
+        <li class="nav-item active d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/admin">Login</a>
+        </li>
+       
+       
+        <li class="nav-item active d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/">Home</a>
+        </li>
+        {% else %}
+        <li class="nav-item active d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/menu">Menu</a>
+        </li>
+
+        {% endif %}
+
+        <li class="nav-item dropdown d-none d-md-block">
+          <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0"  href="#" id="navbarDropdown" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+            Tests
+          </a>
+          <div class="dropdown-menu" aria-labelledby="navbarDropdown">
+            <a class="dropdown-item" href="/issuer/test">OIDC4VCI wallet testing</a>
+            <a class="dropdown-item" href="/verifier/test">OIDC4VP/SIOPV2 wallet testing</a>
+
+          </div>
+        </li>
+
+         
+
+          {% if not session['is_connected']  %}
+          <li class="nav-item active d-none d-md-block">
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="https://altme.io">Download Altme</a>
+          </li>
+          {% endif %}
+
+          {% if session['is_connected']  %}
+          <li class="nav-item active d-none d-md-block">
+            <a class="nav-link" style="color: rgb(54, 24, 88); margin-bottom: 0" href="/logout">Logout</a>
+          </li>
+          {% endif %}
+      
+       </ul>
+    </div>
+  </nav>
+
+  <!-- End of Nav Bar Guest -->

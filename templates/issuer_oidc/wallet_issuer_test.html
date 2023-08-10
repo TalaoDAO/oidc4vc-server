@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<!-- wallet_test.html -->
+<html>
+
+<head>
+    {% include 'head.html' %}
+</head>
+
+<body id="page-top" >
+    <div id="wrapper">
+        <div class="d-flex flex-column" id="content-wrapper">
+            <div id="content" >
+                {% include 'nav_bar.html' %}
+                <div class="container-fluid my-5">
+
+                
+        
+                    <div class="text-center">
+                        <h4>Wallet Tests for OIDC4VCI compliance</h4>
+                    </div>
+                    <div class="row my-5">
+                        
+                  
+                       
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/default">
+                                <br></strong>#2 Profile DEFAULT with EmailPass as an array</a>
+                            </div>
+                        </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/hedera">
+                                <br>#3 Profile HEDERA with 2 credentials</strong></a>
+                            </div>
+                        </div>             
+                    </div>
+
+
+                    <div class="row my-5">
+                        
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/gaia-x">
+                                <br>#4 Profile GAIA-X with offer as a string and not an array</strong></a>
+                            </div>
+                        </div>
+                       
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/default_2">
+                                <br></strong>#5 Profile DEFAULT with return code 400 on token endpoint</a>
+                            </div>
+                        </div>
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/default_3">
+                                <br>#6 Profile DEFAULT with return code 400 on credential endpoint</strong></a>
+                            </div>
+                        </div>             
+                    </div>
+
+                    <div class="row my-5">
+                        
+                       
+
+                        <div class="col mt-4">
+                            <div id="id_qrcode" class="text-center">
+                                <a href="/issuer/hedera_2">
+                                <br>#7 Profile HEDERA with 1 VC not available in the wallet</strong></a>
+                            </div>
+                        </div>             
+                    </div>
+
+
+          
+
+                </div>
+            </div>
+        </div>
+    </div>
+                                {% include 'user_footer.html' %}
+
+    <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
+    <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
+    <script src="{{ url_for('static', filename='in_progress_button.js') }}"></script>
+    <script src="{{ url_for('static', filename='encryption.js') }}"></script>
+
+    <script>
+        function goBack() {
+          window.history.back();
+        }
+    </script>
+
+</body>
+
+</html>

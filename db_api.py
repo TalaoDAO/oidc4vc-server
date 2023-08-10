@@ -9,27 +9,27 @@ from oidc4vc_constante import client_data_pattern
 
 logging.basicConfig(level=logging.INFO)
 
-def update_ebsi_verifier(client_id, data) :
-    return update(client_id, data, 'ebsi_verifier.db')
-def read_ebsi_verifier(client_id) :
-    return read(client_id, 'ebsi_verifier.db')
-def list_ebsi_verifier() :
-    return list('ebsi_verifier.db')
-def delete_ebsi_verifier(client_id) :
-    return delete(client_id, 'ebsi_verifier.db')
-def create_ebsi_verifier(mode, user=None, method="ethr") :
-    return create('ebsi_verifier.db', user, mode, method)
+def update_verifier(client_id, data) :
+    return update(client_id, data, 'verifier.db')
+def read_verifier(client_id) :
+    return read(client_id, 'verifier.db')
+def list_verifier() :
+    return list('verifier.db')
+def delete_verifier(client_id) :
+    return delete(client_id, 'verifier.db')
+def create_verifier(mode, user=None, method="ethr") :
+    return create('verifier.db', user, mode, method)
 
-def update_ebsi_issuer(client_id, data) :
-    return update(client_id, data, 'ebsi_issuer.db')
-def read_ebsi_issuer(client_id) :
-    return read(client_id, 'ebsi_issuer.db')
-def list_ebsi_issuer() :
-    return list('ebsi_issuer.db')
-def delete_ebsi_issuer(client_id) :
-    return delete(client_id, 'ebsi_issuer.db')
-def create_ebsi_issuer(mode, user=None, method="ethr") :
-    return create('ebsi_issuer.db', user, mode, method)
+def update_issuer(client_id, data) :
+    return update(client_id, data, 'issuer.db')
+def read_issuer(client_id) :
+    return read(client_id, 'issuer.db')
+def list_issuer() :
+    return list('issuer.db')
+def delete_issuer(client_id) :
+    return delete(client_id, 'issuer.db')
+def create_issuer(mode, user=None, method="ethr") :
+    return create('issuer.db', user, mode, method)
 
 
 def create(db, user, mode, method) :

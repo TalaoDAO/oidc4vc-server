@@ -3,8 +3,6 @@ import json
 import logging
 import copy
 import db_api 
-from urllib.parse import urlencode
-import uuid
 from oidc4vc_constante import  landing_page_style_list, oidc4vc_profile_list
 
 import oidc4vc
@@ -82,7 +80,7 @@ def issuer_activity() :
 def issuer_select() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    my_list = db_api.list_ebsi_issuer()
+    my_list = db_api.list_issuer()
     issuer_list=str()
     for issuer_data in my_list :
         data_dict = json.loads(issuer_data)         
@@ -107,7 +105,7 @@ def issuer_select() :
 def nav_create(mode) :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
-    return redirect('/issuer/console?client_id=' + db_api.create_ebsi_issuer(mode,  user=session['login_name']))
+    return redirect('/issuer/console?client_id=' + db_api.create_issuer(mode,  user=session['login_name']))
 
 
 def issuer_console(mode) :
@@ -119,7 +117,7 @@ def issuer_console(mode) :
             return redirect('/issuer/console/select')
         else  :
             session['client_id'] = request.args.get('client_id')
-        session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
 
         issuer_landing_page_select = str()
         for key, value in landing_page_style_list.items() :
@@ -150,7 +148,7 @@ def issuer_console(mode) :
                 )
     if request.method == 'POST' :
         if request.form['button'] == "delete" :
-            db_api.delete_ebsi_issuer( request.form['client_id'])
+            db_api.delete_issuer( request.form['client_id'])
             return redirect ('/issuer/console')
         
         else :
@@ -180,16 +178,16 @@ def issuer_console(mode) :
                 return redirect ('/issuer/console/advanced')
             
             if request.form['button'] == "update" :
-                db_api.update_ebsi_issuer(request.form['client_id'], json.dumps(session['client_data']))
+                db_api.update_issuer(request.form['client_id'], json.dumps(session['client_data']))
                 return redirect('/issuer/console?client_id=' + request.form['client_id'])
 
             if request.form['button'] == "copy" :
-                new_client_id=  db_api.create_ebsi_issuer(mode,  user=session['login_name'])
+                new_client_id=  db_api.create_issuer(mode,  user=session['login_name'])
                 new_data = copy.deepcopy(session['client_data'])
                 new_data['application_name'] = new_data['application_name'] + ' (copie)'
                 new_data['client_id'] = new_client_id
                 new_data['user'] = session['login_name']
-                db_api.update_ebsi_issuer(new_client_id, json.dumps(new_data))
+                db_api.update_issuer(new_client_id, json.dumps(new_data))
                 return redirect('/issuer/console?client_id=' + new_client_id)
 
 
@@ -198,7 +196,7 @@ async def issuer_advanced() :
     if not session.get('is_connected') or not session.get('login_name') :
         return redirect('/sandbox/saas4ssi')
     if request.method == 'GET' :
-        session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         oidc4vc_profile_select = str()
         for key, value in oidc4vc_profile_list.items() :
                 if key ==  session['client_data'].get('profile', "DEFAULT") :
@@ -221,7 +219,7 @@ async def issuer_advanced() :
                 did_document=json.dumps(did_document, indent=4)
                 )
     if request.method == 'POST' :     
-        session['client_data'] = json.loads(db_api.read_ebsi_issuer(session['client_id']))
+        session['client_data'] = json.loads(db_api.read_issuer(session['client_id']))
         if request.form['button'] == "back" :
             return redirect('/issuer/console?client_id=' + request.form['client_id'])
 
@@ -243,6 +241,6 @@ async def issuer_advanced() :
             else:
                 pass
             session['client_data']['jwk'] = request.form['jwk']
-            db_api.update_ebsi_issuer( request.form['client_id'], json.dumps(session['client_data']))
+            db_api.update_issuer( request.form['client_id'], json.dumps(session['client_data']))
             return redirect('/issuer/console/advanced')
           

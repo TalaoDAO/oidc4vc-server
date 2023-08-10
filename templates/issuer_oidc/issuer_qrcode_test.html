@@ -91,9 +91,7 @@
 
                   <div class="row mt-3">
                     <div class="col-10 offset-1">
-                  <div class="my-3">
-                    <h5>Choose your preferred wallet</h5>
-                  </div>
+                
                   </div>
                   </div>
 
@@ -106,13 +104,7 @@
                      
                     </div>
 
-                    <div class="row my-3">
-                      <div class="col">
-                         
-                        <a href="{{deeplink_talao}}" class="bg-transparent" style="text-decoration: none;"><img src="/static/img/talao_icon.png"  style="width: 100px;"></a>
-                        <h6>Talao wallet</h6>
-                      </div>
-                    </div>
+                  
          
                 </div>
               
@@ -120,37 +112,26 @@
               </div>
             </div>
           </div>
-          
-
-
-
-
-
-   
-         
-        
-     
-
 
        
     <script src="{{ url_for('static', filename='jquery-3.5.1.slim.min.js') }}"></script>
     <script src="{{ url_for('static', filename='bs-init.js') }}"></script>
     <script src="{{ url_for('static', filename='bootstrap.min.js') }}"></script>
- 
-      <script>      
-                function goBack() {  window.history.back();}
-      </script>
+  
       <script>
-        var source = new EventSource('/sandbox/ebsi/issuer_stream');
+        var source = new EventSource('/issuer_stream');
         source.onmessage = function (event) {
         const data = JSON.parse(event.data)
         if (data.stream_id == '{{stream_id}}'){
-          window.location.href='/sandbox/ebsi/issuer_followup/{{stream_id}}' ;
+          if (data.error){
+            window.location.href='/issuer_followup/{{stream_id}}?error=' + data.error ;
+          }
+          else {
+            window.location.href='/issuer_followup/{{stream_id}}' ; 
           }
         };
+      }
       </script>
-      
-      
     
      
 

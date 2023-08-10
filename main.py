@@ -31,11 +31,11 @@ red= redis.Redis(host='localhost', port=6379, db=0)
 # Centralized  routes : modules in ./routes
 
 from routes import home
-from routes import oidc4vp_api, oidc4vp_console
+#from routes import oidc4vp_api, oidc4vp_console
 from routes import oidc4vci_api, oidc4vci_console
 
 # for testing purpose
-from routes import test_issuer_oidc4vc
+from routes import test_issuer
 
 # Framework Flask and Session setup
 app = Flask(__name__)
@@ -68,8 +68,8 @@ def error_500(e):
 
 
 # OIDC4VC wallet
-oidc4vp_console.init_app(app, red, mode)
-oidc4vp_api.init_app(app, red, mode)
+#oidc4vp_console.init_app(app, red, mode)
+#oidc4vp_api.init_app(app, red, mode)
 oidc4vci_console.init_app(app, red, mode)
 oidc4vci_api.init_app(app, red, mode)
 
@@ -77,7 +77,7 @@ oidc4vci_api.init_app(app, red, mode)
 home.init_app(app, red, mode)
 
 # TEST
-test_issuer_oidc4vc.init_app(app, red, mode)
+test_issuer.init_app(app, red, mode)
 
 @app.route('/md_file', methods = ['GET'])
 def md_file() :
